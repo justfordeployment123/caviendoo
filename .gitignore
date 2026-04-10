@@ -1,0 +1,30 @@
+# Caveats & Ignores for Caviendoo
+# Created by Antigravity AI
+
+# -- AI & Project Management (EXCLUDE FROM REPO) --
+.claude/
+.gemini/
+brain/
+logs/
+.system_generated/
+*.md
+!README.md
+implementation_plan_*.md
+walkthrough_*.md
+task.md
+codebase_audit.md
+
+# -- General --
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+
+# -- Next.js (Frontend) --
+caviendoo-frontend/.next/
+caviendoo-frontend/out/
+caviendoo-frontend/build/
+caviendoo-frontend/.env*.local
+
+# -- Docker --
+*.docker-compose.local.yml

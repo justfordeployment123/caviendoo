@@ -1,0 +1,104 @@
+{
+  "nav": {
+    "fruits": "Fruits",
+    "map": "Carte",
+    "compare": "Comparer"
+  },
+  "metrics": {
+    "fruits": "Fruits",
+    "regions": "Régions",
+    "aoc": "AOC"
+  },
+  "overlay": {
+    "recoltes": "Récoltes",
+    "stressHydrique": "Stress Hydrique",
+    "indiceUv": "Indice UV",
+    "legendFruits": "Fruits",
+    "legendSustainable": "Durable",
+    "legendCritical": "Critique",
+    "legendLow": "Faible",
+    "legendExtreme": "Extrême"
+  },
+  "sidebar": {
+    "searchPlaceholder": "Rechercher fruits, régions…",
+    "filterAOC": "AOC Uniquement",
+    "filterHeritage": "Patrimoine",
+    "allCategories": "Tous",
+    "noResults": "Aucun fruit ne correspond à vos filtres.",
+    "fruitsInRegion": "Fruits dans {region}",
+    "countAll": "{count} fruits",
+    "countFiltered": "{count} sur {total} fruits"
+  },
+  "detail": {
+    "season": "Calendrier Saisonnier",
+    "seasonCalendar": "Calendrier Saisonnier",
+    "season_peak": "Pic",
+    "season_pre": "Pré",
+    "season_post": "Post",
+    "season_off": "Hors",
+    "nutritional": "Profil Nutritionnel",
+    "environmental": "Intelligence Environnementale",
+    "cultural": "Histoire Culturelle",
+    "culturalNotes": "Notes Culturelles",
+    "localities": "Cultivé dans",
+    "growingRegions": "Régions de Culture",
+    "compare": "Ajouter à la Comparaison",
+    "compareAdded": "Ajouté",
+    "compareFull": "Comparaison complète (3/3)",
+    "close": "Fermer",
+    "latinName": "Nom latin",
+    "zone": "Zone",
+    "aocDesignation": "Désignation AOC",
+    "aocDescription": "Appellation d'origine protégée — qualité certifiée et traçabilité géographique.",
+    "heritageVariety": "Variété Patrimoniale",
+    "heritageDescription": "Variété traditionnelle préservée par les communautés agricoles locales depuis des générations."
+  },
+  "environmental": {
+    "title": "Données Environnementales",
+    "waterFootprint": "Empreinte Eau",
+    "blueWater": "Eau Bleue",
+    "greenWater": "Eau Verte",
+    "totalWater": "Eau Totale",
+    "aquifer": "Stress Aquifère",
+    "aquiferStress": "Stress Aquifère",
+    "uvIndex": "Indice UV",
+    "uvRange": "UV {min}–{max}",
+    "uvPeak": "Pic UV",
+    "sustainability": "Durabilité",
+    "sustainability_low": "Impact Faible",
+    "sustainability_moderate": "Impact Modéré",
+    "sustainability_high": "Impact Élevé",
+    "perKg": "L/kg",
+    "low": "Faible",
+    "moderate": "Modéré",
+    "high": "Élevé",
+    "critical": "Critique"
+  },
+  "comparison": {
+    "title": "Comparaison de Fruits",
+    "clear": "Tout Effacer",
+    "close": "Fermer",
+    "addMore": "Ajoutez un fruit depuis la liste pour comparer",
+    "slots": "{count} sur 3 sélectionnés"
+  },
+  "search": {
+    "placeholder": "Rechercher 73 fruits…",
+    "noResults": "Aucun résultat pour « {query} »",
+    "hint": "Rechercher par nom, région ou localité",
+    "resultCount": "{count} résultat",
+    "resultCountPlural": "{count} résultats",
+    "keyboardHint": "↑↓ naviguer · ↵ sélectionner · Esc fermer"
+  },
+  "map": {
+    "selectGovernorate": "Sélectionnez une région pour filtrer",
+    "fruitCount": "{count} fruits",
+    "aquifer": "Aquifère : {pct}%",
+    "uv": "UV : {val}",
+    "viewFruits": "Voir les fruits"
+  },
+  "lang": {
+    "en": "EN",
+    "fr": "FR",
+    "ar": "AR"
+  }
+}

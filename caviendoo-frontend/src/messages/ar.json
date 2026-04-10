@@ -1,0 +1,104 @@
+{
+  "nav": {
+    "fruits": "الفواكه",
+    "map": "الخريطة",
+    "compare": "مقارنة"
+  },
+  "metrics": {
+    "fruits": "فاكهة",
+    "regions": "منطقة",
+    "aoc": "AOC"
+  },
+  "overlay": {
+    "recoltes": "المحاصيل",
+    "stressHydrique": "إجهاد مائي",
+    "indiceUv": "مؤشر UV",
+    "legendFruits": "فاكهة",
+    "legendSustainable": "مستدام",
+    "legendCritical": "حرج",
+    "legendLow": "منخفض",
+    "legendExtreme": "شديد"
+  },
+  "sidebar": {
+    "searchPlaceholder": "البحث عن فواكه أو مناطق…",
+    "filterAOC": "AOC فقط",
+    "filterHeritage": "تراثي",
+    "allCategories": "الكل",
+    "noResults": "لا توجد فواكه تطابق مرشحاتك.",
+    "fruitsInRegion": "الفواكه في {region}",
+    "countAll": "{count} فاكهة",
+    "countFiltered": "{count} من {total} فاكهة"
+  },
+  "detail": {
+    "season": "التقويم الموسمي",
+    "seasonCalendar": "التقويم الموسمي",
+    "season_peak": "ذروة",
+    "season_pre": "قبل",
+    "season_post": "بعد",
+    "season_off": "خارج",
+    "nutritional": "الملف الغذائي",
+    "environmental": "الاستخبارات البيئية",
+    "cultural": "التاريخ الثقافي",
+    "culturalNotes": "الملاحظات الثقافية",
+    "localities": "مزروع في",
+    "growingRegions": "مناطق الزراعة",
+    "compare": "إضافة للمقارنة",
+    "compareAdded": "تمت الإضافة",
+    "compareFull": "المقارنة ممتلئة (3/3)",
+    "close": "إغلاق",
+    "latinName": "الاسم اللاتيني",
+    "zone": "المنطقة",
+    "aocDesignation": "تصنيف AOC",
+    "aocDescription": "تسمية المنشأ المحمية — جودة معتمدة وتتبع جغرافي.",
+    "heritageVariety": "صنف تراثي",
+    "heritageDescription": "صنف تقليدي تحافظ عليه مجتمعات الزراعة المحلية منذ أجيال."
+  },
+  "environmental": {
+    "title": "البيانات البيئية",
+    "waterFootprint": "البصمة المائية",
+    "blueWater": "الماء الأزرق",
+    "greenWater": "الماء الأخضر",
+    "totalWater": "الماء الإجمالي",
+    "aquifer": "إجهاد المياه الجوفية",
+    "aquiferStress": "إجهاد المياه الجوفية",
+    "uvIndex": "مؤشر UV",
+    "uvRange": "UV {min}–{max}",
+    "uvPeak": "ذروة UV",
+    "sustainability": "الاستدامة",
+    "sustainability_low": "تأثير منخفض",
+    "sustainability_moderate": "تأثير معتدل",
+    "sustainability_high": "تأثير مرتفع",
+    "perKg": "ل/كغ",
+    "low": "منخفض",
+    "moderate": "معتدل",
+    "high": "مرتفع",
+    "critical": "حرج"
+  },
+  "comparison": {
+    "title": "مقارنة الفواكه",
+    "clear": "مسح الكل",
+    "close": "إغلاق",
+    "addMore": "أضف فاكهة من القائمة للمقارنة",
+    "slots": "{count} من 3 محدد"
+  },
+  "search": {
+    "placeholder": "البحث في 73 فاكهة…",
+    "noResults": "لا نتائج لـ \"{query}\"",
+    "hint": "ابحث بالاسم أو المنطقة أو الموقع",
+    "resultCount": "{count} نتيجة",
+    "resultCountPlural": "{count} نتائج",
+    "keyboardHint": "↑↓ تصفح · ↵ اختر · Esc إغلاق"
+  },
+  "map": {
+    "selectGovernorate": "اختر منطقة للتصفية",
+    "fruitCount": "{count} فاكهة",
+    "aquifer": "المياه الجوفية: {pct}%",
+    "uv": "UV: {val}",
+    "viewFruits": "عرض الفواكه"
+  },
+  "lang": {
+    "en": "EN",
+    "fr": "FR",
+    "ar": "AR"
+  }
+}
