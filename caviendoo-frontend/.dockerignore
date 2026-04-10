@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+.next/
+out/
+build/
+
+# IDE & OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Git
+.git/
+.gitignore
+
+# Env
+.env*.local
+
+# Docker logs
+docker-compose*.yml
+Dockerfile
+.dockerignore
