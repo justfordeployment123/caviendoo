@@ -70,15 +70,15 @@ export function FruitDetailPanel() {
         'transition-all duration-300 ease-in-out',
         // Flex order: last in LTR (right side), first in RTL (left side)
         'order-last rtl:order-first rtl:border-s-0 rtl:border-e rtl:border-white/8',
-        // lg+: inline flex column, w-96
-        'lg:w-96 lg:shrink-0 lg:relative lg:z-auto',
+        // lg+: inline flex column
+        'lg:shrink-0 lg:relative lg:z-auto',
         // md: absolute overlay on top of map
         'md:max-lg:absolute md:max-lg:inset-y-0 md:max-lg:end-0 md:max-lg:w-96 md:max-lg:z-30 md:max-lg:shadow-2xl',
         // sm: fixed full-screen
         'max-md:fixed max-md:inset-0 max-md:w-full max-md:z-40',
         isDetailOpen
-          ? 'translate-x-0 opacity-100'
-          : 'ltr:translate-x-full rtl:-translate-x-full opacity-0 pointer-events-none',
+          ? 'w-full md:w-96 translate-x-0 opacity-100'
+          : 'w-0 ltr:translate-x-full rtl:-translate-x-full opacity-0 pointer-events-none',
       ].join(' ')}
       aria-hidden={!isDetailOpen}
     >

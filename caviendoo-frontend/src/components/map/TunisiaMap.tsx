@@ -249,9 +249,9 @@ export function TunisiaMap() {
     <div
       ref={containerRef}
       className="relative w-full bg-canvas overflow-hidden select-none"
-      style={{ height: '100%', minHeight: 300 }}
+      style={{ height: '100%', minHeight: 300, touchAction: 'none' }}
     >
-      <svg ref={svgRef} className="block w-full h-full" />
+      <svg ref={svgRef} className="block w-full h-full touch-action-none" style={{ touchAction: 'none' }} />
 
       {/* Tooltip (positioned via DOM ref, no React re-render on hover) */}
       <div
