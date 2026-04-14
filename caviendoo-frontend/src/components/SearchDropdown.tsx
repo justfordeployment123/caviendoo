@@ -20,7 +20,7 @@ function Highlight({ text, query }: { text: string; query: string }) {
   return (
     <>
       {text.slice(0, idx)}
-      <strong className="font-semibold text-cream">{text.slice(idx, idx + query.length)}</strong>
+      <strong className="font-semibold text-gold">{text.slice(idx, idx + query.length)}</strong>
       {text.slice(idx + query.length)}
     </>
   );
@@ -69,7 +69,7 @@ function ResultRow({
       {/* Text */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-1.5">
-          <span className="text-sm text-cream/90 truncate">
+          <span className="text-sm text-ink truncate">
             <Highlight text={fruit.name[locale]} query={query} />
           </span>
           <CategoryBadge category={fruit.category} locale={locale} size="xs" />

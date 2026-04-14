@@ -26,7 +26,6 @@ const GEO_TO_SHAPE: Record<string, string> = {
 };
 
 // Pre-process features once at module level: inject shapeName into properties
-// so D3 callbacks can always read d.properties.shapeName reliably.
 const features = geojson.features.map((f) => ({
   ...f,
   properties: {
@@ -39,16 +38,18 @@ const features = geojson.features.map((f) => ({
 
 const PAD = 32; // px padding inside fitExtent
 
+// Sea and land background colours (Mediterranean basemap feel)
+const SEA_COLOR  = '#D4E8F0';
+const LAND_COLOR = '#E8EDE4'; // surrounding land (neighbours)
+
 export function TunisiaMap() {
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
   const projectionRef = useRef<d3.GeoProjection | null>(null);
-  // Persists zoom position across overlay re-renders
   const savedTransformRef = useRef<d3.ZoomTransform>(d3.zoomIdentity);
 
-  // Zoom control helpers — delegates to the hook so logic isn't duplicated
   const { zoomIn, zoomOut, resetZoom } = useD3Map(svgRef, zoomRef);
 
   const [governorates, setGovernorates] = useState<Governorate[]>([]);
@@ -81,14 +82,26 @@ export function TunisiaMap() {
     if (!container || !svg) return;
 
     function render(width: number, height: number) {
-      // Need at least 2×PAD + 1 in each dimension for fitExtent to be valid
       if (width < 2 * PAD + 1 || height < 2 * PAD + 1) return;
 
       const svgSel = d3.select(svg!);
       svgSel.selectAll('*').remove();
       svgSel.attr('width', width).attr('height', height);
 
-      // fitExtent gives PAD breathing room on all sides
+      // ── Sea background ───────────────────────────────────────────────
+      svgSel.append('rect')
+        .attr('width', width)
+        .attr('height', height)
+        .attr('fill', SEA_COLOR);
+
+      // ── Surrounding land (a subtle rectangle slightly smaller than SVG)
+      // Gives the impression of neighbouring countries without a separate GeoJSON
+      svgSel.append('rect')
+        .attr('x', 0).attr('y', 0)
+        .attr('width', width).attr('height', height)
+        .attr('fill', LAND_COLOR)
+        .attr('rx', 0);
+
       const projection = d3.geoMercator().fitExtent(
         [[PAD, PAD], [width - PAD, height - PAD]],
         geojson
@@ -98,11 +111,14 @@ export function TunisiaMap() {
       const pathGen = d3.geoPath().projection(projection);
       const g = svgSel.append('g');
 
-      // Restore zoom position so overlay/window resize doesn't reset the view
+      // Restore zoom position
       g.attr('transform', savedTransformRef.current.toString());
 
-      // Single-pass rendering: fill + stroke + events on the same path element.
-      // Solid fill = entire polygon interior is the mouse hit target (not just the stroke line).
+      // Stroke colours for selected vs normal governorates
+      const SEL_STROKE   = '#1A2A0A';
+      const NORM_STROKE  = 'rgba(26,42,10,0.35)';
+      const HOVER_STROKE = '#396809';
+
       g.append('g')
         .attr('class', 'regions')
         .selectAll('path')
@@ -111,23 +127,22 @@ export function TunisiaMap() {
         .attr('d', pathGen as never)
         .attr('fill', (d) => {
           const gov = govByNameRef.current.get(d.properties!.shapeName as string);
-          return gov ? getGovernorateColor(gov, overlayRef.current) : '#141714';
+          return gov ? getGovernorateColor(gov, overlayRef.current) : '#C8D8A0';
         })
         .attr('stroke', (d) =>
-          selectedRef.current === d.properties!.shapeName ? '#e8c97a' : '#f0e6cc'
+          selectedRef.current === d.properties!.shapeName ? SEL_STROKE : NORM_STROKE
         )
         .attr('stroke-width', (d) =>
-          selectedRef.current === d.properties!.shapeName ? 2 : 0.5
+          selectedRef.current === d.properties!.shapeName ? 2 : 0.7
         )
         .attr('stroke-opacity', (d) =>
-          selectedRef.current === d.properties!.shapeName ? 1 : 0.4
+          selectedRef.current === d.properties!.shapeName ? 1 : 0.6
         )
         .attr('vector-effect', 'non-scaling-stroke')
         .style('cursor', 'pointer')
         .on('mouseenter', function (event, d) {
-          // raise() so highlighted stroke renders above neighbours
           d3.select(this).raise()
-            .attr('stroke', '#ffd700')
+            .attr('stroke', HOVER_STROKE)
             .attr('stroke-width', 2)
             .attr('stroke-opacity', 1);
 
@@ -154,9 +169,9 @@ export function TunisiaMap() {
           const name = d.properties!.shapeName as string;
           const isSel = selectedRef.current === name;
           d3.select(this)
-            .attr('stroke', isSel ? '#e8c97a' : '#f0e6cc')
-            .attr('stroke-width', isSel ? 2 : 0.5)
-            .attr('stroke-opacity', isSel ? 1 : 0.4);
+            .attr('stroke', isSel ? SEL_STROKE : NORM_STROKE)
+            .attr('stroke-width', isSel ? 2 : 0.7)
+            .attr('stroke-opacity', isSel ? 1 : 0.6);
           setTooltipGov(null);
           if (tooltipRef.current) tooltipRef.current.style.display = 'none';
         })
@@ -166,20 +181,23 @@ export function TunisiaMap() {
           const next = selectedRef.current === name ? null : name;
           setSelectedGovernorate(next);
 
-          // Sync stroke state on all paths immediately (no React re-render needed)
           g.selectAll<SVGPathElement, typeof features[number]>('.regions path')
             .each(function (fd) {
               const fname = fd.properties!.shapeName as string;
               const sel = fname === next;
               d3.select(this)
-                .attr('stroke', sel ? '#e8c97a' : '#f0e6cc')
-                .attr('stroke-width', sel ? 2 : 0.5)
-                .attr('stroke-opacity', sel ? 1 : 0.4);
+                .attr('stroke', sel ? SEL_STROKE : NORM_STROKE)
+                .attr('stroke-width', sel ? 2 : 0.7)
+                .attr('stroke-opacity', sel ? 1 : 0.6);
             });
         });
 
-      // Labels — pointer-events:none so they never block hover on regions beneath
+      // ── Labels — scale proportionally with zoom (grow as user zooms in) ──
       const k = savedTransformRef.current.k;
+      // font-size = 8 / k^0.7 so rendered size = 8 * k^0.3 (grows with zoom)
+      const labelSize = 8 / Math.pow(k, 0.7);
+      const strokeWidth = 2.5 / Math.pow(k, 0.7);
+
       g.append('g')
         .attr('class', 'labels')
         .selectAll('text')
@@ -190,43 +208,42 @@ export function TunisiaMap() {
         .attr('text-anchor', 'middle')
         .attr('dominant-baseline', 'central')
         .attr('class', 'gov-label')
-        .attr('font-size', 8 / k)
-        .attr('fill', 'rgba(255,255,255,0.75)')
-        .attr('stroke', 'rgba(0,0,0,0.6)')
-        .attr('stroke-width', 2.5 / k)
+        .attr('font-size', labelSize)
+        .attr('fill', 'rgba(255,255,255,0.95)')
+        .attr('stroke', 'rgba(26,42,10,0.65)')
+        .attr('stroke-width', strokeWidth)
         .attr('paint-order', 'stroke')
         .attr('pointer-events', 'none')
-        // ← THE MISSING .text() CALL — was never set before
         .text((d) => d.properties!.shapeName as string);
 
-      // Zoom — restore saved position so resize/re-render doesn't snap view
+      // ── Zoom ──────────────────────────────────────────────────────────
       const zoom = d3.zoom<SVGSVGElement, unknown>()
         .scaleExtent([0.5, 8])
         .on('zoom', (event) => {
           const t = event.transform;
           savedTransformRef.current = t;
           g.attr('transform', t.toString());
+          // Labels grow proportionally with zoom
+          const ls = 8 / Math.pow(t.k, 0.7);
+          const sw = 2.5 / Math.pow(t.k, 0.7);
           g.selectAll('.gov-label')
-            .attr('font-size', 8 / t.k)
-            .attr('stroke-width', 2.5 / t.k);
+            .attr('font-size', ls)
+            .attr('stroke-width', sw);
         });
 
       zoomRef.current = zoom;
       svgSel.call(zoom);
       svgSel.call(zoom.transform, savedTransformRef.current);
 
-      // Click on empty SVG area deselects
       svgSel.on('click', () => {
         if (selectedRef.current) setSelectedGovernorate(null);
       });
     }
 
-    // Attempt immediate render (works if container is already painted)
     const w = container.clientWidth;
     const h = container.clientHeight;
     if (w > 2 * PAD && h > 2 * PAD) render(w, h);
 
-    // ResizeObserver fires when container gets real dimensions (handles timing race)
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
         render(entry.contentRect.width, entry.contentRect.height);
@@ -248,12 +265,12 @@ export function TunisiaMap() {
   return (
     <div
       ref={containerRef}
-      className="relative w-full bg-canvas overflow-hidden select-none"
-      style={{ height: '100%', minHeight: 300, touchAction: 'none' }}
+      className="relative w-full overflow-hidden select-none"
+      style={{ height: '100%', minHeight: 300, touchAction: 'none', background: SEA_COLOR }}
     >
       <svg ref={svgRef} className="block w-full h-full touch-action-none" style={{ touchAction: 'none' }} />
 
-      {/* Tooltip (positioned via DOM ref, no React re-render on hover) */}
+      {/* Tooltip */}
       <div
         ref={tooltipRef}
         className="absolute z-30 pointer-events-none"
@@ -264,7 +281,7 @@ export function TunisiaMap() {
         )}
       </div>
 
-      {/* Click popup — reuses stored projection, applies current zoom transform */}
+      {/* Click popup */}
       {selectedGov && (() => {
         const svgEl = svgRef.current;
         const cont = containerRef.current;
@@ -290,13 +307,13 @@ export function TunisiaMap() {
 
       {/* Zoom controls */}
       <div className="absolute top-4 start-4 z-10 flex flex-col gap-1">
-        <button onClick={zoomIn} className="w-8 h-8 flex items-center justify-center bg-surface border border-border rounded text-muted hover:text-cream hover:border-gold/50 transition-colors" aria-label="Zoom in">
+        <button onClick={zoomIn} className="w-8 h-8 flex items-center justify-center bg-surface border border-border rounded text-muted hover:text-ink hover:border-gold transition-colors shadow-sm" aria-label="Zoom in">
           <Plus size={14} />
         </button>
-        <button onClick={zoomOut} className="w-8 h-8 flex items-center justify-center bg-surface border border-border rounded text-muted hover:text-cream hover:border-gold/50 transition-colors" aria-label="Zoom out">
+        <button onClick={zoomOut} className="w-8 h-8 flex items-center justify-center bg-surface border border-border rounded text-muted hover:text-ink hover:border-gold transition-colors shadow-sm" aria-label="Zoom out">
           <Minus size={14} />
         </button>
-        <button onClick={resetZoom} className="w-8 h-8 flex items-center justify-center bg-surface border border-border rounded text-muted hover:text-cream hover:border-gold/50 transition-colors" aria-label="Reset view">
+        <button onClick={resetZoom} className="w-8 h-8 flex items-center justify-center bg-surface border border-border rounded text-muted hover:text-ink hover:border-gold transition-colors shadow-sm" aria-label="Reset view">
           <Locate size={13} />
         </button>
       </div>

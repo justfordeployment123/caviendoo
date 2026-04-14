@@ -36,10 +36,10 @@ export function rankValues(values: number[], lowerIsBetter: boolean): Rank[] {
 }
 
 export const RANK_CLS: Record<Rank, string> = {
-  best:  'text-emerald-400 font-semibold',
-  worst: 'text-red-400',
-  mid:   'text-cream/80',
-  only:  'text-cream/80',
+  best:  'text-emerald-700 font-semibold',
+  worst: 'text-red-600',
+  mid:   'text-ink',
+  only:  'text-ink',
 };
 
 // ── Mini season calendar ───────────────────────────────────────────────────
@@ -59,9 +59,9 @@ export function MiniCalendar({ season, locale }: { season: SeasonData; locale: L
             className={[
               'w-4 h-4 rounded-sm flex items-center justify-center text-[9px] font-medium',
               isPeak  ? 'bg-emerald-600 text-white' :
-              isPre   ? 'bg-emerald-900/70 text-emerald-300' :
-              isPost  ? 'bg-emerald-800/50 text-emerald-400' :
-                        'bg-white/8 text-transparent',
+              isPre   ? 'bg-emerald-200 text-emerald-800' :
+              isPost  ? 'bg-emerald-100 text-emerald-700' :
+                        'bg-ink/8 text-transparent',
             ].join(' ')}
           >
             {months[i][0]}
@@ -76,10 +76,10 @@ export function MiniCalendar({ season, locale }: { season: SeasonData; locale: L
 
 export function SectionRow({ label, colCount }: { label: string; colCount: number }) {
   return (
-    <tr className="bg-canvas/60">
+    <tr className="bg-surface">
       <td
         colSpan={colCount + 1}
-        className="px-3 pt-4 pb-1 text-2xs text-muted uppercase tracking-widest border-b border-border"
+        className="px-3 pt-4 pb-1 text-2xs text-muted uppercase tracking-widest border-b border-border font-medium"
       >
         {label}
       </td>
@@ -98,7 +98,7 @@ interface DataRowProps {
 
 export function DataRow({ label, fruits, render, ranks }: DataRowProps) {
   return (
-    <tr className="border-b border-border/30 hover:bg-white/[0.02] transition-colors">
+    <tr className="border-b border-border/40 hover:bg-ink/[0.02] transition-colors">
       <td className="px-3 py-2 text-xs text-muted whitespace-nowrap align-middle min-w-[110px]">
         {label}
       </td>
@@ -106,8 +106,8 @@ export function DataRow({ label, fruits, render, ranks }: DataRowProps) {
         <td
           key={f.id}
           className={[
-            'px-3 py-2 text-center align-middle border-s border-border/20',
-            ranks ? RANK_CLS[ranks[i]] : 'text-cream/80',
+            'px-3 py-2 text-center align-middle border-s border-border/30',
+            ranks ? RANK_CLS[ranks[i]] : 'text-ink',
           ].join(' ')}
         >
           {render(f, i)}

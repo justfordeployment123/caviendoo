@@ -6,57 +6,60 @@ const config: Config = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  // Enable RTL variant
   future: {
     hoverOnlyWhenSupported: true,
   },
   theme: {
     extend: {
       colors: {
-        // ── Dark canvas (map + page background) ─────────────────────────
-        canvas: "#0d0f0e",
-        surface: "#141714",
-        "surface-raised": "#1c201b",
-        border: "#2a3028",
+        // ── Light canvas (page background — warm cream) ─────────────────
+        canvas: "#F7FBF0",
+        surface: "#EBF5D6",
+        "surface-raised": "#D4EAAA",
+        border: "#C8E08A",
 
-        // ── Parchment (sidebar) ──────────────────────────────────────────
-        parchment: "#f2ead8",
-        "parchment-dark": "#e4d8c0",
-        "border-parchment": "#c8b898",
+        // ── Parchment (sidebar) — same warm palette ──────────────────────
+        parchment: "#F7FBF0",
+        "parchment-dark": "#EBF5D6",
+        "border-parchment": "#C8E08A",
 
-        // ── Text on parchment ────────────────────────────────────────────
-        ink: "#1c1008",
-        "ink-muted": "#5c4a32",
+        // ── Text ─────────────────────────────────────────────────────────
+        ink: "#1A2A0A",
+        "ink-muted": "#4A6820",
 
-        // ── Text on dark surfaces ────────────────────────────────────────
-        cream: "#f0e6cc",
-        muted: "#7a8c7e",
+        // ── Primary text on all surfaces ─────────────────────────────────
+        cream: "#1A2A0A",
+        muted: "#4A6820",
 
-        // ── Accent ───────────────────────────────────────────────────────
-        gold: "#c9a84c",
-        "gold-light": "#e8c97a",
+        // ── Brand accent ─────────────────────────────────────────────────
+        gold: "#396809",
+        "gold-light": "#67C70C",
 
-        // ── Checklist aliases (map to semantic tokens above) ─────────────
-        "map-bg": "#141714",        // = surface
-        "sidebar-bg": "#f2ead8",    // = parchment
-        "poly-primary": "#1a3c2e",  // deep forest green (map polygons)
-        "poly-secondary": "#2d6a4f",// olive green
-        "accent-alert": "#c9872a",  // amber alert
+        // ── Map sea & land ───────────────────────────────────────────────
+        "map-bg": "#D4E8F0",
+        "map-sea": "#D4E8F0",
+        "map-land": "#E8EDE4",
 
         // ── Map overlay: Récoltes ─────────────────────────────────────────
-        "map-empty": "#1a1f1a",
-        "map-low": "#1a3320",
-        "map-mid": "#1e4a28",
-        "map-high": "#226830",
-        "map-peak": "#2a8038",
+        "map-empty": "#C8D8A0",
+        "map-low": "#8EC06A",
+        "map-mid": "#5DA040",
+        "map-high": "#3A8020",
+        "map-peak": "#1A6010",
 
         // ── Aquifer stress states ─────────────────────────────────────────
-        "stress-safe": "#1a4a2a",
-        "stress-low": "#3a6a20",
-        "stress-moderate": "#8a7a10",
-        "stress-high": "#c06010",
-        "stress-critical": "#c03010",
-        "stress-extreme": "#8a1010",
+        "stress-safe": "#1a6a3a",
+        "stress-low": "#4a8a28",
+        "stress-moderate": "#a09010",
+        "stress-high": "#d07818",
+        "stress-critical": "#d04020",
+        "stress-extreme": "#a01010",
+
+        // ── Checklist aliases ────────────────────────────────────────────
+        "sidebar-bg": "#F7FBF0",
+        "poly-primary": "#7BB84A",
+        "poly-secondary": "#A8D060",
+        "accent-alert": "#c9872a",
       },
 
       fontFamily: {
@@ -72,17 +75,16 @@ const config: Config = {
       },
 
       boxShadow: {
-        "map-glow-green": "0 0 20px 4px rgba(26,74,42,0.6)",
+        "map-glow-green": "0 0 20px 4px rgba(87,168,30,0.4)",
         "map-glow-red": "0 0 20px 4px rgba(192,48,16,0.6)",
         "map-glow-amber": "0 0 16px 3px rgba(192,96,16,0.5)",
-        "parchment-inner": "inset 0 2px 8px rgba(28,16,8,0.12)",
-        "panel-dark": "0 8px 32px rgba(0,0,0,0.6)",
+        "parchment-inner": "inset 0 2px 8px rgba(26,42,10,0.08)",
+        "panel-dark": "0 4px 20px rgba(26,42,10,0.15)",
       },
 
       backgroundImage: {
-        // Subtle noise texture for parchment — pure CSS, no image file
         "parchment-texture":
-          "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E\")",
+          "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E\")",
       },
 
       animation: {

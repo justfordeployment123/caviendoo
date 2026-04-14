@@ -8,6 +8,13 @@ const CATEGORIES: FruitCategory[] = [
   'citrus', 'stone', 'pomme', 'tropical', 'berry', 'dried', 'melon', 'other',
 ];
 
+// ── Tooltip texts (will be replaced by translation keys in full i18n pass) ──
+const AOC_TOOLTIP =
+  "Appellation d'Origine Contrôlée — a legally protected designation guaranteeing this product's geographic origin and certified quality standards.";
+
+const HERITAGE_TOOLTIP =
+  'Heritage Variety — a traditional cultivar preserved by local Tunisian farming communities for generations, representing the country\'s living agricultural biodiversity.';
+
 interface FilterBarProps {
   locale: Locale;
   activeCategory: FruitCategory | null;
@@ -31,15 +38,14 @@ export function FilterBar({
 
   return (
     <div className="flex flex-col gap-0 border-b border-border-parchment">
-      {/* Category tabs — horizontally scrollable */}
+      {/* Category tabs */}
       <div className="flex overflow-x-auto scrollbar-parchment gap-0 px-1 pt-2 pb-0">
-        {/* "All" tab */}
         <button
           onClick={() => onCategoryChange(null)}
           className={[
             'shrink-0 px-2.5 py-1.5 text-2xs font-medium rounded-t transition-colors whitespace-nowrap',
             activeCategory === null
-              ? 'bg-ink text-parchment'
+              ? 'bg-ink text-canvas'
               : 'text-ink-muted hover:text-ink hover:bg-parchment-dark',
           ].join(' ')}
         >
@@ -53,7 +59,7 @@ export function FilterBar({
             className={[
               'shrink-0 px-2.5 py-1.5 text-2xs font-medium rounded-t transition-colors whitespace-nowrap',
               activeCategory === cat
-                ? 'bg-ink text-parchment'
+                ? 'bg-ink text-canvas'
                 : 'text-ink-muted hover:text-ink hover:bg-parchment-dark',
             ].join(' ')}
           >
@@ -68,16 +74,17 @@ export function FilterBar({
           active={filterAOC}
           onChange={onAOCChange}
           label={t('filterAOC')}
-          activeClass="bg-gold/20 border-gold text-gold"
+          tooltip={AOC_TOOLTIP}
+          activeClass="bg-gold/15 border-gold text-gold"
         />
         <ToggleChip
           active={filterHeritage}
           onChange={onHeritageChange}
-          label={t('filterHeritage')}
-          activeClass="bg-[#6b3f1a]/20 border-[#6b3f1a] text-amber-800"
+          label={'♦ ' + t('filterHeritage')}
+          tooltip={HERITAGE_TOOLTIP}
+          activeClass="bg-amber-100 border-amber-400 text-amber-700"
         />
 
-        {/* Active filter count bubble */}
         {(filterAOC || filterHeritage || activeCategory) && (
           <span className="ms-auto text-2xs text-ink-muted">
             {[filterAOC, filterHeritage, activeCategory !== null].filter(Boolean).length} filter
@@ -85,6 +92,20 @@ export function FilterBar({
           </span>
         )}
       </div>
+
+      {/* Badge legend — visible only when no filters are active */}
+      {!filterAOC && !filterHeritage && !activeCategory && (
+        <div className="px-3 pb-2 flex items-center gap-3">
+          <span className="text-2xs text-ink-muted flex items-center gap-1">
+            <span className="badge bg-gold/15 border border-gold text-gold px-1.5">AOC</span>
+            <span>= Protected origin</span>
+          </span>
+          <span className="text-2xs text-ink-muted flex items-center gap-1">
+            <span className="badge bg-amber-100 border border-amber-400 text-amber-700 px-1.5">♦</span>
+            <span>= Heritage variety</span>
+          </span>
+        </div>
+      )}
     </div>
   );
 }
@@ -95,16 +116,20 @@ function ToggleChip({
   active,
   onChange,
   label,
+  tooltip,
   activeClass,
 }: {
   active: boolean;
   onChange: (v: boolean) => void;
   label: string;
+  tooltip: string;
   activeClass: string;
 }) {
   return (
     <button
       onClick={() => onChange(!active)}
+      title={tooltip}
+      aria-label={`${label} — ${tooltip}`}
       className={[
         'badge border transition-colors',
         active

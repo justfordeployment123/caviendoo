@@ -31,25 +31,23 @@ export function ComparisonBar() {
         'bottom-0 md:bottom-0 comparison-bar-mobile',
         'bg-surface border-t border-border',
         'flex items-center gap-3 px-4 py-2.5',
-        'shadow-[0_-4px_24px_rgba(0,0,0,0.5)]',
+        'shadow-[0_-4px_16px_rgba(26,42,10,0.1)]',
         'transition-transform duration-300',
       ].join(' ')}
     >
-      {/* Label */}
       <span className="text-xs text-muted shrink-0 hidden sm:block">
         {t('slots', { count: comparedFruitIds.length })}
       </span>
 
-      {/* Fruit thumbnail chips */}
       <div className="flex items-center gap-2 flex-1 min-w-0">
-        {fruits.map((fruit, i) => {
+        {fruits.map((fruit) => {
           if (!fruit) return null;
           return (
             <div
               key={fruit.id}
-              className="flex items-center gap-1.5 bg-surface-raised rounded px-2 py-1 shrink-0"
+              className="flex items-center gap-1.5 bg-surface-raised border border-border rounded-lg px-2 py-1 shrink-0"
             >
-              <div className="relative w-6 h-6 rounded overflow-hidden shrink-0">
+              <div className="relative w-6 h-6 rounded overflow-hidden shrink-0 border border-border">
                 <Image
                   src={fruit.thumbnailUrl}
                   alt={fruit.name.en}
@@ -59,12 +57,12 @@ export function ComparisonBar() {
                   unoptimized
                 />
               </div>
-              <span className="text-xs text-cream/80 max-w-[100px] truncate">
+              <span className="text-xs text-ink max-w-[100px] truncate">
                 {fruit.name.en}
               </span>
               <button
                 onClick={() => removeFromComparison(fruit.id)}
-                className="text-muted hover:text-cream transition-colors ms-0.5"
+                className="text-muted hover:text-ink transition-colors ms-0.5"
                 aria-label={`Remove ${fruit.name.en}`}
               >
                 <X size={11} />
@@ -73,22 +71,20 @@ export function ComparisonBar() {
           );
         })}
 
-        {/* Empty slot indicators */}
         {Array.from({ length: 3 - comparedFruitIds.length }, (_, i) => (
           <div
             key={`empty-${i}`}
-            className="w-8 h-8 rounded border border-dashed border-border flex items-center justify-center shrink-0"
+            className="w-8 h-8 rounded-lg border border-dashed border-border flex items-center justify-center shrink-0"
           >
             <span className="text-muted text-lg leading-none pb-0.5">+</span>
           </div>
         ))}
       </div>
 
-      {/* Actions */}
       <div className="flex items-center gap-2 shrink-0">
         <button
           onClick={clearComparison}
-          className="text-xs text-muted hover:text-cream transition-colors px-2 py-1"
+          className="text-xs text-muted hover:text-ink transition-colors px-2 py-1 rounded hover:bg-ink/5"
         >
           {t('clear')}
         </button>
@@ -97,10 +93,10 @@ export function ComparisonBar() {
           onClick={() => setIsComparisonOpen(true)}
           disabled={comparedFruitIds.length < 2}
           className={[
-            'flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors',
+            'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors',
             comparedFruitIds.length >= 2
               ? 'bg-gold text-canvas hover:bg-gold-light'
-              : 'bg-surface-raised text-muted cursor-not-allowed',
+              : 'bg-ink/5 text-muted cursor-not-allowed',
           ].join(' ')}
         >
           <GitCompareArrows size={13} />

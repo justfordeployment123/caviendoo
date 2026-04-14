@@ -22,7 +22,7 @@ export function MobileBottomBar({ onOpenSidebar, fruitCount }: MobileBottomBarPr
     <div className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-surface border-t border-border flex items-center px-4 py-2 gap-3 safe-area-bottom">
       <button
         onClick={onOpenSidebar}
-        className="flex items-center gap-2 flex-1 py-2 px-3 rounded bg-surface-raised text-cream/80 hover:text-cream transition-colors"
+        className="flex items-center gap-2 flex-1 py-2 px-3 rounded-lg bg-surface-raised border border-border text-ink hover:border-gold transition-colors"
       >
         <Leaf size={15} className="text-gold shrink-0" />
         <span className="text-sm font-medium">{t('fruits')}</span>
@@ -38,7 +38,7 @@ export function MobileBottomBar({ onOpenSidebar, fruitCount }: MobileBottomBarPr
 
       <button
         onClick={onOpenSidebar}
-        className="p-2 text-muted hover:text-cream transition-colors"
+        className="p-2 text-muted hover:text-ink transition-colors rounded"
         aria-label="Filters"
       >
         <SlidersHorizontal size={16} />

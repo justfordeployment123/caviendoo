@@ -28,10 +28,10 @@ export function GovernorateChips({ fruit }: { fruit: Fruit }) {
               className={[
                 'text-xs px-2.5 py-1 rounded-full border transition-colors',
                 isActive
-                  ? 'bg-gold/20 border-gold text-gold'
+                  ? 'bg-gold/15 border-gold text-gold'
                   : isPrimary
-                  ? 'border-cream/30 text-cream/80 hover:border-cream/50 hover:text-cream'
-                  : 'border-cream/15 text-cream/50 hover:border-cream/30 hover:text-cream/70',
+                  ? 'border-border text-ink hover:border-gold hover:text-gold'
+                  : 'border-border text-muted hover:border-border-parchment hover:text-ink',
               ].join(' ')}
             >
               {gov}

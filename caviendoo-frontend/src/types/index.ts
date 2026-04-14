@@ -75,6 +75,7 @@ export interface Governorate {
   uvPeak: number;
   uvLabel: string;
   fruitCount: number;       // derived
+  description?: string;     // short governorate summary (optional)
 }
 
 export interface SiteMetrics {

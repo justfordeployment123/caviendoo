@@ -10,9 +10,9 @@
     "aoc": "AOC"
   },
   "overlay": {
-    "recoltes": "Récoltes",
-    "stressHydrique": "Stress Hydrique",
-    "indiceUv": "Indice UV",
+    "recoltes": "Harvests",
+    "stressHydrique": "Water Stress",
+    "indiceUv": "UV Index",
     "legendFruits": "Fruits",
     "legendSustainable": "Sustainable",
     "legendCritical": "Critical",
@@ -100,5 +100,25 @@
     "en": "EN",
     "fr": "FR",
     "ar": "AR"
+  },
+  "about": {
+    "title": "About Caviendoo",
+    "buttonLabel": "About",
+    "version": "Version 1.0 — Milestone 1",
+    "intro": "Caviendoo is an interactive geographic atlas of Tunisia's agricultural heritage, built to support sourcing, seasonal planning, and variety intelligence.",
+    "catalogueLabel": "Catalogue",
+    "catalogueValue": "73 fruits across 24 governorates",
+    "aocLabel": "AOC Designations",
+    "aocTooltip": "Appellation d'Origine Contrôlée — a legally protected designation guaranteeing geographic origin and certified quality standards.",
+    "heritageLabel": "Heritage Varieties",
+    "heritageTooltip": "Traditional cultivars preserved by local Tunisian farming communities for generations, representing the country's living agricultural biodiversity.",
+    "dataNote": "Milestone 1 runs on curated static data. Live production data integration is planned for Milestone 2.",
+    "dontShow": "Don't show again",
+    "close": "Close"
+  },
+  "legend": {
+    "title": "Map Legend",
+    "aocBadge": "AOC — Protected Designation of Origin",
+    "heritageBadge": "♦ Heritage — Traditional variety preserved by local communities"
   }
 }

@@ -134,8 +134,15 @@ export function Sidebar() {
 
   // Load all fruits + metrics once
   useEffect(() => {
-    getFruits().then(setAllFruits);
-    getMetrics().then(setMetrics);
+    getFruits()
+      .then(setAllFruits)
+      .catch(() => {
+        // Silently fail — empty list shown, no crash
+        setAllFruits([]);
+      });
+    getMetrics()
+      .then(setMetrics)
+      .catch(() => {/* Keep default metrics */});
   }, []);
 
   // Scroll list to top whenever filters change

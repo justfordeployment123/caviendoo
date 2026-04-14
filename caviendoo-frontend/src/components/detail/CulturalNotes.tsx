@@ -14,7 +14,7 @@ export function CulturalNotes({ fruit, locale }: { fruit: Fruit; locale: Locale 
       <p className="text-2xs text-ink-muted uppercase tracking-wider mb-2">
         {t('culturalNotes')}
       </p>
-      <p className="font-serif text-sm text-cream/70 leading-relaxed italic">
+      <p className="font-serif text-sm text-ink-muted leading-relaxed italic">
         {text}
       </p>
     </div>

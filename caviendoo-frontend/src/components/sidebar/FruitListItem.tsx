@@ -40,8 +40,8 @@ export const FruitListItem = memo(function FruitListItem({
         onClick={() => onSelect(fruit.id)}
         className="flex items-center gap-2.5 flex-1 min-w-0 text-start cursor-pointer"
       >
-        {/* Thumbnail */}
-        <div className="relative shrink-0 w-[42px] h-[42px] rounded-md overflow-hidden bg-parchment-dark">
+        {/* Thumbnail — 42×42px with 1px olive border per spec */}
+        <div className="relative shrink-0 w-[42px] h-[42px] rounded overflow-hidden bg-parchment-dark border border-border">
           <Image
             src={fruit.thumbnailUrl}
             alt={fruit.name.en}

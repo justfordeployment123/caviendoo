@@ -115,7 +115,7 @@ export const fruits: Fruit[] = [
   },
 
   // ─────────────────────────────────────────────────────────────────────────
-  // 3. FIG DE DJEBBA — Fully detailed, Heritage + AOC candidate
+  // 3. FIG DE DJEBBA — Fully detailed, Heritage + AOC
   // ─────────────────────────────────────────────────────────────────────────
   {
     id: 'fig-djebba',
@@ -123,7 +123,7 @@ export const fruits: Fruit[] = [
     localName: 'تين جبة',
     latinName: 'Ficus carica var. djebba',
     category: 'other',
-    isAOC: false,
+    isAOC: true,
     isHeritage: true,
     photoUrl: `${PH}/800x500/2a1a3a/f0e6cc?text=Djebba+Fig`,
     thumbnailUrl: `${PH}/42x42/2a1a3a/f0e6cc?text=F`,

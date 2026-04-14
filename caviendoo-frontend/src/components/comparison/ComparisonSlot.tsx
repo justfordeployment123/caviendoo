@@ -39,12 +39,12 @@ export function ComparisonSlot({ fruit, locale, onRemove }: ComparisonSlotProps)
         {/* Name row + remove button */}
         <div className="w-full flex flex-col items-center gap-0.5">
           <div className="flex items-start justify-center gap-1 w-full">
-            <p className="font-serif text-xs text-cream text-center leading-tight line-clamp-2 flex-1">
+            <p className="font-serif text-xs text-ink text-center leading-tight line-clamp-2 flex-1">
               {fruit.name[locale]}
             </p>
             <button
               onClick={() => onRemove(fruit.id)}
-              className="shrink-0 text-muted hover:text-cream transition-colors mt-0.5"
+              className="shrink-0 text-muted hover:text-ink transition-colors mt-0.5"
               aria-label={`Remove ${fruit.name[locale]}`}
             >
               <X size={10} />

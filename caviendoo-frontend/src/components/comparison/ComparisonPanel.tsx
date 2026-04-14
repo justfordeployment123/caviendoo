@@ -40,7 +40,6 @@ export function ComparisonPanel() {
 
   const count = fruits.length;
 
-  // ── Pre-compute environmental arrays & ranks ─────────────────────────────
   const blueWaters   = fruits.map((f) => f.environmental.blueWaterLkg);
   const greenWaters  = fruits.map((f) => f.environmental.greenWaterLkg);
   const totalWaters  = fruits.map((f) => f.environmental.totalWaterLkg);
@@ -53,7 +52,6 @@ export function ComparisonPanel() {
   const aquiferRanks = rankValues(aquiferPcts, true);
   const uvRanks      = rankValues(uvPeaks,     true);
 
-  // Union of all nutritional field keys across compared fruits
   const allNutri = new Map<string, NutritionalField['label']>();
   for (const fruit of fruits)
     for (const field of fruit.nutritional)
@@ -69,20 +67,20 @@ export function ComparisonPanel() {
       {/* ── Top bar ─────────────────────────────────────────────────── */}
       <div className="shrink-0 flex items-center justify-between px-4 sm:px-6 py-3 border-b border-border bg-surface">
         <div>
-          <h2 className="font-serif text-lg text-cream">{t('title')}</h2>
+          <h2 className="font-serif text-lg text-ink">{t('title')}</h2>
           <p className="text-2xs text-muted mt-0.5">{t('slots', { count })}</p>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={clearComparison}
-            className="flex items-center gap-1.5 text-xs text-muted hover:text-cream transition-colors px-2 py-1.5 rounded hover:bg-white/5"
+            className="flex items-center gap-1.5 text-xs text-muted hover:text-ink transition-colors px-2 py-1.5 rounded hover:bg-ink/5"
           >
             <Trash2 size={12} />
             <span className="hidden sm:inline">{t('clear')}</span>
           </button>
           <button
             onClick={() => setIsComparisonOpen(false)}
-            className="p-1.5 rounded text-muted hover:text-cream hover:bg-surface-raised transition-colors"
+            className="p-1.5 rounded text-muted hover:text-ink hover:bg-ink/5 transition-colors"
             aria-label={t('close')}
           >
             <X size={16} />
@@ -95,7 +93,6 @@ export function ComparisonPanel() {
         <table className="w-full border-collapse" style={{ minWidth: count === 3 ? 560 : 420 }}>
           <thead>
             <tr className="sticky top-0 z-10 bg-surface border-b border-border">
-              {/* Empty label column */}
               <th className="w-[110px] min-w-[110px]" />
               {fruits.map((fruit) => (
                 <ComparisonSlot
@@ -120,7 +117,7 @@ export function ComparisonPanel() {
               label="Range"
               fruits={fruits}
               render={(f) => (
-                <span className="font-mono text-xs">{seasonRange(f.season, locale)}</span>
+                <span className="font-mono text-xs text-ink">{seasonRange(f.season, locale)}</span>
               )}
             />
 
@@ -184,10 +181,10 @@ export function ComparisonPanel() {
                   className={[
                     'badge border text-2xs',
                     f.environmental.sustainabilityClass === 'low'
-                      ? 'bg-emerald-900/40 border-emerald-500 text-emerald-400'
+                      ? 'bg-emerald-100 border-emerald-400 text-emerald-800'
                       : f.environmental.sustainabilityClass === 'moderate'
-                      ? 'bg-yellow-900/40 border-yellow-500 text-yellow-300'
-                      : 'bg-red-900/40 border-red-500 text-red-400',
+                      ? 'bg-amber-100 border-amber-400 text-amber-800'
+                      : 'bg-red-100 border-red-400 text-red-800',
                   ].join(' ')}
                 >
                   {tEnv(`sustainability_${f.environmental.sustainabilityClass}`)}
@@ -205,7 +202,7 @@ export function ComparisonPanel() {
                   render={(f) => {
                     const field = f.nutritional.find((n) => n.label.en === key);
                     return (
-                      <span className="font-mono text-xs text-cream/80">
+                      <span className="font-mono text-xs text-ink">
                         {field?.value ?? '—'}
                       </span>
                     );
@@ -214,7 +211,6 @@ export function ComparisonPanel() {
               </Fragment>
             ))}
 
-            {/* Bottom padding */}
             <tr><td colSpan={count + 1} className="py-6" /></tr>
           </tbody>
         </table>

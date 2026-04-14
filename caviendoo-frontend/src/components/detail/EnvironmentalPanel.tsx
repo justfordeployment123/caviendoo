@@ -10,10 +10,8 @@ const CIRCUMFERENCE = 2 * Math.PI * R;
 
 function AquiferGauge({ pct }: { pct: number }) {
   const arc = (pct / 100) * CIRCUMFERENCE;
-
-  // Colour ramp: green → yellow → red
   const color =
-    pct < 40 ? '#4ade80' : pct < 70 ? '#facc15' : '#f87171';
+    pct < 40 ? '#16a34a' : pct < 70 ? '#ca8a04' : '#dc2626';
 
   return (
     <svg width={52} height={52} viewBox="0 0 52 52" className="shrink-0">
@@ -21,10 +19,10 @@ function AquiferGauge({ pct }: { pct: number }) {
       <circle
         cx={26} cy={26} r={R}
         fill="none"
-        stroke="rgba(255,255,255,0.08)"
+        stroke="rgba(26,42,10,0.12)"
         strokeWidth={5}
       />
-      {/* Progress arc — starts at 12 o'clock (-90°) */}
+      {/* Progress arc */}
       <circle
         cx={26} cy={26} r={R}
         fill="none"
@@ -51,17 +49,17 @@ function AquiferGauge({ pct }: { pct: number }) {
 // ── UV range bar ───────────────────────────────────────────────────────────
 
 const UV_COLORS: [number, string][] = [
-  [3,  '#a3e635'], // low
-  [6,  '#facc15'], // moderate
-  [8,  '#f97316'], // high
-  [11, '#dc2626'], // very high
+  [3,  '#65a30d'],
+  [6,  '#ca8a04'],
+  [8,  '#ea580c'],
+  [11, '#dc2626'],
 ];
 
 function uvBarColor(uv: number): string {
   for (const [threshold, color] of UV_COLORS) {
     if (uv <= threshold) return color;
   }
-  return '#7c3aed'; // extreme
+  return '#7c3aed';
 }
 
 function UVBar({ uvMin, uvMax, uvPeak }: { uvMin: number; uvMax: number; uvPeak: number }) {
@@ -73,34 +71,19 @@ function UVBar({ uvMin, uvMax, uvPeak }: { uvMin: number; uvMax: number; uvPeak:
 
   return (
     <div className="w-full">
-      {/* Track */}
-      <div className="relative h-2 rounded-full bg-white/8 overflow-visible">
-        {/* Range fill */}
+      <div className="relative h-2 rounded-full bg-ink/10 overflow-visible">
         <div
-          className="absolute top-0 h-2 rounded-full opacity-40"
-          style={{
-            left: `${minPct}%`,
-            width: `${widthPct}%`,
-            backgroundColor: barColor,
-          }}
+          className="absolute top-0 h-2 rounded-full opacity-50"
+          style={{ left: `${minPct}%`, width: `${widthPct}%`, backgroundColor: barColor }}
         />
-        {/* Peak marker */}
         <div
-          className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full border-2 border-canvas"
-          style={{
-            left: `calc(${peakPct}% - 5px)`,
-            backgroundColor: barColor,
-          }}
+          className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full border-2 border-surface"
+          style={{ left: `calc(${peakPct}% - 5px)`, backgroundColor: barColor }}
         />
       </div>
-      {/* Scale labels */}
       <div className="flex justify-between mt-1">
         {[1, 3, 6, 8, 11].map((v) => (
-          <span
-            key={v}
-            className="text-2xs font-mono text-cream/30"
-            style={{ marginLeft: v === 1 ? 0 : undefined }}
-          >
+          <span key={v} className="text-2xs font-mono text-ink/80">
             {v}
           </span>
         ))}
@@ -114,8 +97,8 @@ function UVBar({ uvMin, uvMax, uvPeak }: { uvMin: number; uvMax: number; uvPeak:
 function WaterRow({ label, value }: { label: string; value: number }) {
   return (
     <div className="flex items-center justify-between gap-2">
-      <span className="text-xs text-cream/50">{label}</span>
-      <span className="font-mono text-xs text-cream/80">{value.toLocaleString()} L/kg</span>
+      <span className="text-xs text-ink/90">{label}</span>
+      <span className="font-mono text-xs text-ink">{value.toLocaleString()} L/kg</span>
     </div>
   );
 }
@@ -123,9 +106,9 @@ function WaterRow({ label, value }: { label: string; value: number }) {
 // ── Sustainability chip ────────────────────────────────────────────────────
 
 const SUSTAINABILITY_STYLES = {
-  low:      'bg-emerald-900/40 border-emerald-500 text-emerald-400',
-  moderate: 'bg-yellow-900/40 border-yellow-500 text-yellow-300',
-  high:     'bg-red-900/40 border-red-500 text-red-400',
+  low:      'bg-emerald-100 border-emerald-400 text-emerald-800',
+  moderate: 'bg-amber-100 border-amber-400 text-amber-800',
+  high:     'bg-red-100 border-red-400 text-red-800',
 };
 
 // ── Main panel ─────────────────────────────────────────────────────────────
@@ -135,18 +118,18 @@ export function EnvironmentalPanel({ env }: { env: FruitEnvironmental }) {
 
   return (
     <div className="px-4 pb-4">
-      <p className="text-2xs text-ink-muted uppercase tracking-wider mb-3">
+      <p className="text-2xs text-ink/90 uppercase tracking-wider mb-3 font-medium">
         {t('title')}
       </p>
 
       <div className="flex flex-col gap-4">
         {/* Water footprint */}
         <div>
-          <p className="text-xs text-cream/40 mb-1.5">{t('waterFootprint')}</p>
-          <div className="flex flex-col gap-1 bg-surface/30 rounded-md px-3 py-2">
+          <p className="text-xs text-ink/90 mb-1.5 font-medium">{t('waterFootprint')}</p>
+          <div className="flex flex-col gap-1 bg-surface-raised rounded-md px-3 py-2">
             <WaterRow label={t('blueWater')} value={env.blueWaterLkg} />
             <WaterRow label={t('greenWater')} value={env.greenWaterLkg} />
-            <div className="border-t border-white/8 mt-1 pt-1">
+            <div className="border-t border-border mt-1 pt-1">
               <WaterRow label={t('totalWater')} value={env.totalWaterLkg} />
             </div>
           </div>
@@ -154,11 +137,11 @@ export function EnvironmentalPanel({ env }: { env: FruitEnvironmental }) {
 
         {/* Aquifer stress gauge */}
         <div>
-          <p className="text-xs text-cream/40 mb-1.5">{t('aquiferStress')}</p>
+          <p className="text-xs text-ink/90 mb-1.5 font-medium">{t('aquiferStress')}</p>
           <div className="flex items-center gap-3">
             <AquiferGauge pct={env.aquiferStressPct} />
             <div className="flex flex-col gap-0.5">
-              <span className="font-mono text-sm text-cream/90">
+              <span className="font-mono text-sm text-ink font-semibold">
                 {env.aquiferStressPct}%
               </span>
               <span
@@ -176,14 +159,14 @@ export function EnvironmentalPanel({ env }: { env: FruitEnvironmental }) {
         {/* UV index */}
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <p className="text-xs text-cream/40">{t('uvIndex')}</p>
-            <span className="font-mono text-xs text-cream/60">
+            <p className="text-xs text-ink/90 font-medium">{t('uvIndex')}</p>
+            <span className="font-mono text-xs text-ink-muted">
               {t('uvRange', { min: env.uvMin, max: env.uvMax })}
             </span>
           </div>
           <UVBar uvMin={env.uvMin} uvMax={env.uvMax} uvPeak={env.uvPeak} />
           {env.uvNote && (
-            <p className="text-2xs text-cream/40 mt-1.5 leading-relaxed">{env.uvNote}</p>
+            <p className="text-2xs text-ink/90 mt-1.5 leading-relaxed">{env.uvNote}</p>
           )}
         </div>
       </div>

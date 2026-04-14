@@ -15,9 +15,9 @@ function getMonthState(month: number, season: SeasonData): MonthState {
 
 const CELL_STYLES: Record<MonthState, string> = {
   peak: 'bg-emerald-600 text-white font-semibold',
-  pre:  'bg-emerald-900/60 text-emerald-300',
-  post: 'bg-emerald-800/40 text-emerald-400',
-  off:  'bg-white/5 text-cream/25',
+  pre:  'bg-emerald-200 text-emerald-800',
+  post: 'bg-emerald-100 text-emerald-700',
+  off:  'bg-ink/5 text-muted/40',
 };
 
 export function SeasonCalendar({ season, locale }: { season: SeasonData; locale: Locale }) {
@@ -26,7 +26,7 @@ export function SeasonCalendar({ season, locale }: { season: SeasonData; locale:
 
   return (
     <div className="px-4 pb-4">
-      <p className="text-2xs text-ink-muted uppercase tracking-wider mb-2.5">
+      <p className="text-2xs text-muted uppercase tracking-wider mb-2.5 font-medium">
         {t('seasonCalendar')}
       </p>
 
@@ -49,11 +49,11 @@ export function SeasonCalendar({ season, locale }: { season: SeasonData; locale:
       </div>
 
       {/* Legend */}
-      <div className="flex items-center gap-3 mt-2">
+      <div className="flex items-center gap-3 mt-2 flex-wrap">
         {(['peak', 'pre', 'post', 'off'] as MonthState[]).map((s) => (
           <div key={s} className="flex items-center gap-1">
             <div className={`w-2 h-2 rounded-sm ${CELL_STYLES[s]}`} />
-            <span className="text-2xs text-cream/40">{t(`season_${s}`)}</span>
+            <span className="text-2xs text-muted">{t(`season_${s}`)}</span>
           </div>
         ))}
       </div>

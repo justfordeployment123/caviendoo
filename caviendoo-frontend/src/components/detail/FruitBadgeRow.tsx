@@ -20,7 +20,7 @@ export function FruitBadgeRow({ fruit, locale }: { fruit: Fruit; locale: Locale 
   return (
     <div className="flex items-center flex-wrap gap-1.5 px-4 py-2.5">
       {/* Zone pill */}
-      <span className="badge border border-cream/20 text-cream/80 text-2xs">
+      <span className="badge border border-border text-ink-muted text-2xs bg-surface">
         {fruit.zone[locale]}
       </span>
 
@@ -28,7 +28,7 @@ export function FruitBadgeRow({ fruit, locale }: { fruit: Fruit; locale: Locale 
       <CategoryBadge category={fruit.category} locale={locale} size="xs" />
 
       {/* Season range pill */}
-      <span className="badge border border-cream/20 text-cream/60 text-2xs font-mono">
+      <span className="badge border border-border text-muted text-2xs font-mono bg-surface">
         {range}
       </span>
     </div>

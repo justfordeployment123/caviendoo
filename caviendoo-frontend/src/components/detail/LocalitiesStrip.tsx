@@ -16,7 +16,7 @@ export function LocalitiesStrip({ localities }: { localities: string[] }) {
         {localities.map((loc) => (
           <span
             key={loc}
-            className="text-xs px-2 py-0.5 rounded-full border border-cream/15 text-cream/60 bg-surface/40"
+            className="text-xs px-2 py-0.5 rounded-full border border-border text-ink-muted bg-surface-raised/60"
           >
             {loc}
           </span>

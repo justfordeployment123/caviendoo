@@ -26,8 +26,8 @@ export function MapTooltip({ governorate: gov, overlayMode }: MapTooltipProps) {
   }
 
   return (
-    <div className="bg-surface-raised border border-border rounded px-3 py-2 shadow-panel-dark">
-      <p className="text-cream text-xs font-medium mb-0.5">{gov.shapeName}</p>
+    <div className="bg-surface border border-border rounded px-3 py-2 shadow-panel-dark">
+      <p className="text-ink text-xs font-medium mb-0.5">{gov.shapeName}</p>
       <p className="text-gold font-mono text-sm font-medium leading-tight">
         {getPrimaryLine()}
       </p>
@@ -40,7 +40,7 @@ export function MapTooltip({ governorate: gov, overlayMode }: MapTooltipProps) {
           left: 12,
           borderLeft: '5px solid transparent',
           borderRight: '5px solid transparent',
-          borderTop: '5px solid #1c201b',
+          borderTop: '5px solid #D4EAAA',
         }}
       />
     </div>

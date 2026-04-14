@@ -3,18 +3,18 @@ import type { OverlayMode } from '@/types';
 import type { Governorate } from '@/types';
 
 // ── Récoltes — fruit density (continuous d3 scale) ────────────────────────
-// fruitCount range across governorates: 1–24.  0 = empty (near-black).
+// fruitCount range across governorates: 1–24.  0 = empty (light muted green).
 const recoltesScale = d3.scaleSequential<string>()
   .domain([0, 25])
   .interpolator(
     d3.interpolateRgbBasis([
-      '#0a1210', // 0   no crops — very dark
-      '#0f2818', // ~3  minimal
-      '#164a28', // ~6  few crops
-      '#208040', // ~10 moderate — mid green
-      '#3cb858', // ~15 high — vivid green
-      '#60e878', // ~20 very high — bright
-      '#90ffa0', // 25  peak — mint white
+      '#C8D8A0', // 0   no crops — light muted green (neutral land)
+      '#A8C278', // ~3  minimal
+      '#7EAA50', // ~6  few crops
+      '#50943A', // ~10 moderate — mid green
+      '#2E7820', // ~15 high — vivid green
+      '#1A6010', // ~20 very high
+      '#0A4A08', // 25  peak — deep forest green
     ])
   );
 
@@ -23,7 +23,7 @@ export function getRecoltesFill(fruitCount: number): string {
 }
 
 // ── Stress Hydrique — aquifer stress % (d3.scaleSequential) ──────────────
-// 0% = deep green (#1a4a2a)  →  100% = deep red (#8a1010)
+// 0% = deep green (#1a6a3a)  →  100% = deep red (#8a1010)
 const stressScale = d3.scaleSequential<string>()
   .domain([0, 100])
   .interpolator(

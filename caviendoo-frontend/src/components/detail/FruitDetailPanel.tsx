@@ -17,13 +17,9 @@ import { NutritionalCard } from './NutritionalCard';
 import { CulturalNotes } from './CulturalNotes';
 import { GovernorateChips } from './GovernorateChips';
 
-// ── Section divider ────────────────────────────────────────────────────────
-
 function Divider() {
-  return <div className="mx-4 border-t border-white/8 mb-3" />;
+  return <div className="mx-4 border-t border-border mb-3" />;
 }
-
-// ── Main panel ─────────────────────────────────────────────────────────────
 
 export function FruitDetailPanel() {
   const t = useTranslations('detail');
@@ -53,9 +49,7 @@ export function FruitDetailPanel() {
   const isInComparison = fruit ? comparedFruitIds.includes(fruit.id) : false;
   const comparisonFull = comparedFruitIds.length >= 3;
 
-  const handleClose = () => {
-    setSelectedFruitId(null);
-  };
+  const handleClose = () => setSelectedFruitId(null);
 
   const handleAddToCompare = () => {
     if (fruit && !isInComparison && !comparisonFull) {
@@ -66,15 +60,11 @@ export function FruitDetailPanel() {
   return (
     <aside
       className={[
-        'flex flex-col bg-canvas border-s border-white/8 overflow-hidden',
+        'flex flex-col bg-canvas border-s border-border overflow-hidden',
         'transition-all duration-300 ease-in-out',
-        // Flex order: last in LTR (right side), first in RTL (left side)
-        'order-last rtl:order-first rtl:border-s-0 rtl:border-e rtl:border-white/8',
-        // lg+: inline flex column
+        'order-last rtl:order-first rtl:border-s-0 rtl:border-e rtl:border-border',
         'lg:shrink-0 lg:relative lg:z-auto',
-        // md: absolute overlay on top of map
         'md:max-lg:absolute md:max-lg:inset-y-0 md:max-lg:end-0 md:max-lg:w-96 md:max-lg:z-30 md:max-lg:shadow-2xl',
-        // sm: fixed full-screen
         'max-md:fixed max-md:inset-0 max-md:w-full max-md:z-40',
         isDetailOpen
           ? 'w-full md:w-96 translate-x-0 opacity-100'
@@ -83,24 +73,24 @@ export function FruitDetailPanel() {
       aria-hidden={!isDetailOpen}
     >
       {/* ── Header ─────────────────────────────────────────────────────── */}
-      <div className="shrink-0 flex items-center justify-between px-4 py-3 border-b border-white/8">
+      <div className="shrink-0 flex items-center justify-between px-4 py-3 border-b border-border bg-surface">
         <div className="flex flex-col min-w-0">
           {fruit ? (
             <>
-              <h2 className="font-serif text-lg leading-tight text-cream truncate">
+              <h2 className="font-serif text-lg leading-tight text-ink truncate">
                 {fruit.name[locale]}
               </h2>
-              <p className="font-arabic text-xs text-cream/50 leading-tight truncate">
+              <p className="font-arabic text-xs text-muted leading-tight truncate">
                 {fruit.localName}
               </p>
             </>
           ) : (
-            <div className="h-6 w-32 bg-white/8 rounded animate-pulse" />
+            <div className="h-6 w-32 bg-ink/8 rounded animate-pulse" />
           )}
         </div>
         <button
           onClick={handleClose}
-          className="shrink-0 ms-2 p-1.5 rounded text-cream/40 hover:text-cream hover:bg-white/8 transition-colors"
+          className="shrink-0 ms-2 p-1.5 rounded text-muted hover:text-ink hover:bg-ink/5 transition-colors"
           aria-label={t('close')}
         >
           <X size={16} />
@@ -117,49 +107,23 @@ export function FruitDetailPanel() {
 
         {!loading && fruit && (
           <>
-            {/* Hero photo */}
             <FruitPhoto fruit={fruit} />
-
-            {/* Badge row */}
             <FruitBadgeRow fruit={fruit} locale={locale} />
-
-            {/* Description */}
-            <p className="px-4 pb-3 text-sm text-cream/70 leading-relaxed">
+            <p className="px-4 pb-3 text-sm text-ink-muted leading-relaxed">
               {fruit.description[locale]}
             </p>
-
-            {/* Localities */}
             <LocalitiesStrip localities={fruit.localities} />
-
-            {/* AOC / Heritage */}
             <AOCHeritagePanel fruit={fruit} />
-
             <Divider />
-
-            {/* Season calendar */}
             <SeasonCalendar season={fruit.season} locale={locale} />
-
             <Divider />
-
-            {/* Environmental panel */}
             <EnvironmentalPanel env={fruit.environmental} />
-
             <Divider />
-
-            {/* Nutritional */}
             <NutritionalCard fields={fruit.nutritional} locale={locale} />
-
             <Divider />
-
-            {/* Cultural notes */}
             <CulturalNotes fruit={fruit} locale={locale} />
-
             <Divider />
-
-            {/* Growing regions */}
             <GovernorateChips fruit={fruit} />
-
-            {/* Bottom padding */}
             <div className="h-4" />
           </>
         )}
@@ -167,17 +131,17 @@ export function FruitDetailPanel() {
 
       {/* ── Compare CTA footer ──────────────────────────────────────────── */}
       {fruit && (
-        <div className="shrink-0 px-4 py-3 border-t border-white/8 bg-canvas">
+        <div className="shrink-0 px-4 py-3 border-t border-border bg-surface">
           <button
             onClick={handleAddToCompare}
             disabled={isInComparison || comparisonFull}
             className={[
               'w-full flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium transition-colors',
               isInComparison
-                ? 'bg-gold/20 text-gold cursor-default'
+                ? 'bg-gold/15 text-gold cursor-default border border-gold/40'
                 : comparisonFull
-                ? 'bg-white/5 text-cream/30 cursor-not-allowed'
-                : 'bg-gold/15 text-gold border border-gold/40 hover:bg-gold/25',
+                ? 'bg-ink/5 text-muted cursor-not-allowed'
+                : 'bg-gold text-canvas border border-gold/80 hover:bg-gold-light',
             ].join(' ')}
           >
             <GitCompareArrows size={15} />

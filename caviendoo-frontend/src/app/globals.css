@@ -4,15 +4,12 @@
 
 /* ── CSS Custom Properties ─────────────────────────────────────────────── */
 :root {
-  --background: #0d0f0e;
-  --foreground: #f0e6cc;
-
-  /* Parchment sidebar */
-  --parchment: #f2ead8;
-  --ink: #1c1008;
+  --background: #F7FBF0;
+  --foreground: #1A2A0A;
 
   /* Accent */
-  --gold: #c9a84c;
+  --gold: #396809;
+  --gold-light: #67C70C;
 }
 
 /* ── Base Reset ─────────────────────────────────────────────────────────── */
@@ -24,7 +21,6 @@
 
 html {
   height: 100%;
-  /* Smooth RTL transitions */
   transition: none;
 }
 
@@ -36,7 +32,7 @@ body {
   font-family: var(--font-dm-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow: hidden; /* App is full-viewport, no page scroll */
+  overflow: hidden;
 }
 
 #__next,
@@ -54,24 +50,24 @@ main {
   background: transparent;
 }
 
-/* Dark surface scrollbar */
+/* Light surface scrollbar */
 .scrollbar-dark::-webkit-scrollbar-thumb {
-  background: #2a3028;
+  background: #A8CA6A;
   border-radius: 2px;
 }
 
 .scrollbar-dark::-webkit-scrollbar-thumb:hover {
-  background: #3a4238;
+  background: #396809;
 }
 
 /* Parchment surface scrollbar */
 .scrollbar-parchment::-webkit-scrollbar-thumb {
-  background: #c8b898;
+  background: #A8CA6A;
   border-radius: 2px;
 }
 
 .scrollbar-parchment::-webkit-scrollbar-thumb:hover {
-  background: #b8a880;
+  background: #396809;
 }
 
 /* ── Typography Utilities ───────────────────────────────────────────────── */
@@ -102,30 +98,29 @@ main {
 }
 
 /* ── Map SVG Styles ─────────────────────────────────────────────────────── */
-/* Border layer — sits on top of all fills. Pure CSS hover = zero JS re-renders */
 .gov-border {
-  stroke: rgba(240, 230, 204, 0.4);
+  stroke: rgba(26, 42, 10, 0.25);
   stroke-width: 1;
   cursor: pointer;
   transition: stroke 0.12s, stroke-width 0.12s, stroke-opacity 0.12s;
 }
 
 .gov-border:hover {
-  stroke: #ffd700;
+  stroke: #396809;
   stroke-width: 2.5;
   stroke-opacity: 1;
 }
 
 .gov-border.gov-selected {
-  stroke: #e8c97a;
+  stroke: #1A2A0A;
   stroke-width: 3;
   stroke-opacity: 1;
 }
 
 /* Governorate labels */
 .gov-label {
-  fill: rgba(255, 255, 255, 0.8);
-  stroke: rgba(0, 0, 0, 0.8);
+  fill: rgba(255, 255, 255, 0.92);
+  stroke: rgba(26, 42, 10, 0.6);
   font-family: system-ui, sans-serif;
   font-weight: 600;
   pointer-events: none;
@@ -134,22 +129,22 @@ main {
 
 /* ── Parchment Texture ──────────────────────────────────────────────────── */
 .parchment-bg {
-  background-color: #f2ead8;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+  background-color: #F7FBF0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.025'/%3E%3C/svg%3E");
   background-size: 300px 300px;
 }
 
 /* ── Focus visible — keyboard nav ring ──────────────────────────────────── */
 *:focus-visible {
-  outline: 2px solid #c9a84c;
+  outline: 2px solid #396809;
   outline-offset: 2px;
   border-radius: 2px;
 }
 
-/* ── Gold Divider ───────────────────────────────────────────────────────── */
+/* ── Green Divider ──────────────────────────────────────────────────────── */
 .gold-divider {
   height: 1px;
-  background: linear-gradient(to right, transparent, #c9a84c, transparent);
+  background: linear-gradient(to right, transparent, #67C70C, transparent);
 }
 
 /* ── Fruit Badge Base ───────────────────────────────────────────────────── */
@@ -166,19 +161,17 @@ main {
 }
 
 /* ── Aquifer Stress Chip Colors ─────────────────────────────────────────── */
-.chip-stress-low    { background: #1a4a2a; color: #86efac; }
-.chip-stress-mod    { background: #78350f; color: #fde68a; }
-.chip-stress-high   { background: #7f1d1d; color: #fca5a5; }
+.chip-stress-low    { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+.chip-stress-mod    { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+.chip-stress-high   { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
 
 /* ── Mobile safe area + ComparisonBar clearance ─────────────────────────── */
-/* On mobile, comparison bar sits above the mobile bottom bar */
 @media (max-width: 767px) {
   .comparison-bar-mobile {
-    bottom: 3.5rem; /* h-14 mobile bottom bar */
+    bottom: 3.5rem;
   }
 }
 
-/* Safe area support for notched phones */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   .safe-area-bottom {
     padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
