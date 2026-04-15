@@ -99,7 +99,7 @@ export const CATEGORY_COLORS: Record<FruitCategory, string> = {
   pomme:    'bg-emerald-700 text-emerald-100',
   tropical: 'bg-purple-700 text-white',
   berry:    'bg-red-800 text-red-100',
-  dried:    'bg-[#6b3f1a] text-amber-100',
+  dried:    'bg-amber-800 text-amber-50',
   melon:    'bg-lime-700 text-white',
   other:    'bg-slate-600 text-slate-100',
 };

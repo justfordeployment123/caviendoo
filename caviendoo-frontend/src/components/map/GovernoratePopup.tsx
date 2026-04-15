@@ -76,7 +76,7 @@ export function GovernoratePopup({
         {/* Description */}
         {gov.description && (
           <div className="px-3 pt-2 pb-1">
-            <p className="text-xs text-ink-muted leading-relaxed line-clamp-3">
+            <p className="text-xs text-ink-muted leading-relaxed">
               {gov.description}
             </p>
           </div>

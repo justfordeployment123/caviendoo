@@ -54,6 +54,9 @@ export const metadata: Metadata = {
   title: 'Caviendoo — Agricultural Intelligence Platform',
   description:
     'Geospatial fruit intelligence for Tunisia. Explore 73 crops across 24 regions with environmental and nutritional data.',
+  icons: {
+    icon: '/caviendoo_logo_small.png',
+  },
 };
 
 // ── Root Layout ───────────────────────────────────────────────────────────

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Search, Leaf, Info } from 'lucide-react';
+import Image from 'next/image';
 import { useAtlasStore } from '@/store';
 import { getMetrics } from '@/services/dataService';
 import { SearchDropdown } from './SearchDropdown';
@@ -178,12 +179,12 @@ export function TopBar({ onAbout }: TopBarProps) {
     <header className="flex-none bg-surface border-b border-border z-20">
 
       {/* ── Row 1 ─────────────────────────────────────────────────────── */}
-      <div className="flex items-center px-4 gap-3 h-12">
+      <div className="flex items-center px-4 gap-3 h-16">
 
         {/* Logo */}
-        <div className="flex items-center gap-2 shrink-0">
-          <Leaf size={16} className="text-gold" />
-          <span className="font-serif text-base sm:text-lg font-semibold text-ink tracking-widest uppercase leading-none">
+        <div className="flex items-center gap-4 shrink-0">
+          <Image src="/caviendoo_logo.png" alt="Caviendoo Logo" width={60} height={60} className="object-contain" priority />
+          <span className="font-serif text-lg sm:text-xl font-semibold text-ink tracking-widest uppercase leading-none pb-1">
             Caviendoo
           </span>
           <span className="hidden xl:block text-2xs text-muted tracking-widest uppercase ps-2 border-s border-border">

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { X, Leaf, MapPin, Award } from 'lucide-react';
+import Image from 'next/image';
 
 const STORAGE_KEY = 'caviendoo_about_dismissed';
 
@@ -52,13 +53,13 @@ export function AboutModal({ open: controlledOpen, onClose }: AboutModalProps) {
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-border bg-surface">
-          <div className="flex items-center gap-2.5">
-            <Leaf size={18} className="text-gold" />
+          <div className="flex items-center gap-4">
+            <Image src="/caviendoo_logo_small.png" alt="Caviendoo" width={48} height={48} className="object-contain shrink-0" priority />
             <div>
-              <h2 className="font-serif text-lg font-semibold text-ink leading-tight">
+              <h2 className="font-serif text-xl font-semibold text-ink leading-tight">
                 Caviendoo
               </h2>
-              <p className="text-2xs text-muted uppercase tracking-widest">
+              <p className="text-xs text-muted uppercase tracking-widest mt-0.5">
                 Agricultural Intelligence Platform
               </p>
             </div>
@@ -111,11 +112,6 @@ export function AboutModal({ open: controlledOpen, onClose }: AboutModalProps) {
               </p>
             </div>
           </div>
-
-          <p className="text-2xs text-muted leading-relaxed">
-            <span className="font-medium text-ink-muted">Milestone 1</span> — running on curated
-            static data. Live production data integration planned for Milestone 2.
-          </p>
         </div>
 
         {/* Footer */}
