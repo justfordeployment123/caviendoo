@@ -1,0 +1,243 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [postgis, pg_trgm]
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum FruitCategory {
+  citrus
+  stone
+  pomme
+  tropical
+  berry
+  dried
+  melon
+  other
+}
+
+enum SustainabilityClass {
+  low
+  moderate
+  high
+}
+
+enum ImageSource {
+  pixabay
+  unsplash
+  pexels
+  wikimedia
+  manual
+}
+
+enum ImageStatus {
+  pending
+  processing
+  ready
+  failed
+}
+
+// ─── Governorate ──────────────────────────────────────────────────────────────
+
+model Governorate {
+  id               Int     @id @default(autoincrement())
+  shapeName        String  @unique
+  shapeISO         String  @unique
+  aquiferStressPct Int
+  waterLabel       String
+  uvPeak           Int
+  uvLabel          String
+  descriptionEn    String? @db.Text
+  descriptionFr    String? @db.Text
+  descriptionAr    String? @db.Text
+  centroidLat      Float?
+  centroidLng      Float?
+
+  fruits      FruitGovernorate[]
+  uvForecasts UvForecast[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("governorates")
+}
+
+// ─── Fruit ────────────────────────────────────────────────────────────────────
+
+model Fruit {
+  id                 String        @id
+  nameEn             String
+  nameFr             String
+  nameAr             String
+  localName          String
+  latinName          String
+  category           FruitCategory
+  isAOC              Boolean       @default(false)
+  isHeritage         Boolean       @default(false)
+  primaryGovernorate String
+
+  seasonPre  Int[]
+  seasonPeak Int[]
+  seasonPost Int[]
+
+  descriptionEn  String @db.Text
+  descriptionFr  String @db.Text
+  descriptionAr  String @db.Text
+  culturalNotesEn String @db.Text
+  culturalNotesFr String @db.Text
+  culturalNotesAr String @db.Text
+  zoneEn         String
+  zoneFr         String
+  zoneAr         String
+
+  localities String[]
+  tags       String[]
+
+  environmental FruitEnvironmental?
+  nutritional   NutritionalField[]
+  images        FruitImage[]
+  governorates  FruitGovernorate[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+  @@index([isAOC])
+  @@index([isHeritage])
+  @@index([primaryGovernorate])
+  @@map("fruits")
+}
+
+// ─── Fruit ↔ Governorate join ─────────────────────────────────────────────────
+
+model FruitGovernorate {
+  fruitId       String
+  governorateId Int
+  isPrimary     Boolean @default(false)
+
+  fruit       Fruit       @relation(fields: [fruitId], references: [id], onDelete: Cascade)
+  governorate Governorate @relation(fields: [governorateId], references: [id])
+
+  @@id([fruitId, governorateId])
+  @@map("fruit_governorates")
+}
+
+// ─── Environmental data ───────────────────────────────────────────────────────
+
+model FruitEnvironmental {
+  id                   Int                 @id @default(autoincrement())
+  fruitId              String              @unique
+  blueWaterLkg         Float
+  greenWaterLkg        Float
+  totalWaterLkg        Float
+  aquiferStressPct     Int
+  uvMin                Int
+  uvMax                Int
+  uvPeak               Int
+  uvNote               String
+  sustainabilityClass  SustainabilityClass
+
+  // NASA POWER cache — refreshed by nightly job
+  nasaT2mMax       Float?
+  nasaRainMmYear   Float?
+
+  // AI-readiness fields — populated by env-data refresh
+  carbonFootprintKgCo2  Float?
+  waterProductivityKgM3 Float?
+  soilOrganicCarbon     Float?
+  pestRiskIndex         Float?
+
+  lastEnvRefresh DateTime?
+
+  fruit Fruit @relation(fields: [fruitId], references: [id], onDelete: Cascade)
+
+  @@map("fruit_environmental")
+}
+
+// ─── Nutritional fields ───────────────────────────────────────────────────────
+
+model NutritionalField {
+  id        Int    @id @default(autoincrement())
+  fruitId   String
+  labelEn   String
+  labelFr   String
+  labelAr   String
+  value     String
+  sortOrder Int    @default(0)
+
+  fruit Fruit @relation(fields: [fruitId], references: [id], onDelete: Cascade)
+
+  @@index([fruitId])
+  @@map("nutritional_fields")
+}
+
+// ─── Images ───────────────────────────────────────────────────────────────────
+
+model FruitImage {
+  id           Int         @id @default(autoincrement())
+  fruitId      String
+  source       ImageSource
+  sourceId     String
+  sourceUrl    String
+  authorName   String?
+  authorUrl    String?
+  license      String
+  s3KeyHero    String?
+  s3KeyThumb   String?
+  cdnUrlHero   String?
+  cdnUrlThumb  String?
+  status       ImageStatus @default(pending)
+  isPrimary    Boolean     @default(false)
+  qualityScore Float?
+  errorMessage String?
+
+  fruit Fruit @relation(fields: [fruitId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([fruitId, source, sourceId])
+  @@index([fruitId, isPrimary])
+  @@index([status])
+  @@map("fruit_images")
+}
+
+// ─── UV Forecasts ─────────────────────────────────────────────────────────────
+
+model UvForecast {
+  id            Int      @id @default(autoincrement())
+  governorateId Int
+  forecastDate  DateTime @db.Date
+  uvMax         Float
+  uvAlert       Boolean  @default(false)
+  source        String   @default("openuv")
+  rawPayload    Json?
+
+  governorate Governorate @relation(fields: [governorateId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([governorateId, forecastDate])
+  @@index([forecastDate])
+  @@map("uv_forecasts")
+}
+
+// ─── Admin users ──────────────────────────────────────────────────────────────
+
+model AdminUser {
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
+  passwordHash String
+  name         String?
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@map("admin_users")
+}

@@ -1,0 +1,26 @@
+{
+  "name": "caviendoo",
+  "version": "2.0.0",
+  "private": true,
+  "workspaces": [
+    "caviendoo-frontend",
+    "caviendoo-api",
+    "caviendoo-admin"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev --workspace=caviendoo-api",
+    "dev:frontend": "npm run dev --workspace=caviendoo-frontend",
+    "dev:admin": "npm run dev --workspace=caviendoo-admin",
+    "build:api": "npm run build --workspace=caviendoo-api",
+    "build:frontend": "npm run build --workspace=caviendoo-frontend",
+    "build:admin": "npm run build --workspace=caviendoo-admin",
+    "build:all": "npm run build:api && npm run build:frontend && npm run build:admin",
+    "seed": "npm run seed --workspace=caviendoo-api",
+    "lint:api": "npm run lint --workspace=caviendoo-api",
+    "lint:frontend": "npm run lint --workspace=caviendoo-frontend"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}

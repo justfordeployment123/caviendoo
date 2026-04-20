@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "paths": {
+      "@/*": ["../../caviendoo-frontend/src/*"]
+    }
+  },
+  "include": ["./**/*.ts"]
+}
