@@ -43,12 +43,15 @@ enum ImageStatus {
   failed
 }
 
-// ─── Governorate ──────────────────────────────────────────────────────────────
+// ─── Governorate (Region) ────────────────────────────────────────────────────
+// One row per administrative region. countryCode allows multi-country expansion
+// (e.g. 'TN' for Tunisia, 'FR' for France). Queried via GET /api/v1/regions?country=TN
 
 model Governorate {
   id               Int     @id @default(autoincrement())
-  shapeName        String  @unique
-  shapeISO         String  @unique
+  shapeName        String  @unique  // matches GeoJSON shapeName exactly
+  shapeISO         String  @unique  // ISO 3166-2 code (e.g. TN-61)
+  countryCode      String  @default("TN")  // ISO 3166-1 alpha-2 (TN, FR, MA…)
   aquiferStressPct Int
   waterLabel       String
   uvPeak           Int
@@ -59,12 +62,14 @@ model Governorate {
   centroidLat      Float?
   centroidLng      Float?
 
-  fruits      FruitGovernorate[]
-  uvForecasts UvForecast[]
+  fruits        FruitGovernorate[]
+  environmental FruitEnvironmental[]
+  uvForecasts   UvForecast[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([countryCode])
   @@map("governorates")
 }
 
@@ -80,26 +85,26 @@ model Fruit {
   category           FruitCategory
   isAOC              Boolean       @default(false)
   isHeritage         Boolean       @default(false)
-  primaryGovernorate String
+  primaryGovernorate String        // shapeName of the primary region
 
   seasonPre  Int[]
   seasonPeak Int[]
   seasonPost Int[]
 
-  descriptionEn  String @db.Text
-  descriptionFr  String @db.Text
-  descriptionAr  String @db.Text
+  descriptionEn   String @db.Text
+  descriptionFr   String @db.Text
+  descriptionAr   String @db.Text
   culturalNotesEn String @db.Text
   culturalNotesFr String @db.Text
   culturalNotesAr String @db.Text
-  zoneEn         String
-  zoneFr         String
-  zoneAr         String
+  zoneEn          String
+  zoneFr          String
+  zoneAr          String
 
   localities String[]
   tags       String[]
 
-  environmental FruitEnvironmental?
+  environmental FruitEnvironmental[]
   nutritional   NutritionalField[]
   images        FruitImage[]
   governorates  FruitGovernorate[]
@@ -129,10 +134,15 @@ model FruitGovernorate {
 }
 
 // ─── Environmental data ───────────────────────────────────────────────────────
+// Scoped per (fruit, region) so the same fruit can have different environmental
+// profiles in different regions. The primary region's record is used for
+// public-facing API responses.
 
 model FruitEnvironmental {
   id                   Int                 @id @default(autoincrement())
-  fruitId              String              @unique
+  fruitId              String
+  regionId             Int
+
   blueWaterLkg         Float
   greenWaterLkg        Float
   totalWaterLkg        Float
@@ -155,8 +165,11 @@ model FruitEnvironmental {
 
   lastEnvRefresh DateTime?
 
-  fruit Fruit @relation(fields: [fruitId], references: [id], onDelete: Cascade)
+  fruit  Fruit       @relation(fields: [fruitId], references: [id], onDelete: Cascade)
+  region Governorate @relation(fields: [regionId], references: [id])
 
+  @@unique([fruitId, regionId])
+  @@index([fruitId])
   @@map("fruit_environmental")
 }
 

@@ -40,9 +40,9 @@ async function enqueueAllGovernorates(): Promise<void> {
 }
 
 // Listen for the repeatable trigger job to fan out to individual jobs
-uvForecastQueue.on('waiting', async (jobId: string) => {
-  if (jobId === 'nightly-uv-all-govs') {
-    await enqueueAllGovernorates().catch((err) =>
+uvForecastQueue.on('waiting', (job: { id?: string | null }) => {
+  if (job.id === 'nightly-uv-all-govs') {
+    enqueueAllGovernorates().catch((err) =>
       console.error('[worker] Failed to enqueue UV jobs:', err),
     );
   }

@@ -1,0 +1,44 @@
+name: Deploy Admin
+
+on:
+  push:
+    branches: [main]
+    paths:    ['caviendoo-admin/**']
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: caviendoo-admin/package-lock.json
+
+      - name: Install
+        working-directory: caviendoo-admin
+        run: npm ci
+
+      - name: Build
+        working-directory: caviendoo-admin
+        run: npm run build
+        env:
+          VITE_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host:     ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key:      ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -e
+            cd /srv/caviendoo/caviendoo-admin
+            git pull origin main
+            npm ci
+            VITE_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }} npm run build
+            # Served by Nginx as a static SPA — no pm2 restart needed
+            echo "Admin deploy complete"

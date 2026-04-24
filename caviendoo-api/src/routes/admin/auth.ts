@@ -22,12 +22,14 @@ router.post('/login', authLimiter, validate({ body: LoginSchema }), async (req, 
     const valid = await bcrypt.compare(password, hashToCheck);
 
     if (!admin || !valid) {
-      return res.status(401).json({ error: 'Invalid email or password' });
+      res.status(401).json({ error: 'Invalid email or password' });
+      return;
     }
 
     const expiresInMs = 24 * 60 * 60 * 1000;
+    // JWT_EXPIRES_IN is a validated string like "24h" — cast satisfies ms.StringValue brand
     const token = jwt.sign({ adminId: admin.id }, env.JWT_SECRET, {
-      expiresIn: env.JWT_EXPIRES_IN,
+      expiresIn: env.JWT_EXPIRES_IN as any,
     });
 
     // Update last login timestamp (non-blocking)

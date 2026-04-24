@@ -1,0 +1,48 @@
+name: Deploy Frontend
+
+on:
+  push:
+    branches: [main]
+    paths:    ['caviendoo-frontend/**']
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: caviendoo-frontend/package-lock.json
+
+      - name: Install
+        working-directory: caviendoo-frontend
+        run: npm ci
+
+      - name: Lint
+        working-directory: caviendoo-frontend
+        run: npm run lint
+
+      - name: Build
+        working-directory: caviendoo-frontend
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host:     ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key:      ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -e
+            cd /srv/caviendoo/caviendoo-frontend
+            git pull origin main
+            npm ci
+            NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }} npm run build
+            pm2 reload caviendoo-frontend --update-env
+            echo "Frontend deploy complete"

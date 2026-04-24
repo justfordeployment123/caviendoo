@@ -44,6 +44,18 @@ router.get('/', validate({ query: ListQuerySchema }), async (_req, res, next) =>
   }
 });
 
+// GET /api/v1/admin/governorates/:id
+router.get('/:id', validate({ params: IntIdParamSchema }), async (req, res, next) => {
+  try {
+    const id  = Number(req.params['id']);
+    const gov = await prisma.governorate.findUnique({ where: { id } });
+    if (!gov) return next(new HttpError(404, 'Governorate not found'));
+    res.json(gov);
+  } catch (err) {
+    next(err);
+  }
+});
+
 // PATCH /api/v1/admin/governorates/:id
 router.patch(
   '/:id',

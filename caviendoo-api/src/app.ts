@@ -7,15 +7,17 @@ import { errorHandler } from './middleware/errorHandler';
 import { apiLimiter } from './middleware/rateLimiter';
 
 // Routes
-import fruitsRouter       from './routes/fruits';
-import governoratesRouter from './routes/governorates';
-import searchRouter       from './routes/search';
-import metricsRouter      from './routes/metrics';
-import imagesRouter       from './routes/images';
-import envDataRouter      from './routes/envData';
-import adminAuthRouter    from './routes/admin/auth';
-import adminFruitsRouter  from './routes/admin/fruits';
-import adminGovsRouter    from './routes/admin/governorates';
+import fruitsRouter        from './routes/fruits';
+import governoratesRouter  from './routes/governorates';
+import regionsRouter       from './routes/regions';
+import searchRouter        from './routes/search';
+import metricsRouter       from './routes/metrics';
+import imagesRouter        from './routes/images';
+import envDataRouter       from './routes/envData';
+import environmentalRouter from './routes/environmental';
+import adminAuthRouter     from './routes/admin/auth';
+import adminFruitsRouter   from './routes/admin/fruits';
+import adminGovsRouter     from './routes/admin/governorates';
 
 const app = express();
 
@@ -57,12 +59,14 @@ app.get('/health', (_req, res) => {
 
 // ── Public API ────────────────────────────────────────────────────────────────
 app.use('/api/v1', apiLimiter);
-app.use('/api/v1/fruits',       fruitsRouter);
-app.use('/api/v1/governorates', governoratesRouter);
-app.use('/api/v1/search',       searchRouter);
-app.use('/api/v1/metrics',      metricsRouter);
-app.use('/api/v1/images',       imagesRouter);
-app.use('/api/v1/env-data',     envDataRouter);
+app.use('/api/v1/fruits',         fruitsRouter);
+app.use('/api/v1/governorates',   governoratesRouter);
+app.use('/api/v1/regions',        regionsRouter);
+app.use('/api/v1/search',         searchRouter);
+app.use('/api/v1/metrics',        metricsRouter);
+app.use('/api/v1/images',         imagesRouter);
+app.use('/api/v1/env-data',       envDataRouter);
+app.use('/api/v1/environmental',  environmentalRouter);
 
 // ── Admin API (all routes inside require JWT via requireAuth middleware) ───────
 app.use('/api/v1/admin',              adminAuthRouter);

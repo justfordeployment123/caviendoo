@@ -1,0 +1,47 @@
+name: Deploy API
+
+on:
+  push:
+    branches: [main]
+    paths:    ['caviendoo-api/**']
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: caviendoo-api/package-lock.json
+
+      - name: Install
+        working-directory: caviendoo-api
+        run: npm ci
+
+      - name: Typecheck
+        working-directory: caviendoo-api
+        run: npx tsc --noEmit
+
+      - name: Build
+        working-directory: caviendoo-api
+        run: npm run build
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host:     ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key:      ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -e
+            cd /srv/caviendoo/caviendoo-api
+            git pull origin main
+            npm ci --omit=dev
+            npx prisma migrate deploy
+            pm2 reload caviendoo-api   --update-env
+            pm2 reload caviendoo-worker --update-env
+            echo "API deploy complete"

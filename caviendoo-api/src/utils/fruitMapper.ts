@@ -8,10 +8,10 @@ import type {
 } from '@prisma/client';
 
 type DBFruitWithRelations = DBFruit & {
-  environmental?: FruitEnvironmental | null;
+  environmental?: (FruitEnvironmental & { region?: { shapeName: string } | null })[];
   nutritional?: NutritionalField[];
   images?: FruitImage[];
-  governorates?: (FruitGovernorate & { governorate: Governorate })[];
+  governorates?: (FruitGovernorate & { governorate: { shapeName: string } })[];
 };
 
 interface MapOptions {
@@ -25,6 +25,11 @@ export function mapFruitToResponse(fruit: DBFruitWithRelations, opts: MapOptions
 
   const governorateNames =
     fruit.governorates?.map((fg) => fg.governorate.shapeName) ?? [];
+
+  const env =
+    fruit.environmental?.find((e) => e.region?.shapeName === fruit.primaryGovernorate) ??
+    fruit.environmental?.[0] ??
+    null;
 
   return {
     id: fruit.id,
@@ -61,17 +66,17 @@ export function mapFruitToResponse(fruit: DBFruitWithRelations, opts: MapOptions
           value: n.value,
         }))
       : [],
-    environmental: fruit.environmental
+    environmental: env
       ? {
-          blueWaterLkg: fruit.environmental.blueWaterLkg,
-          greenWaterLkg: fruit.environmental.greenWaterLkg,
-          totalWaterLkg: fruit.environmental.totalWaterLkg,
-          aquiferStressPct: fruit.environmental.aquiferStressPct,
-          uvMin: fruit.environmental.uvMin,
-          uvMax: fruit.environmental.uvMax,
-          uvPeak: fruit.environmental.uvPeak,
-          uvNote: fruit.environmental.uvNote,
-          sustainabilityClass: fruit.environmental.sustainabilityClass,
+          blueWaterLkg:        env.blueWaterLkg,
+          greenWaterLkg:       env.greenWaterLkg,
+          totalWaterLkg:       env.totalWaterLkg,
+          aquiferStressPct:    env.aquiferStressPct,
+          uvMin:               env.uvMin,
+          uvMax:               env.uvMax,
+          uvPeak:              env.uvPeak,
+          uvNote:              env.uvNote,
+          sustainabilityClass: env.sustainabilityClass,
         }
       : null,
     tags: fruit.tags,
@@ -80,13 +85,13 @@ export function mapFruitToResponse(fruit: DBFruitWithRelations, opts: MapOptions
 
 export function mapGovernorateToResponse(gov: Governorate) {
   return {
-    shapeName: gov.shapeName,
-    shapeISO: gov.shapeISO,
+    shapeName:        gov.shapeName,
+    shapeISO:         gov.shapeISO,
     aquiferStressPct: gov.aquiferStressPct,
-    waterLabel: gov.waterLabel,
-    uvPeak: gov.uvPeak,
-    uvLabel: gov.uvLabel,
-    fruitCount: 0, // enriched by query
-    description: gov.descriptionEn ?? undefined,
+    waterLabel:       gov.waterLabel,
+    uvPeak:           gov.uvPeak,
+    uvLabel:          gov.uvLabel,
+    fruitCount:       0,
+    description:      gov.descriptionEn ?? undefined,
   };
 }

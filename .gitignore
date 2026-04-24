@@ -28,3 +28,7 @@ caviendoo-frontend/.env*.local
 
 # -- Docker --
 *.docker-compose.local.yml
+
+/generated/prisma
+
+.env

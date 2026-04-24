@@ -28,7 +28,7 @@ router.get('/', validate({ query: FruitQuerySchema }), async (req, res, next) =>
       prisma.fruit.findMany({
         where,
         include: {
-          environmental: true,
+          environmental: { include: { region: { select: { shapeName: true } } } },
           images: {
             where:   { isPrimary: true, status: 'ready' },
             take:    1,
@@ -60,7 +60,7 @@ router.get('/:id', validate({ params: FruitParamSchema }), async (req, res, next
     const fruit = await prisma.fruit.findUnique({
       where: { id: req.params['id'] },
       include: {
-        environmental: true,
+        environmental: { include: { region: { select: { shapeName: true } } } },
         nutritional:   { orderBy: { sortOrder: 'asc' } },
         images:        { where: { status: 'ready' }, orderBy: [{ isPrimary: 'desc' }, { createdAt: 'desc' }] },
         governorates:  { include: { governorate: true } },

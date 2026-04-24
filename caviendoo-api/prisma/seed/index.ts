@@ -5,9 +5,11 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
-// Import data from the frontend package (same monorepo, path alias resolved via tsconfig.json)
-import { fruits } from '@/data/fruits';
-import { governorates } from '@/data/governorates';
+// Import data directly from the frontend package using relative paths.
+// The @/types imports in those files are `import type` (erased at runtime) so
+// they require no resolution here — only the runtime value exports matter.
+import { fruits } from '../../../caviendoo-frontend/src/data/fruits';
+import { governorates } from '../../../caviendoo-frontend/src/data/governorates';
 
 const prisma = new PrismaClient({
   log: [{ emit: 'stdout', level: 'info' }],
@@ -44,7 +46,7 @@ const CENTROIDS: Record<string, { lat: number; lng: number }> = {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function frenchDesc(g: { shapeName: string; description?: string }): string {
+function frenchDesc(g: any): string {
   return g.description ?? '';
 }
 
@@ -59,6 +61,7 @@ async function seedGovernorates(): Promise<void> {
       where:  { shapeName: g.shapeName },
       update: {
         shapeISO:         g.shapeISO,
+        countryCode:      'TN',
         aquiferStressPct: g.aquiferStressPct,
         waterLabel:       g.waterLabel,
         uvPeak:           g.uvPeak,
@@ -72,6 +75,7 @@ async function seedGovernorates(): Promise<void> {
       create: {
         shapeName:        g.shapeName,
         shapeISO:         g.shapeISO,
+        countryCode:      'TN',
         aquiferStressPct: g.aquiferStressPct,
         waterLabel:       g.waterLabel,
         uvPeak:           g.uvPeak,
@@ -150,41 +154,50 @@ async function seedFruits(): Promise<void> {
       },
     });
 
-    // Upsert environmental data
+    // Upsert environmental data (scoped to primary governorate region)
     if (f.environmental) {
-      await prisma.fruitEnvironmental.upsert({
-        where:  { fruitId: f.id },
-        update: {
-          blueWaterLkg:        f.environmental.blueWaterLkg,
-          greenWaterLkg:       f.environmental.greenWaterLkg,
-          totalWaterLkg:       f.environmental.totalWaterLkg,
-          aquiferStressPct:    f.environmental.aquiferStressPct,
-          uvMin:               f.environmental.uvMin,
-          uvMax:               f.environmental.uvMax,
-          uvPeak:              f.environmental.uvPeak,
-          uvNote:              f.environmental.uvNote,
-          sustainabilityClass: f.environmental.sustainabilityClass,
-        },
-        create: {
-          fruitId:             f.id,
-          blueWaterLkg:        f.environmental.blueWaterLkg,
-          greenWaterLkg:       f.environmental.greenWaterLkg,
-          totalWaterLkg:       f.environmental.totalWaterLkg,
-          aquiferStressPct:    f.environmental.aquiferStressPct,
-          uvMin:               f.environmental.uvMin,
-          uvMax:               f.environmental.uvMax,
-          uvPeak:              f.environmental.uvPeak,
-          uvNote:              f.environmental.uvNote,
-          sustainabilityClass: f.environmental.sustainabilityClass,
-        },
+      const primaryGov = await prisma.governorate.findUnique({
+        where:  { shapeName: f.primaryGovernorate },
+        select: { id: true },
       });
+      if (!primaryGov) {
+        console.warn(`  ⚠ Primary governorate not found for env data: "${f.primaryGovernorate}" (fruit: ${f.id})`);
+      } else {
+        await prisma.fruitEnvironmental.upsert({
+          where:  { fruitId_regionId: { fruitId: f.id, regionId: primaryGov.id } },
+          update: {
+            blueWaterLkg:        f.environmental.blueWaterLkg,
+            greenWaterLkg:       f.environmental.greenWaterLkg,
+            totalWaterLkg:       f.environmental.totalWaterLkg,
+            aquiferStressPct:    f.environmental.aquiferStressPct,
+            uvMin:               f.environmental.uvMin,
+            uvMax:               f.environmental.uvMax,
+            uvPeak:              f.environmental.uvPeak,
+            uvNote:              f.environmental.uvNote,
+            sustainabilityClass: f.environmental.sustainabilityClass,
+          },
+          create: {
+            fruitId:             f.id,
+            regionId:            primaryGov.id,
+            blueWaterLkg:        f.environmental.blueWaterLkg,
+            greenWaterLkg:       f.environmental.greenWaterLkg,
+            totalWaterLkg:       f.environmental.totalWaterLkg,
+            aquiferStressPct:    f.environmental.aquiferStressPct,
+            uvMin:               f.environmental.uvMin,
+            uvMax:               f.environmental.uvMax,
+            uvPeak:              f.environmental.uvPeak,
+            uvNote:              f.environmental.uvNote,
+            sustainabilityClass: f.environmental.sustainabilityClass,
+          },
+        });
+      }
     }
 
     // Replace nutritional fields
     if (f.nutritional.length > 0) {
       await prisma.nutritionalField.deleteMany({ where: { fruitId: f.id } });
       await prisma.nutritionalField.createMany({
-        data: f.nutritional.map((n, i) => ({
+        data: f.nutritional.map((n: any, i: number) => ({
           fruitId:  f.id,
           labelEn:  n.label.en,
           labelFr:  n.label.fr,
@@ -230,7 +243,7 @@ async function seedAdminUser(): Promise<void> {
   const hash = await bcrypt.hash(password, 12);
   await prisma.adminUser.upsert({
     where:  { email },
-    update: {},
+    update: { passwordHash: hash },
     create: { email, passwordHash: hash, name: 'Admin' },
   });
 

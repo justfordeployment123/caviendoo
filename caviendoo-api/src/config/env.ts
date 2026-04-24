@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { z } from 'zod';
 
 const EnvSchema = z.object({
@@ -26,7 +27,7 @@ const EnvSchema = z.object({
   CORS_ORIGINS: z.string().default('http://localhost:3000,http://localhost:5173'),
 
   ADMIN_INITIAL_EMAIL: z.string().email().optional(),
-  ADMIN_INITIAL_PASSWORD: z.string().min(12).optional(),
+  ADMIN_INITIAL_PASSWORD: z.string().min(8).optional(),
 });
 
 function parseEnv() {

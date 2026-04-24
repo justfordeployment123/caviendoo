@@ -16,7 +16,7 @@ const ListQuerySchema = z.object({
 const router = Router();
 router.use(requireAuth);
 
-// GET /api/v1/admin/fruits
+// GET /api/v1/admin/fruits  — returns raw DB fields (flat) for admin editing
 router.get('/', validate({ query: ListQuerySchema }), async (req, res, next) => {
   try {
     const { page, limit } = req.query as any;
@@ -24,9 +24,7 @@ router.get('/', validate({ query: ListQuerySchema }), async (req, res, next) => 
     const [fruits, total] = await Promise.all([
       prisma.fruit.findMany({
         include: {
-          environmental: true,
-          images:        { where: { isPrimary: true }, take: 1 },
-          _count:        { select: { governorates: true } },
+          images: { where: { isPrimary: true }, take: 1 },
         },
         orderBy: { nameEn: 'asc' },
         skip:    buildSkip(page, limit),
@@ -36,7 +34,7 @@ router.get('/', validate({ query: ListQuerySchema }), async (req, res, next) => 
     ]);
 
     res.json({
-      data: fruits.map((f) => mapFruitToResponse(f)),
+      data: fruits,
       meta: buildMeta(total, page, limit),
     });
   } catch (err) {
@@ -44,7 +42,7 @@ router.get('/', validate({ query: ListQuerySchema }), async (req, res, next) => 
   }
 });
 
-// GET /api/v1/admin/fruits/:id
+// GET /api/v1/admin/fruits/:id  — returns raw DB fields (flat) for admin editing
 router.get('/:id', validate({ params: IdParamSchema }), async (req, res, next) => {
   try {
     const fruit = await prisma.fruit.findUnique({
@@ -58,7 +56,7 @@ router.get('/:id', validate({ params: IdParamSchema }), async (req, res, next) =
     });
 
     if (!fruit) return next(new HttpError(404, 'Fruit not found'));
-    res.json(mapFruitToResponse(fruit, { full: true }));
+    res.json(fruit);
   } catch (err) {
     next(err);
   }
@@ -72,9 +70,15 @@ router.post('/', validate({ body: FruitCreateSchema }), async (req, res, next) =
     const fruit = await prisma.fruit.create({ data: fruitCore });
 
     if (environmental) {
-      await prisma.fruitEnvironmental.create({
-        data: { fruitId: fruit.id, ...environmental },
+      const gov = await prisma.governorate.findUnique({
+        where:  { shapeName: fruit.primaryGovernorate },
+        select: { id: true },
       });
+      if (gov) {
+        await prisma.fruitEnvironmental.create({
+          data: { fruitId: fruit.id, regionId: gov.id, ...environmental },
+        });
+      }
     }
 
     if (nutritional?.length) {
@@ -108,7 +112,7 @@ router.patch('/:id', validate({ params: IdParamSchema, body: FruitUpdateSchema }
     const { id } = req.params as { id: string };
     const { environmental, nutritional, governorateNames, ...fruitCore } = req.body;
 
-    const existing = await prisma.fruit.findUnique({ where: { id }, select: { id: true } });
+    const existing = await prisma.fruit.findUnique({ where: { id }, select: { id: true, primaryGovernorate: true } });
     if (!existing) return next(new HttpError(404, 'Fruit not found'));
 
     if (Object.keys(fruitCore).length) {
@@ -116,11 +120,18 @@ router.patch('/:id', validate({ params: IdParamSchema, body: FruitUpdateSchema }
     }
 
     if (environmental) {
-      await prisma.fruitEnvironmental.upsert({
-        where:  { fruitId: id },
-        update: environmental,
-        create: { fruitId: id, ...environmental },
+      const primaryGov = fruitCore.primaryGovernorate ?? existing.primaryGovernorate;
+      const gov = await prisma.governorate.findUnique({
+        where:  { shapeName: primaryGov },
+        select: { id: true },
       });
+      if (gov) {
+        await prisma.fruitEnvironmental.upsert({
+          where:  { fruitId_regionId: { fruitId: id, regionId: gov.id } },
+          update: environmental,
+          create: { fruitId: id, regionId: gov.id, ...environmental },
+        });
+      }
     }
 
     if (nutritional) {
