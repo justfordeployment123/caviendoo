@@ -8,8 +8,8 @@ import bcrypt from 'bcryptjs';
 // Import data directly from the frontend package using relative paths.
 // The @/types imports in those files are `import type` (erased at runtime) so
 // they require no resolution here — only the runtime value exports matter.
-import { fruits } from '../../../caviendoo-frontend/src/data/fruits';
-import { governorates } from '../../../caviendoo-frontend/src/data/governorates';
+import { fruits } from './data/fruits';
+import { governorates } from './data/governorates';
 
 const prisma = new PrismaClient({
   log: [{ emit: 'stdout', level: 'info' }],
