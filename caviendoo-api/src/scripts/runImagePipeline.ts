@@ -1,9 +1,3 @@
-/**
- * One-shot image pipeline script — fetches and caches images for all fruits
- * that don't yet have a ready image in the DB.
- *
- * Run with: npm run seed:images -w caviendoo-api
- */
 import '../../config/env'; // validate env early
 import { prisma } from '../../config/db';
 import { fetchAndStoreImageForFruit } from '../../services/imageService';

@@ -28,8 +28,8 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 
-# Copy scripts directory for image pipeline
-COPY --from=builder /app/scripts ./scripts
+# Copy compiled scripts directory for image pipeline
+COPY --from=builder /app/dist/scripts ./dist/scripts
 
 EXPOSE 4000
 ENV PORT=4000

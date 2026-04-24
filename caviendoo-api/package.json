@@ -8,7 +8,7 @@
     "start": "node dist/server.js",
     "start:worker": "node dist/jobs/worker.js",
     "seed": "tsx prisma/seed/index.ts",
-    "seed:images": "tsx scripts/runImagePipeline.ts",
+    "seed:images": "node dist/scripts/runImagePipeline.js",
     "lint": "eslint src",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate deploy",
