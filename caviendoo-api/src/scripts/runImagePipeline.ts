@@ -1,6 +1,6 @@
-import '../../config/env'; // validate env early
-import { prisma } from '../../config/db';
-import { fetchAndStoreImageForFruit } from '../../services/imageService';
+import '../config/env'; // validate env early
+import { prisma } from '../config/db';
+import { fetchAndStoreImageForFruit } from '../services/imageService';
 
 const DELAY_MS = 500; // courtesy delay between requests
 
