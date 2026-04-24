@@ -20,15 +20,17 @@ export default function NavLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex bg-canvas">
       {/* Sidebar */}
-      <aside className="w-56 bg-surface border-r border-white/10 flex flex-col">
-        <div className="px-6 py-5 border-b border-white/10">
+      <aside className="w-56 bg-surface border-r border-border flex flex-col">
+        {/* Logo */}
+        <div className="px-6 py-5 border-b border-border">
           <span className="font-display text-gold text-xl font-semibold tracking-wide">
             Caviendoo
           </span>
-          <p className="text-cream/40 text-xs mt-0.5">Admin Panel</p>
+          <p className="text-muted text-xs mt-0.5">Admin Panel</p>
         </div>
 
-        <nav className="flex-1 px-3 py-4 space-y-1">
+        {/* Nav links */}
+        <nav className="flex-1 px-3 py-4 space-y-0.5">
           {NAV_LINKS.map(({ to, label }) => {
             const active = pathname === to || pathname.startsWith(to + '/');
             return (
@@ -37,8 +39,8 @@ export default function NavLayout({ children }: { children: React.ReactNode }) {
                 to={to}
                 className={`block px-3 py-2 rounded text-sm transition-colors ${
                   active
-                    ? 'bg-gold/20 text-gold font-medium'
-                    : 'text-cream/60 hover:text-cream hover:bg-white/5'
+                    ? 'bg-gold/15 text-gold font-semibold'
+                    : 'text-muted hover:text-cream hover:bg-ink/5'
                 }`}
               >
                 {label}
@@ -47,11 +49,12 @@ export default function NavLayout({ children }: { children: React.ReactNode }) {
           })}
         </nav>
 
-        <div className="px-4 py-4 border-t border-white/10">
-          <p className="text-cream/40 text-xs mb-2 truncate">{admin?.email}</p>
+        {/* Footer */}
+        <div className="px-4 py-4 border-t border-border">
+          <p className="text-muted text-xs mb-2 truncate">{admin?.email}</p>
           <button
             onClick={handleLogout}
-            className="w-full text-xs text-cream/40 hover:text-cream/80 text-left transition-colors"
+            className="w-full text-xs text-muted hover:text-cream text-left transition-colors"
           >
             Sign out
           </button>

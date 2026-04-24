@@ -100,5 +100,25 @@
     "en": "EN",
     "fr": "FR",
     "ar": "AR"
+  },
+  "about": {
+    "title": "À propos de Caviendoo",
+    "buttonLabel": "À propos",
+    "version": "Version 2.0 — Données en direct",
+    "intro": "Caviendoo est un atlas géographique interactif du patrimoine agricole tunisien, conçu pour soutenir l'approvisionnement, la planification saisonnière et l'intelligence variétale.",
+    "catalogueLabel": "Catalogue",
+    "catalogueValue": "73 fruits dans 24 gouvernorats",
+    "aocLabel": "Désignations AOC",
+    "aocTooltip": "Appellation d'Origine Contrôlée — une désignation légalement protégée garantissant l'origine géographique et des normes de qualité certifiées.",
+    "heritageLabel": "Variétés Patrimoniales",
+    "heritageTooltip": "Cultivars traditionnels préservés par les communautés agricoles tunisiennes locales depuis des générations, représentant la biodiversité agricole vivante du pays.",
+    "dataNote": "Données de production en direct — fruits, images, prévisions UV et données environnementales mis à jour en temps réel.",
+    "dontShow": "Ne plus afficher",
+    "close": "Fermer"
+  },
+  "legend": {
+    "title": "Légende de la Carte",
+    "aocBadge": "AOC — Appellation d'Origine Protégée",
+    "heritageBadge": "♦ Patrimoine — Variété traditionnelle préservée par les communautés locales"
   }
 }

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
@@ -78,9 +78,9 @@ const DEFAULT_VALUES: Partial<FormValues> = {
 function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-cream/60 text-xs mb-1">{label}</label>
+      <label className="block text-muted text-xs font-medium mb-1">{label}</label>
       {children}
-      {error && <p className="text-red-400 text-xs mt-1">{error}</p>}
+      {error && <p className="text-red-600 text-xs mt-1">{error}</p>}
     </div>
   );
 }
@@ -89,7 +89,7 @@ function Input({ className = '', ...props }: React.InputHTMLAttributes<HTMLInput
   return (
     <input
       {...props}
-      className={`w-full bg-canvas border border-white/20 rounded px-3 py-1.5 text-cream text-sm focus:outline-none focus:border-gold/60 ${className}`}
+      className={`w-full bg-canvas border border-border rounded-lg px-3 py-1.5 text-cream text-sm focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/20 ${className}`}
     />
   );
 }
@@ -99,8 +99,31 @@ function Textarea({ className = '', ...props }: React.TextareaHTMLAttributes<HTM
     <textarea
       {...props}
       rows={3}
-      className={`w-full bg-canvas border border-white/20 rounded px-3 py-1.5 text-cream text-sm focus:outline-none focus:border-gold/60 resize-none ${className}`}
+      className={`w-full bg-canvas border border-border rounded-lg px-3 py-1.5 text-cream text-sm focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/20 resize-none ${className}`}
     />
+  );
+}
+
+type Lang = 'en' | 'fr' | 'ar';
+
+function LangTabs({ active, onChange }: { active: Lang; onChange: (l: Lang) => void }) {
+  return (
+    <div className="flex gap-0.5 bg-canvas border border-border rounded-lg p-0.5 w-fit">
+      {(['en', 'fr', 'ar'] as Lang[]).map((lang) => (
+        <button
+          key={lang}
+          type="button"
+          onClick={() => onChange(lang)}
+          className={`px-3 py-1 rounded text-xs font-semibold transition-colors ${
+            active === lang
+              ? 'bg-gold text-white shadow-sm'
+              : 'text-muted hover:text-cream'
+          }`}
+        >
+          {lang.toUpperCase()}
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -109,6 +132,7 @@ export default function FruitEdit() {
   const isNew = !id;
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const [activeLang, setActiveLang] = useState<Lang>('en');
 
   const { data: fruit, isLoading } = useQuery({
     queryKey: ['admin-fruit', id],
@@ -195,7 +219,7 @@ export default function FruitEdit() {
     }
   };
 
-  if (!isNew && isLoading) return <div className="p-8 text-cream/40">Loading…</div>;
+  if (!isNew && isLoading) return <div className="p-8 text-muted">Loading…</div>;
 
   return (
     <div className="p-8 max-w-4xl">
@@ -206,8 +230,8 @@ export default function FruitEdit() {
       <form onSubmit={handleSubmit((v) => mutation.mutate(v))} className="space-y-8">
 
         {/* Identity */}
-        <section className="bg-surface rounded-lg border border-white/10 p-5 space-y-4">
-          <h2 className="text-cream/60 text-xs uppercase tracking-wider font-medium mb-3">Identity</h2>
+        <section className="bg-surface rounded-xl border border-border p-5 space-y-4">
+          <h2 className="text-muted text-xs uppercase tracking-wider font-medium mb-3">Identity</h2>
           <div className="grid grid-cols-2 gap-4">
             <Field label="Slug (ID)" error={errors.id?.message}>
               <Input {...register('id')} placeholder="deglet-noor-date" readOnly={!isNew} />
@@ -233,7 +257,7 @@ export default function FruitEdit() {
             <Field label="Category" error={errors.category?.message}>
               <select
                 {...register('category')}
-                className="w-full bg-canvas border border-white/20 rounded px-3 py-1.5 text-cream text-sm focus:outline-none focus:border-gold/60"
+                className="w-full bg-canvas border border-border rounded-lg px-3 py-1.5 text-cream text-sm focus:outline-none focus:border-gold"
               >
                 {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
@@ -241,7 +265,7 @@ export default function FruitEdit() {
             <Field label="Primary Governorate" error={errors.primaryGovernorate?.message}>
               <select
                 {...register('primaryGovernorate')}
-                className="w-full bg-canvas border border-white/20 rounded px-3 py-1.5 text-cream text-sm focus:outline-none focus:border-gold/60"
+                className="w-full bg-canvas border border-border rounded-lg px-3 py-1.5 text-cream text-sm focus:outline-none focus:border-gold"
               >
                 <option value="">Select primary…</option>
                 {(watchedGovNames ?? []).map((name) => (
@@ -251,11 +275,11 @@ export default function FruitEdit() {
             </Field>
             <Field label="Flags">
               <div className="flex gap-4 pt-1">
-                <label className="flex items-center gap-2 text-cream/70 text-sm cursor-pointer">
+                <label className="flex items-center gap-2 text-muted text-sm cursor-pointer">
                   <input type="checkbox" {...register('isAOC')} className="accent-gold" />
                   AOC
                 </label>
-                <label className="flex items-center gap-2 text-cream/70 text-sm cursor-pointer">
+                <label className="flex items-center gap-2 text-muted text-sm cursor-pointer">
                   <input type="checkbox" {...register('isHeritage')} className="accent-gold" />
                   Heritage
                 </label>
@@ -274,11 +298,11 @@ export default function FruitEdit() {
         </section>
 
         {/* Growing Regions */}
-        <section className="bg-surface rounded-lg border border-white/10 p-5">
-          <h2 className="text-cream/60 text-xs uppercase tracking-wider font-medium mb-4">Growing Regions</h2>
+        <section className="bg-surface rounded-xl border border-border p-5">
+          <h2 className="text-muted text-xs uppercase tracking-wider font-medium mb-4">Growing Regions</h2>
           <div className="grid grid-cols-4 gap-2">
             {regions.map((region) => (
-              <label key={region.id} className="flex items-center gap-2 text-cream/70 text-sm cursor-pointer py-1">
+              <label key={region.id} className="flex items-center gap-2 text-muted text-sm cursor-pointer py-1">
                 <input
                   type="checkbox"
                   className="accent-gold"
@@ -292,34 +316,66 @@ export default function FruitEdit() {
         </section>
 
         {/* Localised text */}
-        <section className="bg-surface rounded-lg border border-white/10 p-5 space-y-4">
-          <h2 className="text-cream/60 text-xs uppercase tracking-wider font-medium mb-3">Description</h2>
-          {(['En', 'Fr', 'Ar'] as const).map((lang) => (
-            <div key={lang} className="grid grid-cols-2 gap-4">
-              <Field label={`Description (${lang})`}>
-                <Textarea {...register(`description${lang}`)} />
+        <section className="bg-surface rounded-xl border border-border p-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-muted text-xs uppercase tracking-wider font-medium">Description &amp; Cultural Notes</h2>
+            <LangTabs active={activeLang} onChange={setActiveLang} />
+          </div>
+
+          {activeLang === 'en' && (
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Description (EN)">
+                <Textarea {...register('descriptionEn')} />
               </Field>
-              <Field label={`Cultural Notes (${lang})`}>
-                <Textarea {...register(`culturalNotes${lang}`)} />
+              <Field label="Cultural Notes (EN)">
+                <Textarea {...register('culturalNotesEn')} />
               </Field>
             </div>
-          ))}
-          <div className="grid grid-cols-3 gap-4">
-            {(['En', 'Fr', 'Ar'] as const).map((lang) => (
-              <Field key={lang} label={`Zone (${lang})`}>
-                <Input {...register(`zone${lang}`)} />
+          )}
+          {activeLang === 'fr' && (
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Description (FR)">
+                <Textarea {...register('descriptionFr')} />
               </Field>
-            ))}
+              <Field label="Cultural Notes (FR)">
+                <Textarea {...register('culturalNotesFr')} />
+              </Field>
+            </div>
+          )}
+          {activeLang === 'ar' && (
+            <div className="grid grid-cols-2 gap-4" dir="rtl">
+              <Field label="الوصف (AR)">
+                <Textarea {...register('descriptionAr')} dir="rtl" />
+              </Field>
+              <Field label="الملاحظات الثقافية (AR)">
+                <Textarea {...register('culturalNotesAr')} dir="rtl" />
+              </Field>
+            </div>
+          )}
+
+          <div className="border-t border-border pt-4">
+            <p className="text-muted text-xs mb-3 uppercase tracking-wider font-medium">Zone / Region Label</p>
+            <div className="grid grid-cols-3 gap-4">
+              <Field label="Zone (EN)">
+                <Input {...register('zoneEn')} />
+              </Field>
+              <Field label="Zone (FR)">
+                <Input {...register('zoneFr')} />
+              </Field>
+              <Field label="Zone (AR)">
+                <Input {...register('zoneAr')} dir="rtl" />
+              </Field>
+            </div>
           </div>
         </section>
 
         {/* Season */}
-        <section className="bg-surface rounded-lg border border-white/10 p-5">
-          <h2 className="text-cream/60 text-xs uppercase tracking-wider font-medium mb-4">Season Calendar</h2>
+        <section className="bg-surface rounded-xl border border-border p-5">
+          <h2 className="text-muted text-xs uppercase tracking-wider font-medium mb-4">Season Calendar</h2>
           <div className="space-y-3">
             {(['Pre', 'Peak', 'Post'] as const).map((phase) => (
               <div key={phase} className="flex items-center gap-4">
-                <span className="text-cream/50 text-sm w-10">{phase}</span>
+                <span className="text-muted text-sm w-10">{phase}</span>
                 <Controller
                   name={`season${phase}` as 'seasonPre' | 'seasonPeak' | 'seasonPost'}
                   control={control}
@@ -333,8 +389,8 @@ export default function FruitEdit() {
         </section>
 
         {/* Environmental */}
-        <section className="bg-surface rounded-lg border border-white/10 p-5 space-y-4">
-          <h2 className="text-cream/60 text-xs uppercase tracking-wider font-medium mb-3">Environmental Data</h2>
+        <section className="bg-surface rounded-xl border border-border p-5 space-y-4">
+          <h2 className="text-muted text-xs uppercase tracking-wider font-medium mb-3">Environmental Data</h2>
           <div className="grid grid-cols-3 gap-4">
             <Field label="Blue Water (L/kg)" error={errors.environmental?.blueWaterLkg?.message}>
               <Input type="number" step="0.1" {...register('environmental.blueWaterLkg')} />
@@ -360,7 +416,7 @@ export default function FruitEdit() {
             <Field label="Sustainability Class" error={errors.environmental?.sustainabilityClass?.message}>
               <select
                 {...register('environmental.sustainabilityClass')}
-                className="w-full bg-canvas border border-white/20 rounded px-3 py-1.5 text-cream text-sm focus:outline-none focus:border-gold/60"
+                className="w-full bg-canvas border border-border rounded-lg px-3 py-1.5 text-cream text-sm focus:outline-none focus:border-gold"
               >
                 {SUSTAINABILITY.map((s) => <option key={s} value={s}>{s}</option>)}
               </select>
@@ -372,9 +428,9 @@ export default function FruitEdit() {
         </section>
 
         {/* Nutritional */}
-        <section className="bg-surface rounded-lg border border-white/10 p-5">
+        <section className="bg-surface rounded-xl border border-border p-5">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-cream/60 text-xs uppercase tracking-wider font-medium">Nutritional Data</h2>
+            <h2 className="text-muted text-xs uppercase tracking-wider font-medium">Nutritional Data</h2>
             <button
               type="button"
               onClick={() => appendNutritional({ labelEn: '', labelFr: '', labelAr: '', value: '' })}
@@ -385,12 +441,12 @@ export default function FruitEdit() {
           </div>
 
           {nutritionalFields.length === 0 ? (
-            <p className="text-cream/30 text-sm">No nutritional data. Click "+ Add Row" to add entries.</p>
+            <p className="text-muted text-sm">No nutritional data. Click "+ Add Row" to add entries.</p>
           ) : (
             <div className="space-y-2">
               <div className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] gap-2 mb-1">
                 {['Label EN', 'Label FR', 'Label AR', 'Value', ''].map((h, i) => (
-                  <span key={i} className="text-cream/40 text-xs">{h}</span>
+                  <span key={i} className="text-muted text-xs">{h}</span>
                 ))}
               </div>
               {nutritionalFields.map((field, idx) => (
@@ -415,7 +471,7 @@ export default function FruitEdit() {
                   <button
                     type="button"
                     onClick={() => removeNutritional(idx)}
-                    className="text-red-400/60 hover:text-red-400 text-sm px-2 py-1.5 transition-colors"
+                    className="text-red-500/70 hover:text-red-600 text-sm px-2 py-1.5 transition-colors"
                   >
                     ×
                   </button>
@@ -427,10 +483,11 @@ export default function FruitEdit() {
 
         {/* Image */}
         {!isNew && id && (
-          <section className="bg-surface rounded-lg border border-white/10 p-5">
-            <h2 className="text-cream/60 text-xs uppercase tracking-wider font-medium mb-4">Primary Image</h2>
+          <section className="bg-surface rounded-xl border border-border p-5">
+            <h2 className="text-muted text-xs uppercase tracking-wider font-medium mb-4">Primary Image</h2>
             <ImageUploader
               fruitId={id}
+              currentHero={(fruit?.images as any[])?.find((i: any) => i.isPrimary)?.cdnUrlHero ?? null}
               onSuccess={() => qc.invalidateQueries({ queryKey: ['admin-fruit', id] })}
             />
           </section>
@@ -441,19 +498,19 @@ export default function FruitEdit() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="bg-gold/90 hover:bg-gold text-ink font-semibold px-6 py-2 rounded text-sm transition-colors disabled:opacity-50"
+            className="bg-gold hover:bg-gold/80 text-white font-semibold px-6 py-2 rounded-lg text-sm transition-colors disabled:opacity-50"
           >
             {isSubmitting ? 'Saving…' : 'Save Fruit'}
           </button>
           <button
             type="button"
             onClick={() => navigate('/fruits')}
-            className="text-cream/50 hover:text-cream text-sm transition-colors px-4 py-2"
+            className="text-muted hover:text-cream text-sm transition-colors px-4 py-2"
           >
             Cancel
           </button>
           {mutation.isError && (
-            <p className="text-red-400 text-sm">Save failed. Please check the form and try again.</p>
+            <p className="text-red-600 text-sm">Save failed. Please check the form and try again.</p>
           )}
         </div>
       </form>

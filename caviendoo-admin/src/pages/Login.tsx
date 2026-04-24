@@ -40,41 +40,44 @@ export default function Login() {
     <div className="min-h-screen bg-canvas flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <h1 className="font-display text-gold text-4xl font-semibold">Caviendoo</h1>
-          <p className="text-cream/50 text-sm mt-1">Admin Panel</p>
+          <h1 className="font-display text-gold text-4xl font-semibold tracking-wide">Caviendoo</h1>
+          <p className="text-muted text-sm mt-1">Admin Panel</p>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="bg-surface rounded-lg p-6 space-y-4 border border-white/10">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="bg-surface rounded-xl p-6 space-y-4 border border-border shadow-sm"
+        >
           <div>
-            <label className="block text-cream/70 text-sm mb-1">Email</label>
+            <label className="block text-cream text-sm font-medium mb-1">Email</label>
             <input
               type="email"
               {...register('email')}
-              className="w-full bg-canvas border border-white/20 rounded px-3 py-2 text-cream text-sm focus:outline-none focus:border-gold/60"
+              className="w-full bg-canvas border border-border rounded-lg px-3 py-2 text-cream text-sm focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30"
               placeholder="admin@caviendoo.com"
             />
-            {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
+            {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email.message}</p>}
           </div>
 
           <div>
-            <label className="block text-cream/70 text-sm mb-1">Password</label>
+            <label className="block text-cream text-sm font-medium mb-1">Password</label>
             <input
               type="password"
               {...register('password')}
-              className="w-full bg-canvas border border-white/20 rounded px-3 py-2 text-cream text-sm focus:outline-none focus:border-gold/60"
+              className="w-full bg-canvas border border-border rounded-lg px-3 py-2 text-cream text-sm focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30"
               placeholder="••••••••"
             />
-            {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password.message}</p>}
+            {errors.password && <p className="text-red-600 text-xs mt-1">{errors.password.message}</p>}
           </div>
 
           {serverError && (
-            <p className="text-red-400 text-sm text-center">{serverError}</p>
+            <p className="text-red-600 text-sm text-center">{serverError}</p>
           )}
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-gold/90 hover:bg-gold text-ink font-semibold py-2 rounded text-sm transition-colors disabled:opacity-50"
+            className="w-full bg-gold hover:bg-gold/80 text-white font-semibold py-2 rounded-lg text-sm transition-colors disabled:opacity-50"
           >
             {isSubmitting ? 'Signing in…' : 'Sign in'}
           </button>

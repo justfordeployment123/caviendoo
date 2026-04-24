@@ -104,7 +104,7 @@
   "about": {
     "title": "About Caviendoo",
     "buttonLabel": "About",
-    "version": "Version 1.0 — Milestone 1",
+    "version": "Version 2.0 — Live Data",
     "intro": "Caviendoo is an interactive geographic atlas of Tunisia's agricultural heritage, built to support sourcing, seasonal planning, and variety intelligence.",
     "catalogueLabel": "Catalogue",
     "catalogueValue": "73 fruits across 24 governorates",
@@ -112,7 +112,7 @@
     "aocTooltip": "Appellation d'Origine Contrôlée — a legally protected designation guaranteeing geographic origin and certified quality standards.",
     "heritageLabel": "Heritage Varieties",
     "heritageTooltip": "Traditional cultivars preserved by local Tunisian farming communities for generations, representing the country's living agricultural biodiversity.",
-    "dataNote": "Milestone 1 runs on curated static data. Live production data integration is planned for Milestone 2.",
+    "dataNote": "Live production data — fruits, images, UV forecasts and environmental data are updated in real time.",
     "dontShow": "Don't show again",
     "close": "Close"
   },

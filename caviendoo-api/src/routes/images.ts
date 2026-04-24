@@ -9,6 +9,7 @@ import { validate } from '../middleware/validate';
 import { imagePipelineLimiter } from '../middleware/rateLimiter';
 import { HttpError } from '../utils/httpError';
 import { prisma } from '../config/db';
+import { fetchAndStoreImageForFruit } from '../services/imageService';
 
 const PresignBodySchema = z.object({
   fruitId:   z.string().min(1).max(80),
@@ -45,6 +46,32 @@ router.post(
       const cdnUrl    = `${env.CDN_BASE_URL}/${key}`;
 
       res.json({ uploadUrl, cdnUrl, key });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
+// POST /api/v1/images/refresh/:fruitId  — trigger automated image fetch for a fruit (admin only)
+router.post(
+  '/refresh/:fruitId',
+  requireAuth,
+  imagePipelineLimiter,
+  async (req, res, next) => {
+    try {
+      const { fruitId } = req.params as { fruitId: string };
+      const fruit = await prisma.fruit.findUnique({
+        where:  { id: fruitId },
+        select: { id: true, nameEn: true, latinName: true },
+      });
+      if (!fruit) return next(new HttpError(404, `Fruit '${fruitId}' not found`));
+
+      // Run async — don't await; respond immediately so the client isn't blocked
+      fetchAndStoreImageForFruit(fruit.id, fruit.nameEn, fruit.latinName).catch((err) =>
+        console.error(`[images/refresh] Error for ${fruitId}:`, err),
+      );
+
+      res.json({ message: 'Image refresh queued', fruitId });
     } catch (err) {
       next(err);
     }

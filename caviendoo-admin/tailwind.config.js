@@ -4,16 +4,20 @@ export default {
   theme: {
     extend: {
       colors: {
-        canvas:   '#0d0f0e',
-        surface:  '#141714',
-        gold:     '#c9a84c',
-        cream:    '#f0e6cc',
-        ink:      '#1c1008',
+        // Matches caviendoo-frontend theme exactly
+        canvas:   '#F7FBF0',   // page background — light parchment
+        surface:  '#EBF5D6',   // card/panel background — light sage
+        border:   '#C8E08A',   // visible border
+        gold:     '#396809',   // primary accent — forest green
+        'gold-light': '#67C70C',
+        cream:    '#1A2A0A',   // primary text (dark ink on light bg)
+        ink:      '#1A2A0A',
+        muted:    '#4A6820',   // secondary / de-emphasised text
       },
       fontFamily: {
-        sans: ['DM Sans', 'system-ui', 'sans-serif'],
+        sans:    ['DM Sans', 'system-ui', 'sans-serif'],
         display: ['Cormorant Garamond', 'Georgia', 'serif'],
-        mono: ['JetBrains Mono', 'monospace'],
+        mono:    ['JetBrains Mono', 'monospace'],
       },
     },
   },

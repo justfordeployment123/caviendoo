@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { Prisma } from '@prisma/client';
 import { prisma } from '../../config/db';
 import { requireAuth } from '../../middleware/auth';
 import { validate } from '../../middleware/validate';
@@ -8,9 +9,16 @@ import { buildMeta, buildSkip } from '../../utils/paginate';
 import { HttpError } from '../../utils/httpError';
 import { z } from 'zod';
 
+const FRUIT_CATEGORIES = ['citrus', 'stone', 'pomme', 'tropical', 'berry', 'dried', 'melon', 'other'] as const;
+
 const ListQuerySchema = z.object({
-  page:  z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(100).default(20),
+  page:        z.coerce.number().int().min(1).default(1),
+  limit:       z.coerce.number().int().min(1).max(100).default(20),
+  category:    z.enum(FRUIT_CATEGORIES).optional(),
+  search:      z.string().max(100).optional(),
+  isAOC:       z.coerce.boolean().optional(),
+  isHeritage:  z.coerce.boolean().optional(),
+  governorate: z.string().max(100).optional(),
 });
 
 const router = Router();
@@ -19,18 +27,37 @@ router.use(requireAuth);
 // GET /api/v1/admin/fruits  — returns raw DB fields (flat) for admin editing
 router.get('/', validate({ query: ListQuerySchema }), async (req, res, next) => {
   try {
-    const { page, limit } = req.query as any;
+    const { page, limit, category, search, isAOC, isHeritage, governorate } = req.query as any;
+
+    const where: Prisma.FruitWhereInput = {
+      ...(category   && { category }),
+      ...(isAOC      && { isAOC: true }),
+      ...(isHeritage && { isHeritage: true }),
+      ...(governorate && {
+        governorates: { some: { governorate: { shapeName: governorate } } },
+      }),
+      ...(search && {
+        OR: [
+          { nameEn:    { contains: search, mode: 'insensitive' } },
+          { nameFr:    { contains: search, mode: 'insensitive' } },
+          { nameAr:    { contains: search, mode: 'insensitive' } },
+          { latinName: { contains: search, mode: 'insensitive' } },
+          { localName: { contains: search, mode: 'insensitive' } },
+        ],
+      }),
+    };
 
     const [fruits, total] = await Promise.all([
       prisma.fruit.findMany({
+        where,
         include: {
-          images: { where: { isPrimary: true }, take: 1 },
+          images: { where: { isPrimary: true }, take: 1, select: { cdnUrlThumb: true, isPrimary: true } },
         },
         orderBy: { nameEn: 'asc' },
         skip:    buildSkip(page, limit),
         take:    limit,
       }),
-      prisma.fruit.count(),
+      prisma.fruit.count({ where }),
     ]);
 
     res.json({

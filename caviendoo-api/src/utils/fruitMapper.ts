@@ -39,8 +39,8 @@ export function mapFruitToResponse(fruit: DBFruitWithRelations, opts: MapOptions
     category: fruit.category,
     isAOC: fruit.isAOC,
     isHeritage: fruit.isHeritage,
-    photoUrl: primaryImage?.cdnUrlHero ?? '/placeholder-hero.webp',
-    thumbnailUrl: primaryImage?.cdnUrlThumb ?? '/placeholder-thumb.webp',
+    photoUrl:     primaryImage?.cdnUrlHero  ?? 'https://placehold.co/800x500/141714/f0e6cc?text=Caviendoo',
+    thumbnailUrl: primaryImage?.cdnUrlThumb ?? 'https://placehold.co/168x168/141714/f0e6cc?text=C',
     season: {
       pre: fruit.seasonPre,
       peak: fruit.seasonPeak,

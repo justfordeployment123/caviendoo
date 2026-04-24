@@ -4,7 +4,11 @@ import { env } from './env';
 export const s3 = new S3Client({
   region: env.AWS_REGION,
   credentials: {
-    accessKeyId: env.AWS_ACCESS_KEY_ID,
+    accessKeyId:     env.AWS_ACCESS_KEY_ID,
     secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
   },
+  // When S3_ENDPOINT is set (e.g. MinIO for local dev), use path-style URLs
+  ...(env.S3_ENDPOINT
+    ? { endpoint: env.S3_ENDPOINT, forcePathStyle: true }
+    : {}),
 });

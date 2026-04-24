@@ -24,8 +24,8 @@ export default function SeasonEditor({ value, onChange }: Props) {
           className={`
             w-9 h-7 rounded text-xs font-medium transition-colors
             ${value.includes(idx)
-              ? 'bg-gold/80 text-ink'
-              : 'bg-white/5 text-cream/40 hover:bg-white/10'}
+              ? 'bg-gold text-white'
+              : 'bg-border text-muted hover:bg-border/70'}
           `}
         >
           {label}

@@ -2,24 +2,28 @@ import { useState } from 'react';
 import { apiClient } from '../api/client';
 
 interface Props {
-  fruitId:   string;
-  onSuccess: (cdnUrl: string) => void;
+  fruitId:     string;
+  currentHero?: string | null;
+  onSuccess:   (cdnUrl: string) => void;
 }
 
 type UploadState = 'idle' | 'uploading' | 'done' | 'error';
+type AutoState   = 'idle' | 'queued' | 'error';
 
-export default function ImageUploader({ fruitId, onSuccess }: Props) {
-  const [state, setState] = useState<UploadState>('idle');
-  const [preview, setPreview] = useState<string | null>(null);
-  const [error, setError] = useState('');
+export default function ImageUploader({ fruitId, currentHero, onSuccess }: Props) {
+  const [uploadState, setUploadState] = useState<UploadState>('idle');
+  const [autoState,   setAutoState]   = useState<AutoState>('idle');
+  const [preview,     setPreview]     = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState('');
+  const [autoError,   setAutoError]   = useState('');
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setPreview(URL.createObjectURL(file));
-    setState('uploading');
-    setError('');
+    setUploadState('uploading');
+    setUploadError('');
 
     try {
       const { data } = await apiClient.post('/images/presign', {
@@ -34,46 +38,80 @@ export default function ImageUploader({ fruitId, onSuccess }: Props) {
         headers: { 'Content-Type': file.type },
       });
 
-      setState('done');
+      setUploadState('done');
       onSuccess(data.cdnUrl as string);
     } catch {
-      setState('error');
-      setError('Upload failed. Please try again.');
+      setUploadState('error');
+      setUploadError('Upload failed. Please try again.');
     }
   }
 
+  async function handleAutoFetch() {
+    setAutoState('queued');
+    setAutoError('');
+    try {
+      await apiClient.post(`/images/refresh/${fruitId}`);
+      setAutoState('queued');
+      // Refresh will complete in background — let parent know after a short delay
+      setTimeout(() => onSuccess(''), 4000);
+    } catch {
+      setAutoState('error');
+      setAutoError('Auto-fetch failed. Check API logs.');
+    }
+  }
+
+  const displaySrc = preview ?? currentHero ?? null;
+
   return (
-    <div className="space-y-3">
-      {preview && (
+    <div className="space-y-4">
+      {/* Current / preview image */}
+      {displaySrc && (
         <img
-          src={preview}
-          alt="Preview"
-          className="w-full max-w-xs h-40 object-cover rounded border border-white/10"
+          src={displaySrc}
+          alt="Current hero"
+          className="w-full max-w-sm h-40 object-cover rounded-lg border border-border"
         />
       )}
 
-      <label className="inline-flex items-center gap-2 cursor-pointer">
-        <span className={`
-          px-4 py-2 rounded text-sm font-medium transition-colors
-          ${state === 'uploading'
-            ? 'bg-white/10 text-cream/40 cursor-not-allowed'
-            : 'bg-surface border border-white/20 text-cream hover:border-gold/60'}
-        `}>
-          {state === 'uploading' ? 'Uploading…' : state === 'done' ? 'Change image' : 'Choose image'}
-        </span>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleFile}
-          disabled={state === 'uploading'}
-          className="sr-only"
-        />
-      </label>
+      {/* Manual upload */}
+      <div className="flex flex-wrap items-center gap-3">
+        <label className="inline-flex items-center gap-2 cursor-pointer">
+          <span className={`
+            px-4 py-2 rounded text-sm font-medium transition-colors
+            ${uploadState === 'uploading'
+              ? 'bg-border text-muted cursor-not-allowed'
+              : 'bg-canvas border border-border text-cream hover:border-gold'}
+          `}>
+            {uploadState === 'uploading' ? 'Uploading…' : uploadState === 'done' ? 'Change image' : 'Upload image'}
+          </span>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFile}
+            disabled={uploadState === 'uploading'}
+            className="sr-only"
+          />
+        </label>
 
-      {state === 'done' && (
-        <p className="text-emerald-400 text-xs">Image uploaded successfully.</p>
-      )}
-      {error && <p className="text-red-400 text-xs">{error}</p>}
+        {/* Auto-fetch from image sources */}
+        <button
+          type="button"
+          onClick={handleAutoFetch}
+          disabled={autoState === 'queued'}
+          className="px-4 py-2 rounded text-sm font-medium border border-gold/30 text-gold hover:border-gold/60 hover:bg-gold/10 transition-colors disabled:opacity-40"
+        >
+          {autoState === 'queued' ? 'Fetching…' : '↺ Auto-fetch image'}
+        </button>
+      </div>
+
+      <p className="text-muted text-xs">
+        Auto-fetch searches Pixabay, Unsplash, Pexels, and Wikimedia Commons and picks the best match.
+      </p>
+
+      {uploadState === 'done' && <p className="text-green-700 text-xs">Image uploaded successfully.</p>}
+      {autoState   === 'queued' && <p className="text-gold text-xs">Image fetch queued — refresh the page in a few seconds to see the result.</p>}
+      {uploadError && <p className="text-red-600 text-xs">{uploadError}</p>}
+      {autoError   && <p className="text-red-600 text-xs">{autoError}</p>}
     </div>
   );
 }

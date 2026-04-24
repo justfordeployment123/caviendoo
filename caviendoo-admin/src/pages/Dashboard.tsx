@@ -10,12 +10,12 @@ interface Metrics {
 
 function StatCard({ label, value, to }: { label: string; value: number; to?: string }) {
   const content = (
-    <div className="bg-surface border border-white/10 rounded-lg p-5">
-      <p className="text-cream/50 text-sm">{label}</p>
-      <p className="font-mono text-3xl text-cream mt-1">{value}</p>
+    <div className="bg-surface border border-border rounded-xl p-5 hover:border-gold/50 transition-colors">
+      <p className="text-muted text-sm font-medium">{label}</p>
+      <p className="font-mono text-3xl text-cream font-semibold mt-1">{value}</p>
     </div>
   );
-  if (to) return <Link to={to} className="hover:border-gold/40 transition-colors block rounded-lg">{content}</Link>;
+  if (to) return <Link to={to} className="block">{content}</Link>;
   return content;
 }
 
@@ -30,10 +30,11 @@ export default function Dashboard() {
 
   return (
     <div className="p-8">
-      <h1 className="font-display text-cream text-2xl font-semibold mb-6">Dashboard</h1>
+      <h1 className="font-display text-cream text-2xl font-semibold mb-1">Dashboard</h1>
+      <p className="text-muted text-sm mb-6">Caviendoo data overview</p>
 
       {isLoading ? (
-        <p className="text-cream/40">Loading…</p>
+        <p className="text-muted">Loading…</p>
       ) : (
         <div className="grid grid-cols-3 gap-4 max-w-lg">
           <StatCard label="Fruits"       value={data?.totalFruits ?? 0}       to="/fruits" />
@@ -45,7 +46,7 @@ export default function Dashboard() {
       <div className="mt-10 flex gap-3">
         <Link
           to="/fruits/new"
-          className="bg-gold/90 hover:bg-gold text-ink text-sm font-semibold px-4 py-2 rounded transition-colors"
+          className="bg-gold hover:bg-gold/80 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
         >
           + Add Fruit
         </Link>
