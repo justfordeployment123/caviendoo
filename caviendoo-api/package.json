@@ -9,7 +9,7 @@
     "start:worker": "node dist/jobs/worker.js",
     "seed": "tsx prisma/seed/index.ts",
     "seed:images": "tsx scripts/runImagePipeline.ts",
-    "lint": "eslint src --ext .ts",
+    "lint": "eslint src",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate deploy",
     "db:studio": "prisma studio",
@@ -41,6 +41,8 @@
     "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20.14.0",
     "eslint": "^9.5.0",
+    "typescript-eslint": "^8.0.0",
+    "@eslint/js": "^9.5.0",
     "prisma": "^5.14.0",
     "tsx": "^4.15.6",
     "typescript": "^5.4.5"

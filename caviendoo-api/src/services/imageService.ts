@@ -125,7 +125,7 @@ export async function fetchAndStoreImageForFruit(
     `${fruitNameEn} fresh`,
   ];
 
-  let candidates: ImageCandidate[] = [];
+  const candidates: ImageCandidate[] = [];
 
   for (const q of queries) {
     const [pix, unsp, pex] = await Promise.allSettled([

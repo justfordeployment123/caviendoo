@@ -11,6 +11,7 @@ interface JwtPayload {
 
 // Extend Express Request to carry adminId after auth
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
       adminId?: number;
