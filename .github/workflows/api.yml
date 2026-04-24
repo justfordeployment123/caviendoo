@@ -16,11 +16,11 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: caviendoo-api/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install
         working-directory: caviendoo-api
-        run: npm ci
+        run: npm install
 
       - name: Typecheck
         working-directory: caviendoo-api
