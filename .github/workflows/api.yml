@@ -3,7 +3,11 @@ name: Deploy API
 on:
   push:
     branches: [main]
-    paths:    ['caviendoo-api/**']
+    paths:
+      - 'caviendoo-api/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/**'
 
 jobs:
   deploy:

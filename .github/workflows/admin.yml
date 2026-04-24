@@ -3,7 +3,11 @@ name: Deploy Admin
 on:
   push:
     branches: [main]
-    paths:    ['caviendoo-admin/**']
+    paths:
+      - 'caviendoo-admin/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/**'
 
 jobs:
   deploy:

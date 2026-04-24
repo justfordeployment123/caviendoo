@@ -3,7 +3,11 @@ name: Deploy Frontend
 on:
   push:
     branches: [main]
-    paths:    ['caviendoo-frontend/**']
+    paths:
+      - 'caviendoo-frontend/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/**'
 
 jobs:
   deploy:
