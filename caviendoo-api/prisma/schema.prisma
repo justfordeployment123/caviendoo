@@ -63,6 +63,11 @@ model Governorate {
   centroidLat      Float?
   centroidLng      Float?
 
+  // ── ISRIC SoilGrids data (refreshed weekly with climate sync) ─────────────
+  soilPhTypical        Float?   // mean pH at 0-30cm depth
+  soilTexture          String?  // dominant texture class (clay/loam/sandy/silt)
+  soilOrganicCarbonPct Float?   // g/kg scaled to %
+
   fruits        FruitGovernorate[]
   environmental FruitEnvironmental[]
   uvForecasts   UvForecast[]
@@ -104,6 +109,38 @@ model Fruit {
 
   localities String[]
   tags       String[]
+
+  // ── Soil & land quality ───────────────────────────────────────────────────
+  soilPhMin         Float?
+  soilPhMax         Float?
+  salinityTolerance String?   // 'low' | 'medium' | 'high'
+  soilTypes         String[]  // e.g. ['clay', 'loam', 'sandy', 'calcaire']
+
+  // ── Climate & temperature requirements ───────────────────────────────────
+  chillHoursMin   Int?
+  rainfallMmMin   Int?
+  rainfallMmMax   Int?
+  droughtTolerance String?   // 'low' | 'medium' | 'high'
+  frostRiskMonths Int[]      // 0-indexed months (0=Jan) where late frost threatens crop
+
+  // ── Agricultural economics ───────────────────────────────────────────────
+  productionTonnesYear Float?
+  exportStatus         String?  // 'exported' | 'local_only' | 'artisanal_only'
+  pricePremiumIndex    Float?   // 1.0 = market baseline; >1 = premium
+
+  // ── Conservation & genetic status ────────────────────────────────────────
+  conservationStatus String?   // 'common' | 'watch' | 'vulnerable' | 'endangered' | 'critical'
+  knownFarmsCount    Int?
+  seedBankStatus     Boolean?
+
+  // ── Phenology & precision timing ─────────────────────────────────────────
+  daysFlowerToHarvest  Int?
+  harvestWindowDays    Int?
+  pollinatorDependency String?  // 'self_fertile' | 'bee_dependent' | 'cross_pollination'
+
+  // ── Carbon & sustainability ───────────────────────────────────────────────
+  carbonFootprintKgCo2 Float?  // kg CO₂e per kg of fruit
+  postHarvestLossPct   Float?  // % of harvest lost pre-sale
 
   environmental FruitEnvironmental[]
   nutritional   NutritionalField[]

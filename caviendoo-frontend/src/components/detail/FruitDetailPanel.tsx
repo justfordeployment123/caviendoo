@@ -3,9 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { X, GitCompareArrows } from 'lucide-react';
-import { getFruitById } from '@/services/dataService';
+import {
+  getFruitById,
+  getFruitLiveEnvironmental,
+  getFruitLiveNutrition,
+} from '@/services/dataService';
 import { useAtlasStore } from '@/store';
-import type { Fruit } from '@/types';
+import type { Fruit, FruitEnvironmental, NutritionalField, LiveEnvironmentalData } from '@/types';
 
 import { FruitPhoto } from './FruitPhoto';
 import { FruitBadgeRow } from './FruitBadgeRow';
@@ -16,9 +20,28 @@ import { SeasonCalendar } from './SeasonCalendar';
 import { NutritionalCard } from './NutritionalCard';
 import { CulturalNotes } from './CulturalNotes';
 import { GovernorateChips } from './GovernorateChips';
+import { LiveDataPanel } from './LiveDataPanel';
+import { IntelligencePanel } from './IntelligencePanel';
 
 function Divider() {
   return <div className="mx-4 border-t border-border mb-3" />;
+}
+
+function liveEnvToFruitEnv(live: LiveEnvironmentalData, fallback: FruitEnvironmental): FruitEnvironmental {
+  const totalWater = live.blueWaterLkg + live.greenWaterLkg;
+  const sustainabilityClass: FruitEnvironmental['sustainabilityClass'] =
+    totalWater < 500 ? 'low' : totalWater < 1500 ? 'moderate' : 'high';
+  return {
+    blueWaterLkg:     Math.round(live.blueWaterLkg),
+    greenWaterLkg:    Math.round(live.greenWaterLkg),
+    totalWaterLkg:    Math.round(totalWater),
+    aquiferStressPct: Math.round(live.aquiferStressPct),
+    uvMin:            fallback.uvMin,
+    uvMax:            Math.round(live.uvIndexPeak),
+    uvPeak:           Math.round(live.uvIndexPeak),
+    uvNote:           fallback.uvNote,
+    sustainabilityClass,
+  };
 }
 
 export function FruitDetailPanel() {
@@ -31,18 +54,29 @@ export function FruitDetailPanel() {
   const comparedFruitIds = useAtlasStore((s) => s.comparedFruitIds);
   const addToComparison = useAtlasStore((s) => s.addToComparison);
 
-  const [fruit, setFruit] = useState<Fruit | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [fruit, setFruit]           = useState<Fruit | null>(null);
+  const [loading, setLoading]       = useState(false);
+  const [liveEnv, setLiveEnv]       = useState<LiveEnvironmentalData | null>(null);
+  const [liveNutr, setLiveNutr]     = useState<NutritionalField[] | null>(null);
 
   useEffect(() => {
     if (!selectedFruitId) {
       setFruit(null);
+      setLiveEnv(null);
+      setLiveNutr(null);
       return;
     }
     setLoading(true);
     getFruitById(selectedFruitId).then((f) => {
       setFruit(f);
       setLoading(false);
+    });
+    // Fire live data fetches in parallel without blocking the fruit load
+    getFruitLiveEnvironmental(selectedFruitId).then(setLiveEnv);
+    getFruitLiveNutrition(selectedFruitId).then((data) => {
+      if (data?.fields?.length) {
+        setLiveNutr(data.fields.map((f) => ({ label: f.label, value: f.value })));
+      }
     });
   }, [selectedFruitId]);
 
@@ -117,9 +151,25 @@ export function FruitDetailPanel() {
             <Divider />
             <SeasonCalendar season={fruit.season} locale={locale} />
             <Divider />
-            <EnvironmentalPanel env={fruit.environmental} />
+            <EnvironmentalPanel
+              env={liveEnv ? liveEnvToFruitEnv(liveEnv, fruit.environmental) : fruit.environmental}
+            />
             <Divider />
-            <NutritionalCard fields={fruit.nutritional} locale={locale} />
+            <NutritionalCard
+              fields={liveNutr ?? fruit.nutritional}
+              locale={locale}
+            />
+            <Divider />
+            <IntelligencePanel
+              soil={fruit.soil}
+              climate={fruit.climate}
+              economics={fruit.economics}
+              conservation={fruit.conservation}
+              phenology={fruit.phenology}
+              sustainability={fruit.sustainability}
+            />
+            <Divider />
+            <LiveDataPanel fruitId={fruit.id} />
             <Divider />
             <CulturalNotes fruit={fruit} locale={locale} />
             <Divider />

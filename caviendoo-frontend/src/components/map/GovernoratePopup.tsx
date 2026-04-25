@@ -5,6 +5,7 @@ import { X, Droplets, Sun, Leaf } from 'lucide-react';
 import { useAtlasStore } from '@/store';
 import { getFruitsByGovernorate } from '@/services/dataService';
 import { getAquiferChipClass, getAquiferLabel } from './mapColors';
+import { WeatherWidget } from './WeatherWidget';
 import type { Fruit, Governorate } from '@/types';
 
 interface GovernoratePopupProps {
@@ -100,7 +101,17 @@ export function GovernoratePopup({
             <Sun size={10} />
             <span className="font-mono font-medium">UV {gov.uvPeak}</span>
           </span>
+          {gov.soilPhTypical != null && (
+            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-raised border border-border text-xs text-ink">
+              <span className="text-2xs">🪨</span>
+              <span className="font-mono font-medium">pH {gov.soilPhTypical}</span>
+              {gov.soilTexture && <span className="opacity-60 capitalize">{gov.soilTexture}</span>}
+            </span>
+          )}
         </div>
+
+        {/* Live weather */}
+        <WeatherWidget shapeName={gov.shapeName} />
 
         {/* Fruit chips */}
         {fruits.length > 0 && (

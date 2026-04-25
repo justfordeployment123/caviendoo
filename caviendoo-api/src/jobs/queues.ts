@@ -21,3 +21,8 @@ export const imageRefreshQueue = new Queue('image-refresh', {
     backoff:  { type: 'fixed' as const, delay: 10_000 },
   },
 });
+
+export const climateSyncQueue = new Queue('climate-sync', {
+  connection:        redis,
+  defaultJobOptions: DEFAULT_JOB_OPTIONS,
+});

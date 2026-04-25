@@ -68,30 +68,67 @@ export function mapFruitToResponse(fruit: DBFruitWithRelations, opts: MapOptions
       : [],
     environmental: env
       ? {
-          blueWaterLkg:        env.blueWaterLkg,
-          greenWaterLkg:       env.greenWaterLkg,
-          totalWaterLkg:       env.totalWaterLkg,
-          aquiferStressPct:    env.aquiferStressPct,
-          uvMin:               env.uvMin,
-          uvMax:               env.uvMax,
-          uvPeak:              env.uvPeak,
-          uvNote:              env.uvNote,
-          sustainabilityClass: env.sustainabilityClass,
+          blueWaterLkg:         env.blueWaterLkg,
+          greenWaterLkg:        env.greenWaterLkg,
+          totalWaterLkg:        env.totalWaterLkg,
+          aquiferStressPct:     env.aquiferStressPct,
+          uvMin:                env.uvMin,
+          uvMax:                env.uvMax,
+          uvPeak:               env.uvPeak,
+          uvNote:               env.uvNote,
+          sustainabilityClass:  env.sustainabilityClass,
+          carbonFootprintKgCo2: env.carbonFootprintKgCo2 ?? null,
         }
       : null,
+    // ── Agronomic intelligence ──────────────────────────────────────────────
+    soil: {
+      phMin:             fruit.soilPhMin            ?? null,
+      phMax:             fruit.soilPhMax            ?? null,
+      salinityTolerance: fruit.salinityTolerance    ?? null,
+      types:             fruit.soilTypes,
+    },
+    climate: {
+      chillHoursMin:    fruit.chillHoursMin      ?? null,
+      rainfallMmMin:    fruit.rainfallMmMin      ?? null,
+      rainfallMmMax:    fruit.rainfallMmMax      ?? null,
+      droughtTolerance: fruit.droughtTolerance   ?? null,
+      frostRiskMonths:  fruit.frostRiskMonths,
+    },
+    economics: {
+      productionTonnesYear: fruit.productionTonnesYear  ?? null,
+      exportStatus:         fruit.exportStatus          ?? null,
+      pricePremiumIndex:    fruit.pricePremiumIndex     ?? null,
+    },
+    conservation: {
+      status:         fruit.conservationStatus ?? null,
+      knownFarmsCount: fruit.knownFarmsCount   ?? null,
+      seedBankStatus:  fruit.seedBankStatus    ?? null,
+    },
+    phenology: {
+      daysFlowerToHarvest:  fruit.daysFlowerToHarvest  ?? null,
+      harvestWindowDays:    fruit.harvestWindowDays    ?? null,
+      pollinatorDependency: fruit.pollinatorDependency ?? null,
+    },
+    sustainability: {
+      carbonFootprintKgCo2: fruit.carbonFootprintKgCo2 ?? null,
+      postHarvestLossPct:   fruit.postHarvestLossPct   ?? null,
+    },
     tags: fruit.tags,
   };
 }
 
 export function mapGovernorateToResponse(gov: Governorate) {
   return {
-    shapeName:        gov.shapeName,
-    shapeISO:         gov.shapeISO,
-    aquiferStressPct: gov.aquiferStressPct,
-    waterLabel:       gov.waterLabel,
-    uvPeak:           gov.uvPeak,
-    uvLabel:          gov.uvLabel,
-    fruitCount:       0,
-    description:      gov.descriptionEn ?? undefined,
+    shapeName:           gov.shapeName,
+    shapeISO:            gov.shapeISO,
+    aquiferStressPct:    gov.aquiferStressPct,
+    waterLabel:          gov.waterLabel,
+    uvPeak:              gov.uvPeak,
+    uvLabel:             gov.uvLabel,
+    fruitCount:          0,
+    description:         gov.descriptionEn ?? undefined,
+    soilPhTypical:       (gov as any).soilPhTypical       ?? null,
+    soilTexture:         (gov as any).soilTexture         ?? null,
+    soilOrganicCarbonPct: (gov as any).soilOrganicCarbonPct ?? null,
   };
 }

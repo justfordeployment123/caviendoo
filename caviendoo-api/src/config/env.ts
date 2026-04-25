@@ -25,6 +25,8 @@ const EnvSchema = z.object({
   OPENUV_API_KEY: z.string().min(1, 'OPENUV_API_KEY is required'),
   UV_ALERT_THRESHOLD: z.coerce.number().int().min(1).max(11).default(8),
 
+  USDA_API_KEY: z.string().optional(), // USDA FoodData Central — free at api.nal.usda.gov
+
   ANTHROPIC_API_KEY: z.string().optional(), // used for AI image scoring; falls back to keyword scoring if unset
 
   CORS_ORIGINS: z.string().default('http://localhost:3000,http://localhost:5173'),

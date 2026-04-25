@@ -22,17 +22,24 @@ export const uvForecastWorker = new Worker<UvJobData>(
     const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
 
-    await prisma.uvForecast.upsert({
-      where:  { governorateId_forecastDate: { governorateId, forecastDate: today } },
-      update: { uvMax: forecast.uv_max, uvAlert: isAlert, rawPayload: forecast as object },
-      create: {
-        governorateId,
-        forecastDate: today,
-        uvMax:        forecast.uv_max,
-        uvAlert:      isAlert,
-        rawPayload:   forecast as object,
-      },
-    });
+    await prisma.$transaction([
+      prisma.uvForecast.upsert({
+        where:  { governorateId_forecastDate: { governorateId, forecastDate: today } },
+        update: { uvMax: forecast.uv_max, uvAlert: isAlert, rawPayload: forecast as object },
+        create: {
+          governorateId,
+          forecastDate: today,
+          uvMax:        forecast.uv_max,
+          uvAlert:      isAlert,
+          rawPayload:   forecast as object,
+        },
+      }),
+      // Keep uvPeak on the governorate row fresh for map overlay
+      prisma.governorate.update({
+        where:  { id: governorateId },
+        data:   { uvPeak: forecast.uv_max },
+      }),
+    ]);
 
     if (isAlert) {
       console.warn(

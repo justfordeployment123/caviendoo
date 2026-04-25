@@ -15,6 +15,8 @@ import metricsRouter       from './routes/metrics';
 import imagesRouter        from './routes/images';
 import envDataRouter       from './routes/envData';
 import environmentalRouter from './routes/environmental';
+import weatherRouter       from './routes/weather';
+import liveDataRouter      from './routes/liveData';
 import adminAuthRouter     from './routes/admin/auth';
 import adminFruitsRouter   from './routes/admin/fruits';
 import adminGovsRouter     from './routes/admin/governorates';
@@ -67,6 +69,8 @@ app.use('/api/v1/metrics',        metricsRouter);
 app.use('/api/v1/images',         imagesRouter);
 app.use('/api/v1/env-data',       envDataRouter);
 app.use('/api/v1/environmental',  environmentalRouter);
+app.use('/api/v1/weather',        weatherRouter);
+app.use('/api/v1/live',           liveDataRouter);
 
 // ── Admin API (all routes inside require JWT via requireAuth middleware) ───────
 app.use('/api/v1/admin',              adminAuthRouter);

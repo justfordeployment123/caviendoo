@@ -10,6 +10,7 @@ import bcrypt from 'bcryptjs';
 // they require no resolution here — only the runtime value exports matter.
 import { fruits } from './data/fruits';
 import { governorates } from './data/governorates';
+import { agronomics } from './data/agronomics';
 
 const prisma = new PrismaClient({
   log: [{ emit: 'stdout', level: 'info' }],
@@ -98,6 +99,31 @@ async function seedFruits(): Promise<void> {
   console.log(`Seeding ${fruits.length} fruits…`);
 
   for (const f of fruits) {
+    const agro = agronomics[f.id] ?? {};
+
+    const agronomicFields = {
+      soilPhMin:             agro.soilPhMin            ?? null,
+      soilPhMax:             agro.soilPhMax            ?? null,
+      salinityTolerance:     agro.salinityTolerance    ?? null,
+      soilTypes:             agro.soilTypes            ?? [],
+      chillHoursMin:         agro.chillHoursMin        ?? null,
+      rainfallMmMin:         agro.rainfallMmMin        ?? null,
+      rainfallMmMax:         agro.rainfallMmMax        ?? null,
+      droughtTolerance:      agro.droughtTolerance     ?? null,
+      frostRiskMonths:       agro.frostRiskMonths      ?? [],
+      productionTonnesYear:  agro.productionTonnesYear ?? null,
+      exportStatus:          agro.exportStatus         ?? null,
+      pricePremiumIndex:     agro.pricePremiumIndex    ?? null,
+      conservationStatus:    agro.conservationStatus   ?? null,
+      knownFarmsCount:       agro.knownFarmsCount      ?? null,
+      seedBankStatus:        agro.seedBankStatus       ?? null,
+      daysFlowerToHarvest:   agro.daysFlowerToHarvest  ?? null,
+      harvestWindowDays:     agro.harvestWindowDays    ?? null,
+      pollinatorDependency:  agro.pollinatorDependency ?? null,
+      carbonFootprintKgCo2:  agro.carbonFootprintKgCo2 ?? null,
+      postHarvestLossPct:    agro.postHarvestLossPct   ?? null,
+    };
+
     // Upsert core fruit record
     await prisma.fruit.upsert({
       where:  { id: f.id },
@@ -125,6 +151,7 @@ async function seedFruits(): Promise<void> {
         zoneAr:             f.zone.ar,
         localities:         f.localities,
         tags:               f.tags,
+        ...agronomicFields,
       },
       create: {
         id:                 f.id,
@@ -151,6 +178,7 @@ async function seedFruits(): Promise<void> {
         zoneAr:             f.zone.ar,
         localities:         f.localities,
         tags:               f.tags,
+        ...agronomicFields,
       },
     });
 
