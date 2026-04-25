@@ -80,7 +80,7 @@ export default function FruitList() {
   const hasActiveFilters = debouncedSearch || category || isAOC || isHeritage;
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="font-display text-cream text-2xl font-semibold">Fruits</h1>
@@ -102,7 +102,7 @@ export default function FruitList() {
           value={search}
           onChange={(e) => handleSearch(e.target.value)}
           placeholder="Search EN / FR / AR / Latin…"
-          className="bg-canvas border border-border rounded-lg px-3 py-1.5 text-cream text-sm focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/20 w-64"
+          className="bg-canvas border border-border rounded-lg px-3 py-2 text-cream text-sm focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/20 w-full sm:w-64"
         />
 
         {/* Category */}
@@ -154,7 +154,8 @@ export default function FruitList() {
       ) : (
         <>
           <div className="bg-surface rounded-xl border border-border overflow-hidden">
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[600px]">
               <thead className="border-b border-border">
                 <tr className="text-muted text-xs uppercase tracking-wider">
                   <th className="px-4 py-3 text-left">Fruit</th>
@@ -227,6 +228,7 @@ export default function FruitList() {
                 })}
               </tbody>
             </table>
+            </div>
           </div>
 
           {/* Pagination */}

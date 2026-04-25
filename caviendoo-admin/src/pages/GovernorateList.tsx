@@ -26,7 +26,7 @@ export default function GovernorateList() {
   });
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="font-display text-cream text-2xl font-semibold">Governorates</h1>
@@ -38,7 +38,8 @@ export default function GovernorateList() {
         <p className="text-muted">Loading…</p>
       ) : (
         <div className="bg-surface rounded-xl border border-border overflow-hidden">
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[680px]">
             <thead className="border-b border-border">
               <tr className="text-muted text-xs uppercase tracking-wider">
                 <th className="px-4 py-3 text-left">Governorate</th>
@@ -115,6 +116,7 @@ export default function GovernorateList() {
               })}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

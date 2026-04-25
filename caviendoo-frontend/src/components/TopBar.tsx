@@ -179,12 +179,19 @@ export function TopBar({ onAbout }: TopBarProps) {
     <header className="flex-none bg-surface border-b border-border z-20">
 
       {/* ── Row 1 ─────────────────────────────────────────────────────── */}
-      <div className="flex items-center px-4 gap-3 h-16">
+      <div className="flex items-center px-3 sm:px-4 gap-2 sm:gap-3 h-14 sm:h-16">
 
         {/* Logo */}
-        <div className="flex items-center gap-4 shrink-0">
-          <Image src="/caviendoo_logo.png" alt="Caviendoo Logo" width={60} height={60} className="object-contain" priority />
-          <span className="font-serif text-lg sm:text-xl font-semibold text-ink tracking-widest uppercase leading-none pb-1">
+        <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+          <Image
+            src="/caviendoo_logo.png"
+            alt="Caviendoo Logo"
+            width={60}
+            height={60}
+            className="object-contain w-8 h-8 sm:w-12 sm:h-12"
+            priority
+          />
+          <span className="hidden sm:block font-serif text-base sm:text-xl font-semibold text-ink tracking-widest uppercase leading-none pb-0.5">
             Caviendoo
           </span>
           <span className="hidden xl:block text-2xs text-muted tracking-widest uppercase ps-2 border-s border-border">
@@ -198,7 +205,7 @@ export function TopBar({ onAbout }: TopBarProps) {
         </div>
 
         {/* Right-side controls */}
-        <div className="flex items-center gap-2 ms-auto shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 ms-auto shrink-0">
           <MetricsBar metrics={metrics} />
           <div className="hidden lg:block w-px h-4 bg-border" />
           <SearchInput />
