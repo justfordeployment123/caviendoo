@@ -75,7 +75,7 @@ export function mapFruitToResponse(fruit: DBFruitWithRelations, opts: MapOptions
           uvMin:                env.uvMin,
           uvMax:                env.uvMax,
           uvPeak:               env.uvPeak,
-          uvNote:               env.uvNote,
+          uvNote:               { en: env.uvNote ?? '', fr: env.uvNote ?? '', ar: env.uvNote ?? '' },
           sustainabilityClass:  env.sustainabilityClass,
           carbonFootprintKgCo2: env.carbonFootprintKgCo2 ?? null,
         }

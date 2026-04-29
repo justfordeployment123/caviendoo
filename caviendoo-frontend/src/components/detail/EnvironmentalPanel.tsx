@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { useAtlasStore } from '@/store';
 import type { FruitEnvironmental } from '@/types';
 
 // ── Aquifer circular gauge ─────────────────────────────────────────────────
@@ -115,6 +116,7 @@ const SUSTAINABILITY_STYLES = {
 
 export function EnvironmentalPanel({ env }: { env: FruitEnvironmental }) {
   const t = useTranslations('environmental');
+  const locale = useAtlasStore((s) => s.locale);
 
   return (
     <div className="px-4 pb-4">
@@ -166,7 +168,9 @@ export function EnvironmentalPanel({ env }: { env: FruitEnvironmental }) {
           </div>
           <UVBar uvMin={env.uvMin} uvMax={env.uvMax} uvPeak={env.uvPeak} />
           {env.uvNote && (
-            <p className="text-2xs text-ink/90 mt-1.5 leading-relaxed">{env.uvNote}</p>
+            <p className="text-2xs text-ink/90 mt-1.5 leading-relaxed">
+              {typeof env.uvNote === 'string' ? env.uvNote : env.uvNote[locale]}
+            </p>
           )}
         </div>
       </div>

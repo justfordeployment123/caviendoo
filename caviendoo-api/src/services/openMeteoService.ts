@@ -4,15 +4,15 @@
  */
 
 export interface CurrentWeather {
-  temperatureC:     number;
-  relativeHumidity: number;
-  precipitationMm:  number;
-  weatherCode:      number;
-  condition:        { en: string; fr: string; ar: string };
-  windSpeedKmh:     number;
-  uvIndex:          number;
-  soilMoisture:     number;  // m³/m³
-  observedAt:       string;  // ISO timestamp
+  temperature:  number;
+  humidity:     number;
+  precipitation: number;
+  weatherCode:  number;
+  condition:    { en: string; fr: string; ar: string };
+  windSpeed:    number;
+  uvIndex:      number;
+  soilMoisture: number;  // m³/m³
+  timestamp:    string;  // ISO timestamp
 }
 
 const WMO: Record<number, { en: string; fr: string; ar: string }> = {
@@ -61,14 +61,14 @@ export async function getCurrentWeather(lat: number, lng: number): Promise<Curre
   const c    = json.current;
 
   return {
-    temperatureC:     c.temperature_2m,
-    relativeHumidity: c.relative_humidity_2m,
-    precipitationMm:  c.precipitation,
-    weatherCode:      c.weathercode,
-    condition:        wmoCondition(c.weathercode),
-    windSpeedKmh:     c.wind_speed_10m,
-    uvIndex:          c.uv_index ?? 0,
-    soilMoisture:     c.soil_moisture_0_to_1cm ?? 0,
-    observedAt:       c.time,
+    temperature:  c.temperature_2m,
+    humidity:     c.relative_humidity_2m,
+    precipitation: c.precipitation,
+    weatherCode:  c.weathercode,
+    condition:    wmoCondition(c.weathercode),
+    windSpeed:    c.wind_speed_10m,
+    uvIndex:      c.uv_index ?? 0,
+    soilMoisture: c.soil_moisture_0_to_1cm ?? 0,
+    timestamp:    c.time,
   };
 }

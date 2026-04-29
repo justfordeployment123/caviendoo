@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { X, Droplets, Sun, Leaf } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useAtlasStore } from '@/store';
 import { getFruitsByGovernorate } from '@/services/dataService';
 import { getAquiferChipClass, getAquiferLabel } from './mapColors';
@@ -30,6 +31,7 @@ export function GovernoratePopup({
   const [fruits, setFruits] = useState<Fruit[]>([]);
   const popupRef = useRef<HTMLDivElement>(null);
 
+  const tMap = useTranslations('map');
   const setSelectedFruitId = useAtlasStore((s) => s.setSelectedFruitId);
   const setSelectedGovernorate = useAtlasStore((s) => s.setSelectedGovernorate);
   const locale = useAtlasStore((s) => s.locale);
@@ -116,7 +118,7 @@ export function GovernoratePopup({
         {/* Fruit chips */}
         {fruits.length > 0 && (
           <div className="px-3 py-2">
-            <p className="text-2xs text-muted uppercase tracking-widest mb-1.5 font-medium">Fruits</p>
+            <p className="text-2xs text-muted uppercase tracking-widest mb-1.5 font-medium">{tMap('fruitsLabel')}</p>
             <div className="flex flex-wrap gap-1.5">
               {fruits.slice(0, 6).map((fruit) => (
                 <button

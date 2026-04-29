@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Thermometer, Droplets, Wind, Sun } from 'lucide-react';
 import { getGovernorateWeather } from '@/services/dataService';
 import { useAtlasStore } from '@/store';
@@ -11,6 +12,7 @@ interface WeatherWidgetProps {
 }
 
 export function WeatherWidget({ shapeName }: WeatherWidgetProps) {
+  const t = useTranslations('weather');
   const locale = useAtlasStore((s) => s.locale);
   const [weather, setWeather] = useState<CurrentWeather | null>(null);
   const [climate, setClimate] = useState<ClimateClimatology | null>(null);
@@ -45,7 +47,7 @@ export function WeatherWidget({ shapeName }: WeatherWidgetProps) {
 
   return (
     <div className="px-3 py-2 border-t border-border">
-      <p className="text-2xs text-muted uppercase tracking-widest mb-1.5 font-medium">Live Weather</p>
+      <p className="text-2xs text-muted uppercase tracking-widest mb-1.5 font-medium">{t('title')}</p>
       <div className="flex flex-wrap gap-x-3 gap-y-1">
         <span className="flex items-center gap-1 text-xs text-ink">
           <Thermometer size={10} className="text-gold shrink-0" />
@@ -67,7 +69,7 @@ export function WeatherWidget({ shapeName }: WeatherWidgetProps) {
       </div>
       {climate && (
         <p className="text-2xs text-muted mt-1">
-          30-yr avg: {climate.tempCMean.toFixed(1)}°C · {climate.precipMmYear.toFixed(0)} mm/yr
+          {t('climateAvg')}: {climate.tempCMean.toFixed(1)}°C · {climate.precipMmYear.toFixed(0)} mm/yr
         </p>
       )}
     </div>

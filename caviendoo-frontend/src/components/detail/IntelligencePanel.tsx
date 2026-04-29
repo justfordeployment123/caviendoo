@@ -1,9 +1,15 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+import { useAtlasStore } from '@/store';
+import { MONTH_LABELS } from '@/types';
 import type {
+  Locale,
   FruitSoil, FruitClimate, FruitEconomics,
   FruitConservation, FruitPhenology, FruitSustainability,
 } from '@/types';
+
+type TFn = (key: string, values?: Record<string, string | number>) => string;
 
 // ── Shared helpers ────────────────────────────────────────────────────────────
 
@@ -17,10 +23,9 @@ function Row({ label, value }: { label: string; value: string | number | null | 
   );
 }
 
-function SectionHeader({ icon, title }: { icon: string; title: string }) {
+function SectionHeader({ title }: { title: string }) {
   return (
-    <div className="flex items-center gap-1.5 mb-2">
-      <span className="text-sm">{icon}</span>
+    <div className="mb-2">
       <p className="text-2xs text-ink/90 uppercase tracking-wider font-semibold">{title}</p>
     </div>
   );
@@ -34,7 +39,7 @@ function Card({ children }: { children: React.ReactNode }) {
   );
 }
 
-function ToleranceBadge({ level }: { level: 'low' | 'medium' | 'high' | null }) {
+function ToleranceBadge({ level, t }: { level: 'low' | 'medium' | 'high' | null; t: TFn }) {
   if (!level) return null;
   const styles = {
     low:    'bg-red-100 border-red-300 text-red-800',
@@ -42,7 +47,7 @@ function ToleranceBadge({ level }: { level: 'low' | 'medium' | 'high' | null }) 
     high:   'bg-emerald-100 border-emerald-300 text-emerald-800',
   };
   return (
-    <span className={`badge border text-2xs capitalize ${styles[level]}`}>{level}</span>
+    <span className={`badge border text-2xs ${styles[level]}`}>{t(`tolerance_${level}`)}</span>
   );
 }
 
@@ -56,22 +61,16 @@ const CONSERVATION_STYLES: Record<string, string> = {
   critical:   'bg-red-100 border-red-500 text-red-900',
 };
 
-function ConservationBadge({ status }: { status: string | null }) {
+function ConservationBadge({ status, t }: { status: string | null; t: TFn }) {
   if (!status) return null;
   return (
-    <span className={`badge border text-2xs capitalize ${CONSERVATION_STYLES[status] ?? 'bg-slate-100 border-slate-300 text-slate-700'}`}>
-      {status}
+    <span className={`badge border text-2xs ${CONSERVATION_STYLES[status] ?? 'bg-slate-100 border-slate-300 text-slate-700'}`}>
+      {t(`conservation_${status}`)}
     </span>
   );
 }
 
 // ── Export status badge ────────────────────────────────────────────────────────
-
-const EXPORT_LABELS: Record<string, string> = {
-  exported:       'Exported',
-  local_only:     'Local only',
-  artisanal_only: 'Artisanal',
-};
 
 const EXPORT_STYLES: Record<string, string> = {
   exported:       'bg-blue-100 border-blue-300 text-blue-800',
@@ -79,45 +78,27 @@ const EXPORT_STYLES: Record<string, string> = {
   artisanal_only: 'bg-amber-100 border-amber-300 text-amber-800',
 };
 
-// ── Pollinator badge ───────────────────────────────────────────────────────────
-
-const POLLINATOR_LABELS: Record<string, string> = {
-  self_fertile:       'Self-fertile',
-  bee_dependent:      'Bee-dependent',
-  cross_pollination:  'Cross-pollination',
-};
-
-const POLLINATOR_ICONS: Record<string, string> = {
-  self_fertile:       '🌿',
-  bee_dependent:      '🐝',
-  cross_pollination:  '🌸',
-};
-
-// ── Month names ────────────────────────────────────────────────────────────────
-
-const MONTH_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-
 // ── Section components ────────────────────────────────────────────────────────
 
-function SoilSection({ soil }: { soil: FruitSoil }) {
+function SoilSection({ soil, t }: { soil: FruitSoil; t: TFn }) {
   const hasData = soil.phMin != null || soil.salinityTolerance || soil.types.length > 0;
   if (!hasData) return null;
   return (
     <div className="mb-3">
-      <SectionHeader icon="🪨" title="Soil & Land Quality" />
+      <SectionHeader title={t('soil')} />
       <Card>
         {soil.phMin != null && soil.phMax != null && (
-          <Row label="Soil pH range" value={`${soil.phMin} – ${soil.phMax}`} />
+          <Row label={t('phRange')} value={`${soil.phMin} – ${soil.phMax}`} />
         )}
         {soil.salinityTolerance && (
           <div className="flex items-center justify-between gap-2 py-0.5">
-            <span className="text-2xs text-ink/80">Salinity tolerance</span>
-            <ToleranceBadge level={soil.salinityTolerance} />
+            <span className="text-2xs text-ink/80">{t('salinityTolerance')}</span>
+            <ToleranceBadge level={soil.salinityTolerance} t={t} />
           </div>
         )}
         {soil.types.length > 0 && (
           <div className="flex items-start justify-between gap-2 py-0.5">
-            <span className="text-2xs text-ink/80 shrink-0">Suitable soils</span>
+            <span className="text-2xs text-ink/80 shrink-0">{t('suitableSoils')}</span>
             <span className="text-xs text-ink text-right capitalize">
               {soil.types.join(', ')}
             </span>
@@ -128,63 +109,64 @@ function SoilSection({ soil }: { soil: FruitSoil }) {
   );
 }
 
-function ClimateSection({ climate }: { climate: FruitClimate }) {
+function ClimateSection({ climate, t, locale }: { climate: FruitClimate; t: TFn; locale: Locale }) {
   const hasData = climate.chillHoursMin != null || climate.rainfallMmMin != null
     || climate.droughtTolerance || climate.frostRiskMonths.length > 0;
   if (!hasData) return null;
-  const frostMonths = climate.frostRiskMonths.map((m) => MONTH_SHORT[m]).join(', ');
+  const monthLabels = MONTH_LABELS[locale];
+  const frostMonths = climate.frostRiskMonths.map((m) => monthLabels[m]).join(', ');
   return (
     <div className="mb-3">
-      <SectionHeader icon="🌡️" title="Climate & Temperature" />
+      <SectionHeader title={t('climate')} />
       <Card>
         {climate.chillHoursMin != null && (
-          <Row label="Chill hours required" value={`${climate.chillHoursMin} h`} />
+          <Row label={t('chillHours')} value={`${climate.chillHoursMin} h`} />
         )}
         {climate.rainfallMmMin != null && climate.rainfallMmMax != null && (
-          <Row label="Annual rainfall" value={`${climate.rainfallMmMin}–${climate.rainfallMmMax} mm`} />
+          <Row label={t('annualRainfall')} value={`${climate.rainfallMmMin}–${climate.rainfallMmMax} mm`} />
         )}
         {climate.droughtTolerance && (
           <div className="flex items-center justify-between gap-2 py-0.5">
-            <span className="text-2xs text-ink/80">Drought tolerance</span>
-            <ToleranceBadge level={climate.droughtTolerance} />
+            <span className="text-2xs text-ink/80">{t('droughtTolerance')}</span>
+            <ToleranceBadge level={climate.droughtTolerance} t={t} />
           </div>
         )}
         {frostMonths && (
-          <Row label="Frost risk months" value={frostMonths} />
+          <Row label={t('frostRiskMonths')} value={frostMonths} />
         )}
       </Card>
     </div>
   );
 }
 
-function EconomicsSection({ economics }: { economics: FruitEconomics }) {
+function EconomicsSection({ economics, t }: { economics: FruitEconomics; t: TFn }) {
   const hasData = economics.productionTonnesYear != null || economics.exportStatus
     || economics.pricePremiumIndex != null;
   if (!hasData) return null;
   return (
     <div className="mb-3">
-      <SectionHeader icon="📊" title="Agricultural Economics" />
+      <SectionHeader title={t('economics')} />
       <Card>
         {economics.productionTonnesYear != null && (
           <Row
-            label="Tunisia production"
+            label={t('tunisiaProduction')}
             value={`${economics.productionTonnesYear.toLocaleString()} t/yr`}
           />
         )}
         {economics.exportStatus && (
           <div className="flex items-center justify-between gap-2 py-0.5">
-            <span className="text-2xs text-ink/80">Market status</span>
+            <span className="text-2xs text-ink/80">{t('marketStatus')}</span>
             <span className={`badge border text-2xs ${EXPORT_STYLES[economics.exportStatus]}`}>
-              {EXPORT_LABELS[economics.exportStatus]}
+              {t(`export_${economics.exportStatus}`)}
             </span>
           </div>
         )}
         {economics.pricePremiumIndex != null && (
           <Row
-            label="Price premium index"
+            label={t('pricePremium')}
             value={economics.pricePremiumIndex === 1.0
-              ? '1.0× (baseline)'
-              : `${economics.pricePremiumIndex.toFixed(1)}× market`}
+              ? t('priceBaseline')
+              : t('priceMarket', { value: economics.pricePremiumIndex.toFixed(1) })}
           />
         )}
       </Card>
@@ -192,30 +174,30 @@ function EconomicsSection({ economics }: { economics: FruitEconomics }) {
   );
 }
 
-function ConservationSection({ conservation }: { conservation: FruitConservation }) {
+function ConservationSection({ conservation, t }: { conservation: FruitConservation; t: TFn }) {
   const hasData = conservation.status || conservation.knownFarmsCount != null
     || conservation.seedBankStatus != null;
   if (!hasData) return null;
   return (
     <div className="mb-3">
-      <SectionHeader icon="🛡️" title="Conservation & Genetics" />
+      <SectionHeader title={t('conservation')} />
       <Card>
         {conservation.status && (
           <div className="flex items-center justify-between gap-2 py-0.5">
-            <span className="text-2xs text-ink/80">Status</span>
-            <ConservationBadge status={conservation.status} />
+            <span className="text-2xs text-ink/80">{t('status')}</span>
+            <ConservationBadge status={conservation.status} t={t} />
           </div>
         )}
         {conservation.knownFarmsCount != null && (
-          <Row label="Known producing farms" value={conservation.knownFarmsCount.toLocaleString()} />
+          <Row label={t('knownFarms')} value={conservation.knownFarmsCount.toLocaleString()} />
         )}
         {conservation.seedBankStatus != null && (
           <div className="flex items-center justify-between gap-2 py-0.5">
-            <span className="text-2xs text-ink/80">INRAT seed bank</span>
+            <span className="text-2xs text-ink/80">{t('seedBank')}</span>
             <span className={`badge border text-2xs ${conservation.seedBankStatus
               ? 'bg-emerald-100 border-emerald-400 text-emerald-800'
               : 'bg-slate-100 border-slate-300 text-slate-600'}`}>
-              {conservation.seedBankStatus ? 'Preserved' : 'Not registered'}
+              {conservation.seedBankStatus ? t('seedBankPreserved') : t('seedBankNot')}
             </span>
           </div>
         )}
@@ -224,26 +206,31 @@ function ConservationSection({ conservation }: { conservation: FruitConservation
   );
 }
 
-function PhenologySection({ phenology }: { phenology: FruitPhenology }) {
+function PhenologySection({ phenology, t }: { phenology: FruitPhenology; t: TFn }) {
   const hasData = phenology.daysFlowerToHarvest != null || phenology.harvestWindowDays != null
     || phenology.pollinatorDependency;
   if (!hasData) return null;
   return (
     <div className="mb-3">
-      <SectionHeader icon="🌸" title="Phenology & Timing" />
+      <SectionHeader title={t('phenology')} />
       <Card>
         {phenology.daysFlowerToHarvest != null && (
-          <Row label="Flower → harvest" value={`${phenology.daysFlowerToHarvest} days`} />
+          <Row
+            label={t('flowerToHarvest')}
+            value={t('daysValue', { count: phenology.daysFlowerToHarvest })}
+          />
         )}
         {phenology.harvestWindowDays != null && (
-          <Row label="Harvest window" value={`${phenology.harvestWindowDays} days`} />
+          <Row
+            label={t('harvestWindow')}
+            value={t('daysValue', { count: phenology.harvestWindowDays })}
+          />
         )}
         {phenology.pollinatorDependency && (
           <div className="flex items-center justify-between gap-2 py-0.5">
-            <span className="text-2xs text-ink/80">Pollination</span>
+            <span className="text-2xs text-ink/80">{t('pollination')}</span>
             <span className="text-xs text-ink">
-              {POLLINATOR_ICONS[phenology.pollinatorDependency]}{' '}
-              {POLLINATOR_LABELS[phenology.pollinatorDependency]}
+              {t(`pollinator_${phenology.pollinatorDependency}`)}
             </span>
           </div>
         )}
@@ -252,7 +239,7 @@ function PhenologySection({ phenology }: { phenology: FruitPhenology }) {
   );
 }
 
-function SustainabilitySection({ sustainability }: { sustainability: FruitSustainability }) {
+function SustainabilitySection({ sustainability, t }: { sustainability: FruitSustainability; t: TFn }) {
   const hasData = sustainability.carbonFootprintKgCo2 != null
     || sustainability.postHarvestLossPct != null;
   if (!hasData) return null;
@@ -262,11 +249,11 @@ function SustainabilitySection({ sustainability }: { sustainability: FruitSustai
 
   return (
     <div className="mb-3">
-      <SectionHeader icon="♻️" title="Carbon & Sustainability" />
+      <SectionHeader title={t('sustainability')} />
       <Card>
         {co2 != null && (
           <div className="flex items-center justify-between gap-2 py-0.5">
-            <span className="text-2xs text-ink/80">Carbon footprint</span>
+            <span className="text-2xs text-ink/80">{t('carbonFootprint')}</span>
             <span className={`font-mono text-xs font-medium ${co2Color}`}>
               {co2.toFixed(1)} kg CO₂e/kg
             </span>
@@ -274,7 +261,7 @@ function SustainabilitySection({ sustainability }: { sustainability: FruitSustai
         )}
         {sustainability.postHarvestLossPct != null && (
           <Row
-            label="Post-harvest loss"
+            label={t('postHarvestLoss')}
             value={`${sustainability.postHarvestLossPct}%`}
           />
         )}
@@ -286,31 +273,34 @@ function SustainabilitySection({ sustainability }: { sustainability: FruitSustai
 // ── Main panel ────────────────────────────────────────────────────────────────
 
 interface IntelligencePanelProps {
-  soil?:          FruitSoil | null;
-  climate?:       FruitClimate | null;
-  economics?:     FruitEconomics | null;
-  conservation?:  FruitConservation | null;
-  phenology?:     FruitPhenology | null;
+  soil?:           FruitSoil | null;
+  climate?:        FruitClimate | null;
+  economics?:      FruitEconomics | null;
+  conservation?:   FruitConservation | null;
+  phenology?:      FruitPhenology | null;
   sustainability?: FruitSustainability | null;
 }
 
 export function IntelligencePanel({
   soil, climate, economics, conservation, phenology, sustainability,
 }: IntelligencePanelProps) {
+  const t = useTranslations('intelligence') as unknown as TFn;
+  const locale = useAtlasStore((s) => s.locale);
+
   const hasAny = soil || climate || economics || conservation || phenology || sustainability;
   if (!hasAny) return null;
 
   return (
     <div className="px-4 pb-2">
       <p className="text-2xs text-ink/90 uppercase tracking-wider mb-3 font-semibold">
-        Agronomic Intelligence
+        {t('title')}
       </p>
-      {soil         && <SoilSection         soil={soil} />}
-      {climate      && <ClimateSection      climate={climate} />}
-      {economics    && <EconomicsSection    economics={economics} />}
-      {conservation && <ConservationSection conservation={conservation} />}
-      {phenology    && <PhenologySection    phenology={phenology} />}
-      {sustainability && <SustainabilitySection sustainability={sustainability} />}
+      {soil         && <SoilSection         soil={soil}         t={t} />}
+      {climate      && <ClimateSection      climate={climate}   t={t} locale={locale} />}
+      {economics    && <EconomicsSection    economics={economics} t={t} />}
+      {conservation && <ConservationSection conservation={conservation} t={t} />}
+      {phenology    && <PhenologySection    phenology={phenology} t={t} />}
+      {sustainability && <SustainabilitySection sustainability={sustainability} t={t} />}
     </div>
   );
 }

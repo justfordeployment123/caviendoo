@@ -41,7 +41,7 @@ export interface FruitEnvironmental {
   uvMin: number;             // 1–11
   uvMax: number;             // 1–11
   uvPeak: number;            // actual peak during harvest
-  uvNote: string;
+  uvNote: string | LocalizedString;
   sustainabilityClass: SustainabilityClass;
   carbonFootprintKgCo2?: number | null;
 }

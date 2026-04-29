@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { TrendingUp, TrendingDown, Minus, Globe, Sprout } from 'lucide-react';
 import { getFruitBiodiversity, getFruitProduction } from '@/services/dataService';
 import type { BiodiversityData, ProductionData } from '@/types';
@@ -38,6 +39,7 @@ interface LiveDataPanelProps {
 }
 
 export function LiveDataPanel({ fruitId }: LiveDataPanelProps) {
+  const t = useTranslations('liveData');
   const [bio, setBio]         = useState<BiodiversityData | null>(null);
   const [prod, setProd]       = useState<ProductionData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -57,7 +59,7 @@ export function LiveDataPanel({ fruitId }: LiveDataPanelProps) {
   if (loading) {
     return (
       <div className="px-4 pb-4">
-        <p className="text-2xs text-ink/90 uppercase tracking-wider mb-3 font-medium">Live Data</p>
+        <p className="text-2xs text-ink/90 uppercase tracking-wider mb-3 font-medium">{t('title')}</p>
         <div className="space-y-2 animate-pulse">
           {[1, 2, 3].map((i) => (
             <div key={i} className="h-3 bg-ink/8 rounded w-full" />
@@ -77,29 +79,29 @@ export function LiveDataPanel({ fruitId }: LiveDataPanelProps) {
         <div className="mb-4">
           <div className="flex items-center gap-1.5 mb-2">
             <Globe size={12} className="text-gold" />
-            <p className="text-2xs text-ink/90 uppercase tracking-wider font-medium">Biodiversity (GBIF)</p>
+            <p className="text-2xs text-ink/90 uppercase tracking-wider font-medium">{t('biodiversity')}</p>
           </div>
           <div className="bg-surface-raised rounded-md px-3 py-2 flex flex-col gap-1.5">
             <DataRow
-              label="Global occurrences"
+              label={t('globalOccurrences')}
               value={bio.globalOccurrences.toLocaleString()}
             />
             <DataRow
-              label="Tunisia occurrences"
+              label={t('tunisiaOccurrences')}
               value={bio.tunisiaOccurrences.toLocaleString()}
             />
             {bio.earliestRecord && (
               <DataRow
-                label="Recorded in Tunisia since"
+                label={t('recordedSince')}
                 value={bio.earliestRecord}
               />
             )}
             {bio.family && (
-              <DataRow label="Family" value={bio.family} />
+              <DataRow label={t('family')} value={bio.family} />
             )}
             {bio.iucnCategory && (
               <div className="flex items-center justify-between gap-2 mt-0.5">
-                <span className="text-2xs text-ink/90">IUCN Status</span>
+                <span className="text-2xs text-ink/90">{t('iucnStatus')}</span>
                 <span className={`badge border text-2xs ${iucnBadgeClass(bio.iucnCategory)}`}>
                   {bio.iucnCategory}
                 </span>
@@ -115,12 +117,12 @@ export function LiveDataPanel({ fruitId }: LiveDataPanelProps) {
           <div className="flex items-center gap-1.5 mb-2">
             <Sprout size={12} className="text-gold" />
             <p className="text-2xs text-ink/90 uppercase tracking-wider font-medium">
-              Tunisia Production (FAOSTAT{prod.year ? ` ${prod.year}` : ''})
+              {t('productionTitle')} ({prod.year ? t('faostatYear', { year: prod.year }) : t('faostat')})
             </p>
           </div>
           <div className="bg-surface-raised rounded-md px-3 py-2 flex flex-col gap-1.5">
             <div className="flex items-center justify-between gap-2">
-              <span className="text-2xs text-ink/90">Production</span>
+              <span className="text-2xs text-ink/90">{t('production')}</span>
               <div className="flex items-center gap-1">
                 <TrendIcon trend={prod.trend} />
                 <span className="font-mono text-xs text-ink">
@@ -129,10 +131,10 @@ export function LiveDataPanel({ fruitId }: LiveDataPanelProps) {
               </div>
             </div>
             {prod.areaHa != null && (
-              <DataRow label="Harvested area" value={`${prod.areaHa.toLocaleString()} ha`} />
+              <DataRow label={t('harvestedArea')} value={`${prod.areaHa.toLocaleString()} ha`} />
             )}
             {prod.yieldKgHa != null && (
-              <DataRow label="Yield" value={`${prod.yieldKgHa.toLocaleString()} kg/ha`} />
+              <DataRow label={t('yield')} value={`${prod.yieldKgHa.toLocaleString()} kg/ha`} />
             )}
           </div>
         </div>
