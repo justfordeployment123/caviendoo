@@ -19,9 +19,14 @@ interface MapOptions {
 }
 
 export function mapFruitToResponse(fruit: DBFruitWithRelations, opts: MapOptions = {}) {
-  const primaryImage =
-    fruit.images?.find((i) => i.isPrimary && i.status === 'ready') ??
-    fruit.images?.find((i) => i.status === 'ready');
+  const readyImages = (fruit.images ?? [])
+    .filter((i) => i.status === 'ready')
+    .sort((a, b) => {
+      // Primary first, then by quality score desc
+      if (a.isPrimary !== b.isPrimary) return a.isPrimary ? -1 : 1;
+      return (b.qualityScore ?? 0) - (a.qualityScore ?? 0);
+    });
+  const primaryImage = readyImages[0];
 
   const governorateNames =
     fruit.governorates?.map((fg) => fg.governorate.shapeName) ?? [];
@@ -41,6 +46,15 @@ export function mapFruitToResponse(fruit: DBFruitWithRelations, opts: MapOptions
     isHeritage: fruit.isHeritage,
     photoUrl:     primaryImage?.cdnUrlHero  ?? 'https://placehold.co/800x500/141714/f0e6cc?text=Caviendoo',
     thumbnailUrl: primaryImage?.cdnUrlThumb ?? 'https://placehold.co/168x168/141714/f0e6cc?text=C',
+    images: readyImages.map((i) => ({
+      url:        i.cdnUrlHero ?? '',
+      thumb:      i.cdnUrlThumb ?? '',
+      source:     i.source,
+      authorName: i.authorName ?? '',
+      authorUrl:  i.authorUrl ?? '',
+      license:    i.license ?? '',
+      sourceUrl:  i.sourceUrl ?? '',
+    })),
     season: {
       pre: fruit.seasonPre,
       peak: fruit.seasonPeak,

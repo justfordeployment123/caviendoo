@@ -99,7 +99,7 @@ interface DataRowProps {
 export function DataRow({ label, fruits, render, ranks }: DataRowProps) {
   return (
     <tr className="border-b border-border/40 hover:bg-ink/[0.02] transition-colors">
-      <td className="px-3 py-2 text-xs text-muted whitespace-nowrap align-middle min-w-[110px]">
+      <td className="px-3 py-2 text-xs text-muted whitespace-nowrap align-middle min-w-[140px]">
         {label}
       </td>
       {fruits.map((f, i) => (

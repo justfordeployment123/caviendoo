@@ -67,9 +67,11 @@ export const FruitListItem = memo(function FruitListItem({
               {fruit.isHeritage && <HeritageBadge />}
             </div>
           </div>
-          <p className="font-arabic text-xs text-ink-muted leading-snug mt-0 truncate">
-            {fruit.localName}
-          </p>
+          {locale === 'ar' && (
+            <p className="font-arabic text-xs text-ink-muted leading-snug mt-0 truncate">
+              {fruit.localName}
+            </p>
+          )}
           <div className="flex items-center justify-between gap-1 mt-0.5">
             <CategoryBadge category={fruit.category} locale={locale} />
             <span className="text-2xs text-ink-muted truncate max-w-[80px] text-end">

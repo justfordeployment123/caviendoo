@@ -2,6 +2,19 @@ import { z } from 'zod';
 
 const FRUIT_CATEGORIES = ['citrus', 'stone', 'pomme', 'tropical', 'berry', 'dried', 'melon', 'other'] as const;
 const SUSTAINABILITY = ['low', 'moderate', 'high'] as const;
+const TOLERANCE = ['low', 'medium', 'high'] as const;
+const EXPORT_STATUS = ['exported', 'local_only', 'artisanal_only'] as const;
+const CONSERVATION_STATUS = ['common', 'watch', 'vulnerable', 'endangered', 'critical'] as const;
+const POLLINATOR_DEPENDENCY = ['self_fertile', 'bee_dependent', 'cross_pollination'] as const;
+
+const nullableNumber = z.preprocess(
+  (v) => (v === '' || v === null || v === undefined ? null : v),
+  z.coerce.number().nullable(),
+);
+const nullableInt = z.preprocess(
+  (v) => (v === '' || v === null || v === undefined ? null : v),
+  z.coerce.number().int().nullable(),
+);
 
 export const FruitQuerySchema = z.object({
   category:     z.enum(FRUIT_CATEGORIES).optional(),
@@ -66,6 +79,36 @@ export const FruitCoreSchema = z.object({
   zoneAr:             z.string().max(200),
   localities:         z.array(z.string().max(100)).default([]),
   tags:               z.array(z.string().max(50)).default([]),
+
+  // ── Agronomy & intelligence (all optional / nullable) ─────────────────────
+  soilPhMin:            nullableNumber.optional(),
+  soilPhMax:            nullableNumber.optional(),
+  salinityTolerance:    z.enum(TOLERANCE).nullable().optional(),
+  soilTypes:            z.array(z.string().max(50)).default([]),
+
+  chillHoursMin:        nullableInt.optional(),
+  rainfallMmMin:        nullableInt.optional(),
+  rainfallMmMax:        nullableInt.optional(),
+  droughtTolerance:     z.enum(TOLERANCE).nullable().optional(),
+  frostRiskMonths:      z.array(z.number().int().min(0).max(11)).default([]),
+
+  productionTonnesYear: nullableNumber.optional(),
+  exportStatus:         z.enum(EXPORT_STATUS).nullable().optional(),
+  pricePremiumIndex:    nullableNumber.optional(),
+
+  conservationStatus:   z.enum(CONSERVATION_STATUS).nullable().optional(),
+  knownFarmsCount:      nullableInt.optional(),
+  seedBankStatus:       z.preprocess(
+    (v) => (v === '' || v === null || v === undefined ? null : v),
+    z.boolean().nullable(),
+  ).optional(),
+
+  daysFlowerToHarvest:  nullableInt.optional(),
+  harvestWindowDays:    nullableInt.optional(),
+  pollinatorDependency: z.enum(POLLINATOR_DEPENDENCY).nullable().optional(),
+
+  carbonFootprintKgCo2: nullableNumber.optional(),
+  postHarvestLossPct:   nullableNumber.optional(),
 });
 
 export type FruitQuery = z.infer<typeof FruitQuerySchema>;

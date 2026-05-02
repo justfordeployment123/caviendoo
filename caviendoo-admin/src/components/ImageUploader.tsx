@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { apiClient } from '../api/client';
+import ImageLightbox from './ImageLightbox';
 
 interface Props {
   fruitId:     string;
@@ -16,6 +17,7 @@ export default function ImageUploader({ fruitId, currentHero, onSuccess }: Props
   const [preview,     setPreview]     = useState<string | null>(null);
   const [uploadError, setUploadError] = useState('');
   const [autoError,   setAutoError]   = useState('');
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -66,10 +68,30 @@ export default function ImageUploader({ fruitId, currentHero, onSuccess }: Props
     <div className="space-y-4">
       {/* Current / preview image */}
       {displaySrc && (
-        <img
+        <button
+          type="button"
+          onClick={() => setLightboxOpen(true)}
+          aria-label="Expand image"
+          className="block group relative cursor-zoom-in"
+        >
+          <img
+            src={displaySrc}
+            alt="Current hero"
+            className="w-full max-w-sm h-40 object-cover rounded-lg border border-border group-hover:border-gold transition-colors"
+          />
+          <span className="absolute inset-0 max-w-sm flex items-center justify-center bg-black/0 group-hover:bg-black/30 rounded-lg transition-colors">
+            <span className="opacity-0 group-hover:opacity-100 text-cream text-xs px-2 py-1 rounded bg-black/60 transition-opacity">
+              Click to expand
+            </span>
+          </span>
+        </button>
+      )}
+
+      {lightboxOpen && displaySrc && (
+        <ImageLightbox
           src={displaySrc}
-          alt="Current hero"
-          className="w-full max-w-sm h-40 object-cover rounded-lg border border-border"
+          alt="Fruit hero image"
+          onClose={() => setLightboxOpen(false)}
         />
       )}
 

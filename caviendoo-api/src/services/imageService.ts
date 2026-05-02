@@ -245,6 +245,66 @@ async function searchWikimedia(query: string): Promise<ImageCandidate[]> {
 
 // ── Orchestration ─────────────────────────────────────────────────────────────
 
+const TARGET_IMAGE_COUNT = 5;
+const CANDIDATE_POOL_SIZE = 12; // pre-filter pool so we have spare options if downloads fail
+
+async function processOneCandidate(
+  fruitId: string,
+  candidate: ImageCandidate,
+  score: number,
+): Promise<{ id: number; ok: boolean }> {
+  const record = await prisma.fruitImage.upsert({
+    where: {
+      fruitId_source_sourceId: { fruitId, source: candidate.source, sourceId: candidate.sourceId },
+    },
+    update: { status: 'processing' },
+    create: {
+      fruitId,
+      source:       candidate.source,
+      sourceId:     candidate.sourceId,
+      sourceUrl:    candidate.pageUrl,
+      authorName:   candidate.authorName,
+      authorUrl:    candidate.authorUrl,
+      license:      candidate.license,
+      status:       'processing',
+      isPrimary:    false,
+      qualityScore: score,
+    },
+  });
+
+  try {
+    const imgRes = await fetch(candidate.downloadUrl, { signal: AbortSignal.timeout(30_000) });
+    if (!imgRes.ok) throw new Error(`Download failed: ${imgRes.status}`);
+    const imgBuffer = Buffer.from(await imgRes.arrayBuffer());
+
+    const { heroCdnUrl, thumbCdnUrl, heroKey, thumbKey } = await processAndUploadImage(
+      imgBuffer,
+      `${fruitId}-${candidate.source}-${candidate.sourceId}`,
+    );
+
+    await prisma.fruitImage.update({
+      where: { id: record.id },
+      data:  {
+        s3KeyHero:    heroKey,
+        s3KeyThumb:   thumbKey,
+        cdnUrlHero:   heroCdnUrl,
+        cdnUrlThumb:  thumbCdnUrl,
+        status:       'ready',
+        qualityScore: score,
+      },
+    });
+    return { id: record.id, ok: true };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    await prisma.fruitImage.update({
+      where: { id: record.id },
+      data:  { status: 'failed', errorMessage: msg },
+    });
+    console.error(`[imageService] ✗ ${fruitId} (${candidate.source}:${candidate.sourceId}): ${msg}`);
+    return { id: record.id, ok: false };
+  }
+}
+
 export async function fetchAndStoreImageForFruit(
   fruitId: string,
   fruitNameEn: string,
@@ -278,7 +338,7 @@ export async function fetchAndStoreImageForFruit(
       }
     }
 
-    if (candidates.length >= 5) break;
+    if (candidates.length >= CANDIDATE_POOL_SIZE) break;
     await new Promise((r) => setTimeout(r, 300));
   }
 
@@ -299,10 +359,10 @@ export async function fetchAndStoreImageForFruit(
     return;
   }
 
-  // Pre-sort by keyword score, take top 5 to AI-score
+  // Pre-sort by keyword, take top pool to AI-score
   const topCandidates = candidates
     .sort((a, b) => b.keywordScore - a.keywordScore)
-    .slice(0, 5);
+    .slice(0, CANDIDATE_POOL_SIZE);
 
   // AI-score in parallel (falls back to keywordScore if ANTHROPIC_API_KEY unset)
   const aiScored = await Promise.all(
@@ -312,70 +372,40 @@ export async function fetchAndStoreImageForFruit(
     })),
   );
 
-  const best = aiScored.sort((a, b) => b.score - a.score)[0]!;
-  const { candidate, score } = best;
+  // Sort by AI score, take top 5 to actually store
+  aiScored.sort((a, b) => b.score - a.score);
+  const winners = aiScored.slice(0, TARGET_IMAGE_COUNT);
 
   const usingAI = !!env.ANTHROPIC_API_KEY;
   console.log(
-    `[imageService] ${fruitId} — best: ${candidate.source} ` +
-    `(${usingAI ? 'AI' : 'keyword'} score=${score.toFixed(2)})`,
+    `[imageService] ${fruitId} — keeping top ${winners.length} ` +
+    `(${usingAI ? 'AI' : 'keyword'}-scored, best=${winners[0]!.score.toFixed(2)})`,
   );
 
-  // Mark as processing before download
-  const record = await prisma.fruitImage.upsert({
-    where: {
-      fruitId_source_sourceId: { fruitId, source: candidate.source, sourceId: candidate.sourceId },
-    },
-    update: { status: 'processing' },
-    create: {
-      fruitId,
-      source:       candidate.source,
-      sourceId:     candidate.sourceId,
-      sourceUrl:    candidate.pageUrl,
-      authorName:   candidate.authorName,
-      authorUrl:    candidate.authorUrl,
-      license:      candidate.license,
-      status:       'processing',
-      isPrimary:    false,
-      qualityScore: score,
-    },
+  // Clear all existing primaries for this fruit; we'll reassign after downloads
+  await prisma.fruitImage.updateMany({
+    where: { fruitId, isPrimary: true },
+    data:  { isPrimary: false },
   });
 
-  try {
-    const imgRes = await fetch(candidate.downloadUrl, { signal: AbortSignal.timeout(30_000) });
-    if (!imgRes.ok) throw new Error(`Download failed: ${imgRes.status}`);
-    const imgBuffer = Buffer.from(await imgRes.arrayBuffer());
-
-    const { heroCdnUrl, thumbCdnUrl, heroKey, thumbKey } = await processAndUploadImage(
-      imgBuffer,
-      fruitId,
-    );
-
-    await prisma.fruitImage.updateMany({
-      where: { fruitId, isPrimary: true },
-      data:  { isPrimary: false },
-    });
-
-    await prisma.fruitImage.update({
-      where: { id: record.id },
-      data:  {
-        s3KeyHero:    heroKey,
-        s3KeyThumb:   thumbKey,
-        cdnUrlHero:   heroCdnUrl,
-        cdnUrlThumb:  thumbCdnUrl,
-        status:       'ready',
-        isPrimary:    true,
-        qualityScore: score,
-      },
-    });
-
-    console.log(`[imageService] ✓ ${fruitId} → ${candidate.source} (score=${score.toFixed(2)})`);
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    await prisma.fruitImage.update({
-      where: { id: record.id },
-      data:  { status: 'failed', errorMessage: msg },
-    });
-    console.error(`[imageService] ✗ ${fruitId}: ${msg}`);
+  // Process sequentially to avoid hammering S3 + provider rate limits
+  const results: { id: number; score: number; ok: boolean }[] = [];
+  for (const { candidate, score } of winners) {
+    const r = await processOneCandidate(fruitId, candidate, score);
+    results.push({ id: r.id, score, ok: r.ok });
   }
+
+  // Mark the highest-scoring successful image as primary
+  const primary = results
+    .filter((r) => r.ok)
+    .sort((a, b) => b.score - a.score)[0];
+  if (primary) {
+    await prisma.fruitImage.update({
+      where: { id: primary.id },
+      data:  { isPrimary: true },
+    });
+  }
+
+  const okCount = results.filter((r) => r.ok).length;
+  console.log(`[imageService] ✓ ${fruitId} → ${okCount}/${winners.length} stored`);
 }

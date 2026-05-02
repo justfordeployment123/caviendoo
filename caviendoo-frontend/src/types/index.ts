@@ -86,6 +86,16 @@ export interface FruitSustainability {
   postHarvestLossPct:   number | null;
 }
 
+export interface FruitImageRef {
+  url:        string;
+  thumb:      string;
+  source:     string;
+  authorName: string;
+  authorUrl:  string;
+  license:    string;
+  sourceUrl:  string;
+}
+
 export interface Fruit {
   id: string;
   name: LocalizedString;
@@ -96,6 +106,7 @@ export interface Fruit {
   isHeritage: boolean;
   photoUrl: string;
   thumbnailUrl: string;
+  images?: FruitImageRef[];
   season: SeasonData;
   primaryGovernorate: string;  // matches GeoJSON shapeName
   governorates: string[];

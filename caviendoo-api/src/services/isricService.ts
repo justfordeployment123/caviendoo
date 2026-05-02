@@ -29,8 +29,18 @@ export async function getSoilData(lat: number, lng: number): Promise<SoilData> {
 
   const url = `https://rest.isric.org/soilgrids/v2.0/properties/query?lon=${lng}&lat=${lat}&property=${properties}&depth=${depths}&value=${values}`;
 
-  const res = await fetch(url, { signal: AbortSignal.timeout(12_000) });
-  if (!res.ok) {
+  // Retry up to 3 times — ISRIC returns intermittent 500s under load
+  let res: Response | null = null;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      res = await fetch(url, { signal: AbortSignal.timeout(12_000) });
+      if (res.ok) break;
+      if (attempt < 3) await new Promise((r) => setTimeout(r, attempt * 1000));
+    } catch {
+      if (attempt < 3) await new Promise((r) => setTimeout(r, attempt * 1000));
+    }
+  }
+  if (!res?.ok) {
     return { soilPhTypical: null, soilTexture: null, soilOrganicCarbonPct: null };
   }
 

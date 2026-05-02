@@ -10,6 +10,37 @@ import SeasonEditor from '../components/SeasonEditor';
 
 const CATEGORIES = ['citrus', 'stone', 'pomme', 'tropical', 'berry', 'dried', 'melon', 'other'] as const;
 const SUSTAINABILITY = ['low', 'moderate', 'high'] as const;
+const TOLERANCE = ['low', 'medium', 'high'] as const;
+const EXPORT_STATUS = ['exported', 'local_only', 'artisanal_only'] as const;
+const CONSERVATION_STATUS = ['common', 'watch', 'vulnerable', 'endangered', 'critical'] as const;
+const POLLINATOR_DEPENDENCY = ['self_fertile', 'bee_dependent', 'cross_pollination'] as const;
+
+const optionalNum = z.preprocess(
+  (v) => (v === '' || v === null || v === undefined ? null : v),
+  z.coerce.number().nullable(),
+);
+const optionalInt = z.preprocess(
+  (v) => (v === '' || v === null || v === undefined ? null : v),
+  z.coerce.number().int().nullable(),
+);
+const optionalEnum = <T extends readonly [string, ...string[]]>(values: T) =>
+  z.preprocess(
+    (v) => (v === '' || v === null || v === undefined ? null : v),
+    z.enum(values).nullable(),
+  );
+const optionalBool = z.preprocess(
+  (v) => {
+    if (v === '' || v === null || v === undefined) return null;
+    if (v === 'true') return true;
+    if (v === 'false') return false;
+    return v;
+  },
+  z.boolean().nullable(),
+);
+
+function csvToArray(s: string): string[] {
+  return s.split(',').map((x) => x.trim()).filter(Boolean);
+}
 
 const envSchema = z.object({
   blueWaterLkg:        z.coerce.number().min(0),
@@ -58,6 +89,28 @@ const schema = z.object({
   environmental:      envSchema.optional(),
   nutritional:        z.array(nutritionalRowSchema).default([]),
   governorateNames:   z.array(z.string()).default([]),
+
+  // ── Agronomy & Intelligence ─────────────────────────────────────────────
+  soilPhMin:            optionalNum,
+  soilPhMax:            optionalNum,
+  salinityTolerance:    optionalEnum(TOLERANCE),
+  soilTypes:            z.string().default(''),               // CSV in form, array in payload
+  chillHoursMin:        optionalInt,
+  rainfallMmMin:        optionalInt,
+  rainfallMmMax:        optionalInt,
+  droughtTolerance:     optionalEnum(TOLERANCE),
+  frostRiskMonths:      z.array(z.number()).default([]),
+  productionTonnesYear: optionalNum,
+  exportStatus:         optionalEnum(EXPORT_STATUS),
+  pricePremiumIndex:    optionalNum,
+  conservationStatus:   optionalEnum(CONSERVATION_STATUS),
+  knownFarmsCount:      optionalInt,
+  seedBankStatus:       optionalBool,
+  daysFlowerToHarvest:  optionalInt,
+  harvestWindowDays:    optionalInt,
+  pollinatorDependency: optionalEnum(POLLINATOR_DEPENDENCY),
+  carbonFootprintKgCo2: optionalNum,
+  postHarvestLossPct:   optionalNum,
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -73,6 +126,27 @@ const DEFAULT_VALUES: Partial<FormValues> = {
   tags:             '',
   nutritional:      [],
   governorateNames: [],
+
+  soilPhMin:            null,
+  soilPhMax:            null,
+  salinityTolerance:    null,
+  soilTypes:            '',
+  chillHoursMin:        null,
+  rainfallMmMin:        null,
+  rainfallMmMax:        null,
+  droughtTolerance:     null,
+  frostRiskMonths:      [],
+  productionTonnesYear: null,
+  exportStatus:         null,
+  pricePremiumIndex:    null,
+  conservationStatus:   null,
+  knownFarmsCount:      null,
+  seedBankStatus:       null,
+  daysFlowerToHarvest:  null,
+  harvestWindowDays:    null,
+  pollinatorDependency: null,
+  carbonFootprintKgCo2: null,
+  postHarvestLossPct:   null,
 };
 
 function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
@@ -177,6 +251,8 @@ export default function FruitEdit() {
         environmental:    (fruit.environmental as any[])?.[0] ?? undefined,
         localities:       (fruit.localities as string[]).join(', '),
         tags:             (fruit.tags as string[]).join(', '),
+        soilTypes:        (fruit.soilTypes as string[] ?? []).join(', '),
+        frostRiskMonths:  fruit.frostRiskMonths ?? [],
         nutritional:      (fruit.nutritional ?? []).map((n: any) => ({
           labelEn: n.labelEn,
           labelFr: n.labelFr,
@@ -192,8 +268,9 @@ export default function FruitEdit() {
     mutationFn: async (values: FormValues) => {
       const payload = {
         ...values,
-        localities: values.localities.split(',').map((s) => s.trim()).filter(Boolean),
-        tags:       values.tags.split(',').map((s) => s.trim()).filter(Boolean),
+        localities: csvToArray(values.localities),
+        tags:       csvToArray(values.tags),
+        soilTypes:  csvToArray(values.soilTypes ?? ''),
       };
       if (isNew) {
         return apiClient.post('/admin/fruits', payload);
@@ -222,7 +299,7 @@ export default function FruitEdit() {
   if (!isNew && isLoading) return <div className="p-8 text-muted">Loading…</div>;
 
   return (
-    <div className="p-8 max-w-4xl">
+    <div className="p-4 sm:p-8 max-w-4xl">
       <h1 className="font-display text-cream text-2xl font-semibold mb-6">
         {isNew ? 'Add Fruit' : 'Edit Fruit'}
       </h1>
@@ -232,7 +309,7 @@ export default function FruitEdit() {
         {/* Identity */}
         <section className="bg-surface rounded-xl border border-border p-5 space-y-4">
           <h2 className="text-muted text-xs uppercase tracking-wider font-medium mb-3">Identity</h2>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Slug (ID)" error={errors.id?.message}>
               <Input {...register('id')} placeholder="deglet-noor-date" readOnly={!isNew} />
             </Field>
@@ -253,7 +330,7 @@ export default function FruitEdit() {
             </Field>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <Field label="Category" error={errors.category?.message}>
               <select
                 {...register('category')}
@@ -287,7 +364,7 @@ export default function FruitEdit() {
             </Field>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Localities (comma-separated)" error={errors.localities?.message}>
               <Input {...register('localities')} placeholder="Tozeur, Nefta" />
             </Field>
@@ -300,7 +377,7 @@ export default function FruitEdit() {
         {/* Growing Regions */}
         <section className="bg-surface rounded-xl border border-border p-5">
           <h2 className="text-muted text-xs uppercase tracking-wider font-medium mb-4">Growing Regions</h2>
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
             {regions.map((region) => (
               <label key={region.id} className="flex items-center gap-2 text-muted text-sm cursor-pointer py-1">
                 <input
@@ -323,7 +400,7 @@ export default function FruitEdit() {
           </div>
 
           {activeLang === 'en' && (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Field label="Description (EN)">
                 <Textarea {...register('descriptionEn')} />
               </Field>
@@ -333,7 +410,7 @@ export default function FruitEdit() {
             </div>
           )}
           {activeLang === 'fr' && (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Field label="Description (FR)">
                 <Textarea {...register('descriptionFr')} />
               </Field>
@@ -343,7 +420,7 @@ export default function FruitEdit() {
             </div>
           )}
           {activeLang === 'ar' && (
-            <div className="grid grid-cols-2 gap-4" dir="rtl">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" dir="rtl">
               <Field label="الوصف (AR)">
                 <Textarea {...register('descriptionAr')} dir="rtl" />
               </Field>
@@ -355,7 +432,7 @@ export default function FruitEdit() {
 
           <div className="border-t border-border pt-4">
             <p className="text-muted text-xs mb-3 uppercase tracking-wider font-medium">Zone / Region Label</p>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <Field label="Zone (EN)">
                 <Input {...register('zoneEn')} />
               </Field>
@@ -391,7 +468,7 @@ export default function FruitEdit() {
         {/* Environmental */}
         <section className="bg-surface rounded-xl border border-border p-5 space-y-4">
           <h2 className="text-muted text-xs uppercase tracking-wider font-medium mb-3">Environmental Data</h2>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <Field label="Blue Water (L/kg)" error={errors.environmental?.blueWaterLkg?.message}>
               <Input type="number" step="0.1" {...register('environmental.blueWaterLkg')} />
             </Field>
@@ -427,6 +504,158 @@ export default function FruitEdit() {
           </div>
         </section>
 
+        {/* Agronomy & Intelligence */}
+        <section className="bg-surface rounded-xl border border-border p-5 space-y-6">
+          <h2 className="text-muted text-xs uppercase tracking-wider font-medium">Agronomy &amp; Intelligence</h2>
+
+          {/* Soil */}
+          <div>
+            <p className="text-muted text-xs mb-3 uppercase tracking-wider font-medium">Soil &amp; Land</p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <Field label="Soil pH Min">
+                <Input type="number" step="0.1" {...register('soilPhMin')} />
+              </Field>
+              <Field label="Soil pH Max">
+                <Input type="number" step="0.1" {...register('soilPhMax')} />
+              </Field>
+              <Field label="Salinity Tolerance">
+                <select
+                  {...register('salinityTolerance')}
+                  className="w-full bg-canvas border border-border rounded-lg px-3 py-1.5 text-cream text-sm focus:outline-none focus:border-gold"
+                >
+                  <option value="">—</option>
+                  {TOLERANCE.map((t) => <option key={t} value={t}>{t}</option>)}
+                </select>
+              </Field>
+              <Field label="Soil Types (comma-separated)">
+                <Input {...register('soilTypes')} placeholder="loam, sandy" />
+              </Field>
+            </div>
+          </div>
+
+          {/* Climate */}
+          <div>
+            <p className="text-muted text-xs mb-3 uppercase tracking-wider font-medium">Climate Requirements</p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <Field label="Chill Hours Min">
+                <Input type="number" {...register('chillHoursMin')} />
+              </Field>
+              <Field label="Rainfall Min (mm/yr)">
+                <Input type="number" {...register('rainfallMmMin')} />
+              </Field>
+              <Field label="Rainfall Max (mm/yr)">
+                <Input type="number" {...register('rainfallMmMax')} />
+              </Field>
+              <Field label="Drought Tolerance">
+                <select
+                  {...register('droughtTolerance')}
+                  className="w-full bg-canvas border border-border rounded-lg px-3 py-1.5 text-cream text-sm focus:outline-none focus:border-gold"
+                >
+                  <option value="">—</option>
+                  {TOLERANCE.map((t) => <option key={t} value={t}>{t}</option>)}
+                </select>
+              </Field>
+            </div>
+            <div className="mt-3">
+              <Field label="Frost Risk Months">
+                <Controller
+                  name="frostRiskMonths"
+                  control={control}
+                  render={({ field }) => (
+                    <SeasonEditor value={field.value ?? []} onChange={field.onChange} />
+                  )}
+                />
+              </Field>
+            </div>
+          </div>
+
+          {/* Economics */}
+          <div>
+            <p className="text-muted text-xs mb-3 uppercase tracking-wider font-medium">Economics</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <Field label="Production (tonnes/yr)">
+                <Input type="number" step="0.01" {...register('productionTonnesYear')} />
+              </Field>
+              <Field label="Export Status">
+                <select
+                  {...register('exportStatus')}
+                  className="w-full bg-canvas border border-border rounded-lg px-3 py-1.5 text-cream text-sm focus:outline-none focus:border-gold"
+                >
+                  <option value="">—</option>
+                  {EXPORT_STATUS.map((s) => <option key={s} value={s}>{s.replace('_', ' ')}</option>)}
+                </select>
+              </Field>
+              <Field label="Price Premium Index (1.0 = baseline)">
+                <Input type="number" step="0.01" {...register('pricePremiumIndex')} />
+              </Field>
+            </div>
+          </div>
+
+          {/* Conservation */}
+          <div>
+            <p className="text-muted text-xs mb-3 uppercase tracking-wider font-medium">Conservation</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <Field label="Conservation Status">
+                <select
+                  {...register('conservationStatus')}
+                  className="w-full bg-canvas border border-border rounded-lg px-3 py-1.5 text-cream text-sm focus:outline-none focus:border-gold"
+                >
+                  <option value="">—</option>
+                  {CONSERVATION_STATUS.map((s) => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </Field>
+              <Field label="Known Farms Count">
+                <Input type="number" {...register('knownFarmsCount')} />
+              </Field>
+              <Field label="Seed Bank Status">
+                <select
+                  {...register('seedBankStatus')}
+                  className="w-full bg-canvas border border-border rounded-lg px-3 py-1.5 text-cream text-sm focus:outline-none focus:border-gold"
+                >
+                  <option value="">—</option>
+                  <option value="true">Yes</option>
+                  <option value="false">No</option>
+                </select>
+              </Field>
+            </div>
+          </div>
+
+          {/* Phenology */}
+          <div>
+            <p className="text-muted text-xs mb-3 uppercase tracking-wider font-medium">Phenology</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <Field label="Days Flower→Harvest">
+                <Input type="number" {...register('daysFlowerToHarvest')} />
+              </Field>
+              <Field label="Harvest Window (days)">
+                <Input type="number" {...register('harvestWindowDays')} />
+              </Field>
+              <Field label="Pollinator Dependency">
+                <select
+                  {...register('pollinatorDependency')}
+                  className="w-full bg-canvas border border-border rounded-lg px-3 py-1.5 text-cream text-sm focus:outline-none focus:border-gold"
+                >
+                  <option value="">—</option>
+                  {POLLINATOR_DEPENDENCY.map((p) => <option key={p} value={p}>{p.replace('_', ' ')}</option>)}
+                </select>
+              </Field>
+            </div>
+          </div>
+
+          {/* Sustainability */}
+          <div>
+            <p className="text-muted text-xs mb-3 uppercase tracking-wider font-medium">Sustainability</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Field label="Carbon Footprint (kg CO₂e / kg fruit)">
+                <Input type="number" step="0.01" {...register('carbonFootprintKgCo2')} />
+              </Field>
+              <Field label="Post-Harvest Loss (%)">
+                <Input type="number" step="0.1" {...register('postHarvestLossPct')} />
+              </Field>
+            </div>
+          </div>
+        </section>
+
         {/* Nutritional */}
         <section className="bg-surface rounded-xl border border-border p-5">
           <div className="flex items-center justify-between mb-4">
@@ -443,7 +672,8 @@ export default function FruitEdit() {
           {nutritionalFields.length === 0 ? (
             <p className="text-muted text-sm">No nutritional data. Click "+ Add Row" to add entries.</p>
           ) : (
-            <div className="space-y-2">
+            <div className="overflow-x-auto">
+            <div className="space-y-2 min-w-[480px]">
               <div className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] gap-2 mb-1">
                 {['Label EN', 'Label FR', 'Label AR', 'Value', ''].map((h, i) => (
                   <span key={i} className="text-muted text-xs">{h}</span>
@@ -477,6 +707,7 @@ export default function FruitEdit() {
                   </button>
                 </div>
               ))}
+            </div>
             </div>
           )}
         </section>
