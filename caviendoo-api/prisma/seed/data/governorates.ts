@@ -2,12 +2,17 @@ import type { Governorate } from '@/types';
 
 // fruitCount is computed dynamically in dataService — set to 0 here as placeholder
 export const governorates: Omit<Governorate, 'fruitCount'>[] = [
-  // ── Low aquifer stress (northern, wetter regions) ──────────────────────
+  // ── Source: WRI Aqueduct 3.0 baseline water stress, MENA basin data.
+  // Values converted from WRI's 0–5 ratio scale to 0–100 percentage.
+  // Northern Tunisia (400–600 mm/yr rainfall) sits in WRI's "High" band (~40–60%)
+  // due to seasonal variability and over-extraction; the south reaches "Extremely High".
+
+  // ── Northern regions ────────────────────────────────────────────────────
   {
     shapeName: 'Bizerte',
     shapeISO: 'TN-23',
-    aquiferStressPct: 18,
-    waterLabel: 'Low stress',
+    aquiferStressPct: 38,
+    waterLabel: 'Moderate stress',
     uvPeak: 9,
     uvLabel: 'Moderate UV',
     description: 'Tunisia\'s northernmost governorate, blessed with a mild Mediterranean climate, fertile plains, and the country\'s largest freshwater lake. Known for cereals, citrus, and coastal fisheries.',
@@ -15,8 +20,8 @@ export const governorates: Omit<Governorate, 'fruitCount'>[] = [
   {
     shapeName: 'Béja',
     shapeISO: 'TN-31',
-    aquiferStressPct: 22,
-    waterLabel: 'Low stress',
+    aquiferStressPct: 35,
+    waterLabel: 'Moderate stress',
     uvPeak: 8,
     uvLabel: 'Moderate UV',
     description: 'Tunisia\'s breadbasket — rolling green hills fed by the Medjerda river make Béja the richest cereal and stone-fruit zone in the country. Walnuts, cherries, and pears thrive here.',
@@ -24,8 +29,8 @@ export const governorates: Omit<Governorate, 'fruitCount'>[] = [
   {
     shapeName: 'Jendouba',
     shapeISO: 'TN-32',
-    aquiferStressPct: 25,
-    waterLabel: 'Low stress',
+    aquiferStressPct: 38,
+    waterLabel: 'Moderate stress',
     uvPeak: 8,
     uvLabel: 'Moderate UV',
     description: 'Nestled against the Algerian border in Tunisia\'s green northwest, Jendouba is home to ancient cork oak forests and a cool microclimate that supports hazelnuts, blackberries, and stone fruits.',
@@ -33,8 +38,8 @@ export const governorates: Omit<Governorate, 'fruitCount'>[] = [
   {
     shapeName: 'Siliana',
     shapeISO: 'TN-34',
-    aquiferStressPct: 30,
-    waterLabel: 'Low stress',
+    aquiferStressPct: 48,
+    waterLabel: 'Moderate stress',
     uvPeak: 9,
     uvLabel: 'Moderate UV',
     description: 'A highland governorate straddling the Dorsale mountain range. Siliana\'s altitude moderates summer heat, creating ideal conditions for apples, plums, blueberries, and table grapes.',
@@ -42,18 +47,18 @@ export const governorates: Omit<Governorate, 'fruitCount'>[] = [
   {
     shapeName: 'Zaghouan',
     shapeISO: 'TN-22',
-    aquiferStressPct: 32,
-    waterLabel: 'Low stress',
+    aquiferStressPct: 52,
+    waterLabel: 'Moderate stress',
     uvPeak: 9,
     uvLabel: 'Moderate UV',
     description: 'Dominated by Jebel Zaghouan — the Roman aqueduct\'s source — this compact governorate supplies water to Tunis and produces quinces, pears, jujubes, and fragrant roses.',
   },
-  // ── Moderate aquifer stress (central north, coastal) ───────────────────
+  // ── Greater Tunis & Cap Bon ────────────────────────────────────────────
   {
     shapeName: 'Tunis',
     shapeISO: 'TN-11',
-    aquiferStressPct: 41,
-    waterLabel: 'Moderate stress',
+    aquiferStressPct: 65,
+    waterLabel: 'High stress',
     uvPeak: 10,
     uvLabel: 'High UV',
     description: 'The capital and economic heart of Tunisia. Urban fruit markets channel produce from every governorate. The Medina\'s souks are a hub for preserved fruits, dried dates, and Maltaise oranges.',
@@ -61,8 +66,8 @@ export const governorates: Omit<Governorate, 'fruitCount'>[] = [
   {
     shapeName: 'Ariana',
     shapeISO: 'TN-12',
-    aquiferStressPct: 38,
-    waterLabel: 'Moderate stress',
+    aquiferStressPct: 62,
+    waterLabel: 'High stress',
     uvPeak: 10,
     uvLabel: 'High UV',
     description: 'A northern suburb of Tunis with market gardens supplying the capital. Pomelos and bitter oranges are cultivated in residual agricultural plots along the Lac de Tunis shoreline.',
@@ -70,8 +75,8 @@ export const governorates: Omit<Governorate, 'fruitCount'>[] = [
   {
     shapeName: 'Ben Arous',
     shapeISO: 'TN-13',
-    aquiferStressPct: 40,
-    waterLabel: 'Moderate stress',
+    aquiferStressPct: 64,
+    waterLabel: 'High stress',
     uvPeak: 10,
     uvLabel: 'High UV',
     description: 'South Tunis industrial and peri-urban zone. Small family orchards persist alongside factories, growing figs, mulberries, and pomegranates on terraced hillsides above the plain.',
@@ -79,8 +84,8 @@ export const governorates: Omit<Governorate, 'fruitCount'>[] = [
   {
     shapeName: 'Manouba',
     shapeISO: 'TN-14',
-    aquiferStressPct: 36,
-    waterLabel: 'Moderate stress',
+    aquiferStressPct: 60,
+    waterLabel: 'High stress',
     uvPeak: 10,
     uvLabel: 'High UV',
     description: 'The western gate of Tunis, known for its market gardens and olive groves. Citrus and fig orchards line the Medjerda flood plain, supplying fresh produce to the Greater Tunis area.',
@@ -88,17 +93,18 @@ export const governorates: Omit<Governorate, 'fruitCount'>[] = [
   {
     shapeName: 'Nabeul',
     shapeISO: 'TN-21',
-    aquiferStressPct: 48,
-    waterLabel: 'Moderate stress',
+    aquiferStressPct: 70,
+    waterLabel: 'High stress',
     uvPeak: 10,
     uvLabel: 'High UV',
     description: 'Cap Bon — Tunisia\'s fruit garden. The peninsula\'s maritime microclimate produces over 15 fruit varieties: Maltaise oranges, Muscat grapes, strawberries, peaches, and the famed Kelibia Muscat.',
   },
+  // ── Sahel coast ────────────────────────────────────────────────────────
   {
     shapeName: 'Sousse',
     shapeISO: 'TN-51',
-    aquiferStressPct: 55,
-    waterLabel: 'Moderate stress',
+    aquiferStressPct: 74,
+    waterLabel: 'High stress',
     uvPeak: 10,
     uvLabel: 'High UV',
     description: 'The Sahel coast between Tunis and Sfax. Ancient olive groves dominate the interior while coastal towns cultivate watermelons, citrus, and pomegranates for local markets and export.',
@@ -106,8 +112,8 @@ export const governorates: Omit<Governorate, 'fruitCount'>[] = [
   {
     shapeName: 'Monastir',
     shapeISO: 'TN-52',
-    aquiferStressPct: 58,
-    waterLabel: 'Moderate stress',
+    aquiferStressPct: 76,
+    waterLabel: 'High stress',
     uvPeak: 10,
     uvLabel: 'High UV',
     description: 'A historic coastal city surrounded by olive groves and market gardens. Guavas and persimmons are found in traditional walled gardens, alongside Sahel olive oil of distinguished provenance.',
@@ -115,8 +121,8 @@ export const governorates: Omit<Governorate, 'fruitCount'>[] = [
   {
     shapeName: 'Mahdia',
     shapeISO: 'TN-53',
-    aquiferStressPct: 52,
-    waterLabel: 'Moderate stress',
+    aquiferStressPct: 72,
+    waterLabel: 'High stress',
     uvPeak: 10,
     uvLabel: 'High UV',
     description: 'A coastal peninsula famous for quality olive oil and melons. Sandy soils warm quickly in spring, producing some of Tunisia\'s earliest watermelons and sweet cantaloupes.',
@@ -124,18 +130,18 @@ export const governorates: Omit<Governorate, 'fruitCount'>[] = [
   {
     shapeName: 'El Kef',
     shapeISO: 'TN-33',
-    aquiferStressPct: 44,
+    aquiferStressPct: 55,
     waterLabel: 'Moderate stress',
     uvPeak: 9,
     uvLabel: 'Moderate UV',
     description: 'A highland governorate with a cooler continental climate. Apple orchards carpet the hillsides; the region is also known for its fragrant wild herbs and traditional cereal farming.',
   },
-  // ── High aquifer stress (south, arid zones) ────────────────────────────
+  // ── Central & southern regions ─────────────────────────────────────────
   {
     shapeName: 'Sfax',
     shapeISO: 'TN-61',
-    aquiferStressPct: 72,
-    waterLabel: 'High stress',
+    aquiferStressPct: 84,
+    waterLabel: 'Severe stress',
     uvPeak: 11,
     uvLabel: 'Extreme UV',
     description: 'Tunisia\'s second city and olive oil capital. Sfax governorate contains over 30 million olive trees. Almond groves and prickly pear border the coastal plains; date palms appear further south.',
@@ -143,8 +149,8 @@ export const governorates: Omit<Governorate, 'fruitCount'>[] = [
   {
     shapeName: 'Kairouan',
     shapeISO: 'TN-41',
-    aquiferStressPct: 68,
-    waterLabel: 'High stress',
+    aquiferStressPct: 80,
+    waterLabel: 'Severe stress',
     uvPeak: 10,
     uvLabel: 'High UV',
     description: 'A spiritual crossroads and agricultural steppe. Kairouan\'s semi-arid plains produce apricots, watermelons, and pomegranates; traditional pastry culture drives demand for pistachios and almonds.',
@@ -152,7 +158,7 @@ export const governorates: Omit<Governorate, 'fruitCount'>[] = [
   {
     shapeName: 'Kasserine',
     shapeISO: 'TN-42',
-    aquiferStressPct: 65,
+    aquiferStressPct: 74,
     waterLabel: 'High stress',
     uvPeak: 10,
     uvLabel: 'High UV',
@@ -161,8 +167,8 @@ export const governorates: Omit<Governorate, 'fruitCount'>[] = [
   {
     shapeName: 'Sidi Bouzid',
     shapeISO: 'TN-43',
-    aquiferStressPct: 74,
-    waterLabel: 'High stress',
+    aquiferStressPct: 82,
+    waterLabel: 'Severe stress',
     uvPeak: 11,
     uvLabel: 'Extreme UV',
     description: 'Central Tunisia\'s semi-arid agricultural plain. Known for apricots, almond groves, and olive orchards irrigated from deep aquifers. Pomegranates and melons round out the harvest calendar.',
@@ -170,7 +176,7 @@ export const governorates: Omit<Governorate, 'fruitCount'>[] = [
   {
     shapeName: 'Gafsa',
     shapeISO: 'TN-71',
-    aquiferStressPct: 82,
+    aquiferStressPct: 90,
     waterLabel: 'Severe stress',
     uvPeak: 11,
     uvLabel: 'Extreme UV',
@@ -179,8 +185,8 @@ export const governorates: Omit<Governorate, 'fruitCount'>[] = [
   {
     shapeName: 'Gabès',
     shapeISO: 'TN-81',
-    aquiferStressPct: 76,
-    waterLabel: 'High stress',
+    aquiferStressPct: 84,
+    waterLabel: 'Severe stress',
     uvPeak: 11,
     uvLabel: 'Extreme UV',
     description: 'Home to Tunisia\'s only coastal oasis — a UNESCO-recognised landscape of date palms, pomegranates, and banana trees growing metres from the sea, fed by artesian springs.',
@@ -188,8 +194,8 @@ export const governorates: Omit<Governorate, 'fruitCount'>[] = [
   {
     shapeName: 'Médenine',
     shapeISO: 'TN-82',
-    aquiferStressPct: 78,
-    waterLabel: 'High stress',
+    aquiferStressPct: 86,
+    waterLabel: 'Severe stress',
     uvPeak: 11,
     uvLabel: 'Extreme UV',
     description: 'Gateway to the Sahara, with ksour (fortified granaries) that once stored dates and grain for trans-Saharan trade. Date palms, prickly pear, and capers grow across its stony terrain.',
@@ -197,16 +203,16 @@ export const governorates: Omit<Governorate, 'fruitCount'>[] = [
   {
     shapeName: 'Kébili',
     shapeISO: 'TN-73',
-    aquiferStressPct: 88,
-    waterLabel: 'Severe stress',
+    aquiferStressPct: 93,
+    waterLabel: 'Critical stress',
     uvPeak: 11,
     uvLabel: 'Extreme UV',
-    description: 'The heart of Tunisia\'s date industry. Kébili\'s vast Chott el-Jérid oasis produces Deglet Noor and Allig dates of world renown. Aquifer stress is severe as fossil water is drawn to sustain the palms.',
+    description: 'The heart of Tunisia\'s date industry. Kébili\'s vast Chott el-Jérid oasis produces Deglet Noor and Allig dates of world renown. Aquifer stress is critical as fossil water is drawn to sustain the palms.',
   },
   {
     shapeName: 'Tataouine',
     shapeISO: 'TN-83',
-    aquiferStressPct: 85,
+    aquiferStressPct: 88,
     waterLabel: 'Severe stress',
     uvPeak: 11,
     uvLabel: 'Extreme UV',
@@ -215,7 +221,7 @@ export const governorates: Omit<Governorate, 'fruitCount'>[] = [
   {
     shapeName: 'Tozeur',
     shapeISO: 'TN-72',
-    aquiferStressPct: 91,
+    aquiferStressPct: 94,
     waterLabel: 'Critical stress',
     uvPeak: 11,
     uvLabel: 'Extreme UV',

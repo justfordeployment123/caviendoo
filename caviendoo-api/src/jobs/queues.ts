@@ -26,3 +26,12 @@ export const climateSyncQueue = new Queue('climate-sync', {
   connection:        redis,
   defaultJobOptions: DEFAULT_JOB_OPTIONS,
 });
+
+export const nutritionSyncQueue = new Queue('nutrition-sync', {
+  connection:        redis,
+  defaultJobOptions: {
+    ...DEFAULT_JOB_OPTIONS,
+    attempts: 2,
+    backoff:  { type: 'exponential' as const, delay: 30_000 }, // wait longer on USDA failures
+  },
+});
