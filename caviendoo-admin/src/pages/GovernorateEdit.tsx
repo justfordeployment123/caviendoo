@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm, useWatch } from 'react-hook-form';
@@ -32,24 +32,26 @@ function Field({ label, error, children }: { label: string; error?: string; chil
   );
 }
 
-function Input({ ...props }: React.InputHTMLAttributes<HTMLInputElement>) {
-  return (
+const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
+  (props, ref) => (
     <input
+      ref={ref}
       {...props}
       className="w-full bg-canvas border border-border rounded-lg px-3 py-1.5 text-cream text-sm focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/20"
     />
-  );
-}
+  ),
+);
 
-function Textarea({ ...props }: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return (
+const Textarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(
+  (props, ref) => (
     <textarea
+      ref={ref}
       {...props}
       rows={3}
       className="w-full bg-canvas border border-border rounded-lg px-3 py-1.5 text-cream text-sm focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/20 resize-none"
     />
-  );
-}
+  ),
+);
 
 export default function GovernorateEdit() {
   const { id } = useParams<{ id: string }>();
@@ -65,7 +67,7 @@ export default function GovernorateEdit() {
     },
   });
 
-  const { register, handleSubmit, reset, control, watch, setValue, formState: { errors, isSubmitting } } = useForm<FormValues>({
+  const { register, handleSubmit, reset, control, watch, setValue, formState: { errors, isSubmitting, dirtyFields } } = useForm<FormValues>({
     resolver: zodResolver(schema),
   });
 
@@ -88,6 +90,10 @@ export default function GovernorateEdit() {
     const descEn = (watch('descriptionEn') ?? '').trim();
     if (!descEn) {
       alert('Fill in the English description first.');
+      return;
+    }
+    if (!dirtyFields.descriptionEn) {
+      alert('Edit the English description first — the current text is unchanged.');
       return;
     }
     setTranslating(true);

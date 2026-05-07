@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
@@ -160,24 +160,26 @@ function Field({ label, error, children }: { label: string; error?: string; chil
   );
 }
 
-function Input({ className = '', ...props }: React.InputHTMLAttributes<HTMLInputElement>) {
-  return (
+const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
+  ({ className = '', ...props }, ref) => (
     <input
+      ref={ref}
       {...props}
       className={`w-full bg-canvas border border-border rounded-lg px-3 py-1.5 text-cream text-sm focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/20 ${className}`}
     />
-  );
-}
+  ),
+);
 
-function Textarea({ className = '', ...props }: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return (
+const Textarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(
+  ({ className = '', ...props }, ref) => (
     <textarea
+      ref={ref}
       {...props}
       rows={3}
       className={`w-full bg-canvas border border-border rounded-lg px-3 py-1.5 text-cream text-sm focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/20 resize-none ${className}`}
     />
-  );
-}
+  ),
+);
 
 type Lang = 'en' | 'fr' | 'ar';
 
@@ -234,7 +236,7 @@ export default function FruitEdit() {
     reset,
     watch,
     setValue,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, dirtyFields },
   } = useForm<FormValues>({
     resolver:      zodResolver(schema),
     defaultValues: DEFAULT_VALUES,
@@ -286,28 +288,51 @@ export default function FruitEdit() {
   });
 
   const handleAutoTranslate = async () => {
-    // Build a list of only the EN fields that actually have content
-    const candidates = [
-      { en: watch('nameEn'),          setFr: (v: string) => setValue('nameFr',          v, { shouldDirty: true }), setAr: (v: string) => setValue('nameAr',          v, { shouldDirty: true }) },
-      { en: watch('descriptionEn'),   setFr: (v: string) => setValue('descriptionFr',   v, { shouldDirty: true }), setAr: (v: string) => setValue('descriptionAr',   v, { shouldDirty: true }) },
-      { en: watch('culturalNotesEn'), setFr: (v: string) => setValue('culturalNotesFr', v, { shouldDirty: true }), setAr: (v: string) => setValue('culturalNotesAr', v, { shouldDirty: true }) },
-      { en: watch('zoneEn'),          setFr: (v: string) => setValue('zoneFr',          v, { shouldDirty: true }), setAr: (v: string) => setValue('zoneAr',          v, { shouldDirty: true }) },
-    ].filter((c) => c.en?.trim());
+    // For new fruits: translate any non-empty EN field.
+    // For existing fruits: only translate EN fields the user actually changed.
+    const allFields = [
+      {
+        en:      watch('nameEn'),
+        changed: isNew ? !!watch('nameEn')?.trim() : !!dirtyFields.nameEn,
+        setFr:   (v: string) => setValue('nameFr',          v, { shouldDirty: true }),
+        setAr:   (v: string) => setValue('nameAr',          v, { shouldDirty: true }),
+      },
+      {
+        en:      watch('descriptionEn'),
+        changed: isNew ? !!watch('descriptionEn')?.trim() : !!dirtyFields.descriptionEn,
+        setFr:   (v: string) => setValue('descriptionFr',   v, { shouldDirty: true }),
+        setAr:   (v: string) => setValue('descriptionAr',   v, { shouldDirty: true }),
+      },
+      {
+        en:      watch('culturalNotesEn'),
+        changed: isNew ? !!watch('culturalNotesEn')?.trim() : !!dirtyFields.culturalNotesEn,
+        setFr:   (v: string) => setValue('culturalNotesFr', v, { shouldDirty: true }),
+        setAr:   (v: string) => setValue('culturalNotesAr', v, { shouldDirty: true }),
+      },
+      {
+        en:      watch('zoneEn'),
+        changed: isNew ? !!watch('zoneEn')?.trim() : !!dirtyFields.zoneEn,
+        setFr:   (v: string) => setValue('zoneFr',          v, { shouldDirty: true }),
+        setAr:   (v: string) => setValue('zoneAr',          v, { shouldDirty: true }),
+      },
+    ].filter((f) => f.changed && f.en?.trim());
 
-    if (!candidates.length) {
-      alert('Fill in at least one English field before translating.');
+    if (!allFields.length) {
+      alert(isNew
+        ? 'Fill in at least one English field before translating.'
+        : 'Edit at least one English field before translating.',
+      );
       return;
     }
 
     setTranslating(true);
     try {
-      const { data } = await apiClient.post('/admin/translate', { texts: candidates.map((c) => c.en!) });
+      const { data } = await apiClient.post('/admin/translate', { texts: allFields.map((f) => f.en!) });
       const results = data.results as { fr: string; ar: string }[];
       results.forEach((r, i) => {
-        candidates[i]?.setFr(r.fr);
-        candidates[i]?.setAr(r.ar);
+        allFields[i]?.setFr(r.fr);
+        allFields[i]?.setAr(r.ar);
       });
-      // Switch to FR tab so the user can immediately see the result
       setActiveLang('fr');
     } catch {
       alert('Translation failed — check that the API is running and ANTHROPIC_API_KEY is set.');
