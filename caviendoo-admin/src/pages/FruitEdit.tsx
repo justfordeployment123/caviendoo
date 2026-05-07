@@ -286,21 +286,29 @@ export default function FruitEdit() {
   });
 
   const handleAutoTranslate = async () => {
-    const watched = {
-      nameEn:          watch('nameEn'),
-      descriptionEn:   watch('descriptionEn'),
-      culturalNotesEn: watch('culturalNotesEn'),
-      zoneEn:          watch('zoneEn'),
-    };
-    const texts = [watched.nameEn, watched.descriptionEn, watched.culturalNotesEn, watched.zoneEn].map((t) => t ?? '');
+    // Build a list of only the EN fields that actually have content
+    const candidates = [
+      { en: watch('nameEn'),          setFr: (v: string) => setValue('nameFr',          v, { shouldDirty: true }), setAr: (v: string) => setValue('nameAr',          v, { shouldDirty: true }) },
+      { en: watch('descriptionEn'),   setFr: (v: string) => setValue('descriptionFr',   v, { shouldDirty: true }), setAr: (v: string) => setValue('descriptionAr',   v, { shouldDirty: true }) },
+      { en: watch('culturalNotesEn'), setFr: (v: string) => setValue('culturalNotesFr', v, { shouldDirty: true }), setAr: (v: string) => setValue('culturalNotesAr', v, { shouldDirty: true }) },
+      { en: watch('zoneEn'),          setFr: (v: string) => setValue('zoneFr',          v, { shouldDirty: true }), setAr: (v: string) => setValue('zoneAr',          v, { shouldDirty: true }) },
+    ].filter((c) => c.en?.trim());
+
+    if (!candidates.length) {
+      alert('Fill in at least one English field before translating.');
+      return;
+    }
+
     setTranslating(true);
     try {
-      const { data } = await apiClient.post('/admin/translate', { texts });
-      const [name, desc, notes, zone] = data.results as { fr: string; ar: string }[];
-      if (name)  { setValue('nameFr',  name.fr);  setValue('nameAr',  name.ar); }
-      if (desc)  { setValue('descriptionFr',  desc.fr);  setValue('descriptionAr',  desc.ar); }
-      if (notes) { setValue('culturalNotesFr', notes.fr); setValue('culturalNotesAr', notes.ar); }
-      if (zone)  { setValue('zoneFr',  zone.fr);  setValue('zoneAr',  zone.ar); }
+      const { data } = await apiClient.post('/admin/translate', { texts: candidates.map((c) => c.en!) });
+      const results = data.results as { fr: string; ar: string }[];
+      results.forEach((r, i) => {
+        candidates[i]?.setFr(r.fr);
+        candidates[i]?.setAr(r.ar);
+      });
+      // Switch to FR tab so the user can immediately see the result
+      setActiveLang('fr');
     } catch {
       alert('Translation failed — check that the API is running and ANTHROPIC_API_KEY is set.');
     } finally {

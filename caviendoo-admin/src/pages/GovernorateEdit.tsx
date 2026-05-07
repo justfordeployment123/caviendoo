@@ -85,15 +85,18 @@ export default function GovernorateEdit() {
   });
 
   const handleAutoTranslate = async () => {
-    const descEn = watch('descriptionEn');
-    if (!descEn) return alert('Fill in the English description first.');
+    const descEn = (watch('descriptionEn') ?? '').trim();
+    if (!descEn) {
+      alert('Fill in the English description first.');
+      return;
+    }
     setTranslating(true);
     try {
       const { data } = await apiClient.post('/admin/translate', { texts: [descEn] });
       const [desc] = data.results as { fr: string; ar: string }[];
       if (desc) {
-        setValue('descriptionFr', desc.fr);
-        setValue('descriptionAr', desc.ar);
+        setValue('descriptionFr', desc.fr, { shouldDirty: true });
+        setValue('descriptionAr', desc.ar, { shouldDirty: true });
       }
     } catch {
       alert('Translation failed — check that the API is running and ANTHROPIC_API_KEY is set.');
