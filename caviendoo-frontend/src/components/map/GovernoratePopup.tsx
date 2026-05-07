@@ -19,7 +19,6 @@ interface GovernoratePopupProps {
 }
 
 const POP_W = 272;
-const POP_MAX_H = 380;
 const OFFSET_Y = -16;
 
 export function GovernoratePopup({
@@ -54,25 +53,29 @@ export function GovernoratePopup({
   }, [selectedFruitId, locale]);
 
   const popW = Math.min(POP_W, containerWidth - 16);
-  const popH = Math.min(POP_MAX_H, (gov.description ? 240 : 180) + fruits.length * 28);
-  const rawTop = cy + OFFSET_Y - popH;
-  const top = rawTop < 8 ? cy + 24 : rawTop;
+  const spaceAbove = cy + OFFSET_Y;
+  const spaceBelow = containerHeight - cy - 24;
+  const rawTop = cy + OFFSET_Y - Math.min(360, spaceAbove - 8);
+  const top = spaceAbove > 120 ? Math.max(8, rawTop) : cy + 24;
+  const maxH = spaceAbove > 120
+    ? Math.min(360, spaceAbove - 8)
+    : Math.min(360, spaceBelow - 8);
   const rawLeft = cx - popW / 2;
   const left = Math.max(8, Math.min(rawLeft, containerWidth - popW - 8));
 
   const chipClass = getAquiferChipClass(gov.aquiferStressPct);
-  const isAbove = cy + OFFSET_Y - popH >= 8;
+  const isAbove = spaceAbove > 120;
 
   return (
     <div
       ref={popupRef}
       className="absolute z-20 animate-fade-in"
-      style={{ top, left, width: popW }}
+      style={{ top, left, width: popW, maxHeight: maxH }}
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="bg-surface border border-border rounded-lg shadow-panel-dark overflow-hidden">
-        {/* Header */}
-        <div className="flex items-start justify-between px-3 pt-3 pb-2 border-b border-border">
+      <div className="bg-surface border border-border rounded-lg shadow-panel-dark flex flex-col overflow-hidden" style={{ maxHeight: maxH }}>
+        {/* Header — sticky so it stays visible while scrolling */}
+        <div className="flex items-start justify-between px-3 pt-3 pb-2 border-b border-border sticky top-0 bg-surface z-10 shrink-0">
           <div>
             <h3 className="text-ink font-serif text-base font-semibold leading-tight">
               {gov.shapeName}
@@ -86,6 +89,9 @@ export function GovernoratePopup({
             <X size={14} />
           </button>
         </div>
+
+        {/* Scrollable body */}
+        <div className="overflow-y-auto overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
 
         {/* Description */}
         {gov.description && (
@@ -182,6 +188,8 @@ export function GovernoratePopup({
             </button>
           </div>
         )}
+
+        </div>{/* end scrollable body */}
       </div>
 
       {/* Arrow pointing to centroid */}
