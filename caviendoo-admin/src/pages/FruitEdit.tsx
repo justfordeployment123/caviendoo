@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { Languages } from 'lucide-react';
 import { apiClient } from '../api/client';
 import ImageUploader from '../components/ImageUploader';
 import SeasonEditor from '../components/SeasonEditor';
@@ -207,6 +208,7 @@ export default function FruitEdit() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [activeLang, setActiveLang] = useState<Lang>('en');
+  const [translating, setTranslating] = useState(false);
 
   const { data: fruit, isLoading } = useQuery({
     queryKey: ['admin-fruit', id],
@@ -283,6 +285,29 @@ export default function FruitEdit() {
     },
   });
 
+  const handleAutoTranslate = async () => {
+    const watched = {
+      nameEn:          watch('nameEn'),
+      descriptionEn:   watch('descriptionEn'),
+      culturalNotesEn: watch('culturalNotesEn'),
+      zoneEn:          watch('zoneEn'),
+    };
+    const texts = [watched.nameEn, watched.descriptionEn, watched.culturalNotesEn, watched.zoneEn];
+    setTranslating(true);
+    try {
+      const { data } = await apiClient.post('/admin/translate', { texts });
+      const [name, desc, notes, zone] = data.results as { fr: string; ar: string }[];
+      if (name)  { setValue('nameFr',  name.fr);  setValue('nameAr',  name.ar); }
+      if (desc)  { setValue('descriptionFr',  desc.fr);  setValue('descriptionAr',  desc.ar); }
+      if (notes) { setValue('culturalNotesFr', notes.fr); setValue('culturalNotesAr', notes.ar); }
+      if (zone)  { setValue('zoneFr',  zone.fr);  setValue('zoneAr',  zone.ar); }
+    } catch {
+      alert('Translation failed — check that the API is running and ANTHROPIC_API_KEY is set.');
+    } finally {
+      setTranslating(false);
+    }
+  };
+
   const toggleGovernorate = (name: string, checked: boolean) => {
     const current = watchedGovNames ?? [];
     if (checked) {
@@ -300,9 +325,24 @@ export default function FruitEdit() {
 
   return (
     <div className="p-4 sm:p-8 max-w-4xl">
-      <h1 className="font-display text-cream text-2xl font-semibold mb-6">
-        {isNew ? 'Add Fruit' : 'Edit Fruit'}
-      </h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="font-display text-cream text-2xl font-semibold">
+          {isNew ? 'Add Fruit' : 'Edit Fruit'}
+        </h1>
+        <button
+          type="button"
+          onClick={handleAutoTranslate}
+          disabled={translating}
+          className="flex items-center gap-2 px-3 py-1.5 text-sm bg-surface border border-border rounded-lg text-muted hover:text-cream hover:border-gold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          {translating ? (
+            <span className="inline-block w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <Languages size={14} />
+          )}
+          {translating ? 'Translating…' : 'Auto-translate from EN'}
+        </button>
+      </div>
 
       <form onSubmit={handleSubmit((v) => mutation.mutate(v))} className="space-y-8">
 

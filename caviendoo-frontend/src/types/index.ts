@@ -127,6 +127,7 @@ export interface Fruit {
 }
 
 export interface Governorate {
+  id?: number;              // numeric PK from DB (undefined in mock/static data)
   shapeName: string;        // matches GeoJSON shapeName exactly
   shapeISO: string;
   aquiferStressPct: number; // 0–100
@@ -139,6 +140,29 @@ export interface Governorate {
   soilPhTypical?:        number | null;
   soilTexture?:          string | null;
   soilOrganicCarbonPct?: number | null;
+}
+
+export interface ComparableRegion {
+  shapeName:        string;
+  shapeISO:         string;
+  country:          string;
+  similarityScore:  number;
+  matchFactors:     string[];
+  climate: {
+    uvPeak:           number;
+    uvLabel:          string;
+    aquiferStressPct: number;
+    waterLabel:       string;
+  };
+  recommendation: string;
+}
+
+export interface ComparableRegionsResult {
+  fruit: { id: string; name: string; latinName: string; category: string };
+  sourceRegion: { shapeName: string; shapeISO: string; country: string };
+  comparableRegions: ComparableRegion[];
+  aiInsight: string | null;
+  _stub: boolean;
 }
 
 // ── Live API response types ────────────────────────────────────────────────────
@@ -225,16 +249,16 @@ export interface FruitFilters {
   searchQuery?: string;
 }
 
-// Category badge colours — dark surface variant (used in sidebar on parchment + dark panels)
+// Category badge colours — light backgrounds with black text for readability
 export const CATEGORY_COLORS: Record<FruitCategory, string> = {
-  citrus:   'bg-amber-600 text-white',
-  stone:    'bg-rose-700 text-white',
-  pomme:    'bg-emerald-700 text-emerald-100',
-  tropical: 'bg-purple-700 text-white',
-  berry:    'bg-red-800 text-red-100',
-  dried:    'bg-amber-800 text-amber-50',
-  melon:    'bg-lime-700 text-white',
-  other:    'bg-slate-600 text-slate-100',
+  citrus:   'bg-amber-200 text-black',
+  stone:    'bg-rose-200 text-black',
+  pomme:    'bg-emerald-200 text-black',
+  tropical: 'bg-purple-200 text-black',
+  berry:    'bg-red-200 text-black',
+  dried:    'bg-orange-200 text-black',
+  melon:    'bg-lime-200 text-black',
+  other:    'bg-slate-200 text-black',
 };
 
 export const CATEGORY_LABELS: Record<FruitCategory, LocalizedString> = {

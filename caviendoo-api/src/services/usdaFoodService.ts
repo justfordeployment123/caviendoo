@@ -39,7 +39,7 @@ const WANTED_NUTRIENTS: { id: number; en: string; fr: string; ar: string; unit: 
 ];
 
 export async function getNutritionByName(fruitNameEn: string): Promise<NutrientField[] | null> {
-  const apiKey = (env as any).USDA_API_KEY as string | undefined;
+  const apiKey = env.USDA_API_KEY;
   if (!apiKey || apiKey === 'CHANGE_ME') {
     console.warn('[usda] USDA_API_KEY not set — skipping nutritional lookup');
     return null;

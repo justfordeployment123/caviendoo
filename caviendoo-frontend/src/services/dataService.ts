@@ -7,6 +7,7 @@
 import type {
   Fruit, Governorate, SiteMetrics, FruitFilters, Locale,
   CurrentWeather, ClimateClimatology, BiodiversityData, ProductionData, LiveEnvironmentalData,
+  ComparableRegionsResult,
 } from '@/types';
 
 const NEXT_PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL || '';
@@ -124,6 +125,20 @@ export async function getFruitLiveNutrition(
     return await apiFetch<{ source: string; fields: Array<{ label: { en: string; fr: string; ar: string }; value: string; sortOrder: number }> }>(
       `/live/fruits/${encodeURIComponent(fruitId)}/nutrition`,
     );
+  } catch {
+    return null;
+  }
+}
+
+export async function getComparableRegions(
+  fruitId: string,
+  regionId: number,
+): Promise<ComparableRegionsResult | null> {
+  try {
+    return await apiFetch<ComparableRegionsResult>('/comparable-regions', {
+      fruit_id:  fruitId,
+      region_id: regionId,
+    });
   } catch {
     return null;
   }

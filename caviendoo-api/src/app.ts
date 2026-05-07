@@ -17,9 +17,12 @@ import envDataRouter       from './routes/envData';
 import environmentalRouter from './routes/environmental';
 import weatherRouter       from './routes/weather';
 import liveDataRouter      from './routes/liveData';
-import adminAuthRouter     from './routes/admin/auth';
-import adminFruitsRouter   from './routes/admin/fruits';
-import adminGovsRouter     from './routes/admin/governorates';
+import adminAuthRouter          from './routes/admin/auth';
+import adminFruitsRouter         from './routes/admin/fruits';
+import adminGovsRouter           from './routes/admin/governorates';
+import adminTranslateRouter      from './routes/admin/translate';
+import adminSettingsRouter       from './routes/admin/settings';
+import comparableRegionsRouter   from './routes/comparableRegions';
 
 const app = express();
 
@@ -56,7 +59,7 @@ app.use(express.json({ limit: '1mb' }));
 
 // ── Health / readiness check ──────────────────────────────────────────────────
 app.get('/health', (_req, res) => {
-  res.json({ status: 'ok', ts: new Date().toISOString(), env: env.NODE_ENV });
+  res.json({ status: 'ok', ts: new Date().toISOString() });
 });
 
 // ── Public API ────────────────────────────────────────────────────────────────
@@ -72,10 +75,14 @@ app.use('/api/v1/environmental',  environmentalRouter);
 app.use('/api/v1/weather',        weatherRouter);
 app.use('/api/v1/live',           liveDataRouter);
 
+app.use('/api/v1/comparable-regions', comparableRegionsRouter);
+
 // ── Admin API (all routes inside require JWT via requireAuth middleware) ───────
 app.use('/api/v1/admin',              adminAuthRouter);
 app.use('/api/v1/admin/fruits',       adminFruitsRouter);
 app.use('/api/v1/admin/governorates', adminGovsRouter);
+app.use('/api/v1/admin/translate',    adminTranslateRouter);
+app.use('/api/v1/admin/settings',    adminSettingsRouter);
 
 // ── 404 handler ───────────────────────────────────────────────────────────────
 app.use((_req, res) => {

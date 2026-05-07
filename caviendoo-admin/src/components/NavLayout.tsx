@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu } from 'lucide-react';
+import { Menu, Settings } from 'lucide-react';
 import { useAuthStore } from '../store/auth';
 
 const NAV_LINKS = [
@@ -69,12 +69,25 @@ export default function NavLayout({ children }: { children: React.ReactNode }) {
       {/* Footer */}
       <div className="px-4 py-4 border-t border-border">
         <p className="text-muted text-xs mb-2 truncate">{admin?.email}</p>
-        <button
-          onClick={handleLogout}
-          className="w-full text-xs text-muted hover:text-cream text-left transition-colors"
-        >
-          Sign out
-        </button>
+        <div className="flex items-center justify-between">
+          <button
+            onClick={handleLogout}
+            className="text-xs text-muted hover:text-cream transition-colors"
+          >
+            Sign out
+          </button>
+          <Link
+            to="/settings"
+            className={`p-1 rounded transition-colors ${
+              pathname === '/settings'
+                ? 'text-gold'
+                : 'text-muted hover:text-cream'
+            }`}
+            aria-label="Settings"
+          >
+            <Settings size={14} />
+          </Link>
+        </div>
       </div>
     </>
   );

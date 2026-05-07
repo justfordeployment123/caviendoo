@@ -3,7 +3,7 @@ import { FruitCoreSchema, EnvironmentalSchema, NutritionalFieldSchema } from './
 
 export const LoginSchema = z.object({
   email:    z.string().email(),
-  password: z.string().min(1, 'Password is required'),
+  password: z.string().min(10, 'Password must be at least 10 characters'),
 });
 
 export const FruitCreateSchema = FruitCoreSchema.extend({

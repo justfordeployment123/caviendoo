@@ -5,6 +5,7 @@ import FruitList from './pages/FruitList';
 import FruitEdit from './pages/FruitEdit';
 import GovernorateList from './pages/GovernorateList';
 import GovernorateEdit from './pages/GovernorateEdit';
+import Settings from './pages/Settings';
 import ProtectedRoute from './components/ProtectedRoute';
 
 export default function App() {
@@ -20,6 +21,7 @@ export default function App() {
           <Route path="/fruits/:id" element={<FruitEdit />} />
           <Route path="/governorates" element={<GovernorateList />} />
           <Route path="/governorates/:id" element={<GovernorateEdit />} />
+          <Route path="/settings" element={<Settings />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { X, Droplets, Sun, Leaf } from 'lucide-react';
+import { X, Droplets, Sun, Leaf, GitCompare } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useAtlasStore } from '@/store';
-import { getFruitsByGovernorate } from '@/services/dataService';
+import { getFruitsByGovernorate, getFruitById } from '@/services/dataService';
 import { getAquiferChipClass, getAquiferLabel } from './mapColors';
 import { WeatherWidget } from './WeatherWidget';
 import type { Fruit, Governorate } from '@/types';
@@ -15,10 +15,11 @@ interface GovernoratePopupProps {
   cy: number;
   containerWidth: number;
   containerHeight: number;
+  onOpenComparablePanel?: () => void;
 }
 
 const POP_W = 272;
-const POP_MAX_H = 360;
+const POP_MAX_H = 380;
 const OFFSET_Y = -16;
 
 export function GovernoratePopup({
@@ -27,20 +28,30 @@ export function GovernoratePopup({
   cy,
   containerWidth,
   containerHeight,
+  onOpenComparablePanel,
 }: GovernoratePopupProps) {
   const [fruits, setFruits] = useState<Fruit[]>([]);
+  const [selectedFruitName, setSelectedFruitName] = useState<string>('');
   const popupRef = useRef<HTMLDivElement>(null);
 
   const tMap = useTranslations('map');
   const setSelectedFruitId = useAtlasStore((s) => s.setSelectedFruitId);
   const setSelectedGovernorate = useAtlasStore((s) => s.setSelectedGovernorate);
   const locale = useAtlasStore((s) => s.locale);
+  const selectedFruitId = useAtlasStore((s) => s.selectedFruitId);
 
   useEffect(() => {
     getFruitsByGovernorate(gov.shapeName).then((list) =>
       setFruits(list.slice(0, 7))
     );
   }, [gov.shapeName]);
+
+  useEffect(() => {
+    if (!selectedFruitId) { setSelectedFruitName(''); return; }
+    getFruitById(selectedFruitId).then((f) => {
+      setSelectedFruitName(f ? (f.name[locale] || f.name.en) : selectedFruitId);
+    });
+  }, [selectedFruitId, locale]);
 
   const popW = Math.min(POP_W, containerWidth - 16);
   const popH = Math.min(POP_MAX_H, (gov.description ? 240 : 180) + fruits.length * 28);
@@ -136,6 +147,19 @@ export function GovernoratePopup({
                 <span className="px-2 py-0.5 text-2xs text-muted">+more</span>
               )}
             </div>
+          </div>
+        )}
+
+        {/* Comparable regions button — shown when a fruit is selected and live API is available */}
+        {selectedFruitId && gov.id != null && onOpenComparablePanel && (
+          <div className="border-t border-border">
+            <button
+              onClick={onOpenComparablePanel}
+              className="w-full flex items-center gap-2 px-3 py-2.5 text-xs text-muted hover:text-gold hover:bg-surface-raised transition-colors"
+            >
+              <GitCompare size={12} className="shrink-0" />
+              <span>Comparable regions for {selectedFruitName || selectedFruitId}</span>
+            </button>
           </div>
         )}
       </div>
