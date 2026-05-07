@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { Languages } from 'lucide-react';
 import { apiClient } from '../api/client';
 import { stressColor, uvColor, stressLabel, uvLabel as uvLabelFn } from '../utils/colors';
 
@@ -54,6 +55,7 @@ export default function GovernorateEdit() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const [translating, setTranslating] = useState(false);
 
   const { data: gov, isLoading } = useQuery({
     queryKey: ['admin-governorate', id],
@@ -63,7 +65,7 @@ export default function GovernorateEdit() {
     },
   });
 
-  const { register, handleSubmit, reset, control, formState: { errors, isSubmitting } } = useForm<FormValues>({
+  const { register, handleSubmit, reset, control, watch, setValue, formState: { errors, isSubmitting } } = useForm<FormValues>({
     resolver: zodResolver(schema),
   });
 
@@ -81,6 +83,24 @@ export default function GovernorateEdit() {
       navigate('/governorates');
     },
   });
+
+  const handleAutoTranslate = async () => {
+    const descEn = watch('descriptionEn');
+    if (!descEn) return alert('Fill in the English description first.');
+    setTranslating(true);
+    try {
+      const { data } = await apiClient.post('/admin/translate', { texts: [descEn] });
+      const [desc] = data.results as { fr: string; ar: string }[];
+      if (desc) {
+        setValue('descriptionFr', desc.fr);
+        setValue('descriptionAr', desc.ar);
+      }
+    } catch {
+      alert('Translation failed — check that the API is running and ANTHROPIC_API_KEY is set.');
+    } finally {
+      setTranslating(false);
+    }
+  };
 
   if (isLoading) return <div className="p-8 text-muted">Loading…</div>;
 
@@ -153,7 +173,22 @@ export default function GovernorateEdit() {
         </section>
 
         <section className="bg-surface rounded-xl border border-border p-5 space-y-4">
-          <h2 className="text-muted text-xs uppercase tracking-wider font-medium">Description</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-muted text-xs uppercase tracking-wider font-medium">Description</h2>
+            <button
+              type="button"
+              onClick={handleAutoTranslate}
+              disabled={translating}
+              className="flex items-center gap-2 px-3 py-1.5 text-xs bg-canvas border border-border rounded-lg text-muted hover:text-cream hover:border-gold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {translating ? (
+                <span className="inline-block w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Languages size={13} />
+              )}
+              {translating ? 'Translating…' : 'Auto-translate from EN'}
+            </button>
+          </div>
           <Field label="English">
             <Textarea {...register('descriptionEn')} />
           </Field>
