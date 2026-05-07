@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { X, Droplets, Sun, Leaf, GitCompare } from 'lucide-react';
+import { X, Droplets, Sun, Leaf, GitCompare, TriangleAlert } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useAtlasStore } from '@/store';
 import { getFruitsByGovernorate, getFruitById } from '@/services/dataService';
@@ -110,9 +110,16 @@ export function GovernoratePopup({
             <span className="opacity-80">{getAquiferLabel(gov.aquiferStressPct)}</span>
           </span>
 
-          <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-xs text-amber-700">
-            <Sun size={10} />
-            <span className="font-mono font-medium">UV {gov.uvPeak}</span>
+          <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border font-mono font-medium ${
+            gov.uvPeak >= 8
+              ? 'bg-amber-100 border-amber-300 text-amber-800'
+              : 'bg-amber-50 border-amber-200 text-amber-700'
+          }`}>
+            {gov.uvPeak >= 8
+              ? <TriangleAlert size={10} />
+              : <Sun size={10} />
+            }
+            UV {gov.uvPeak}
           </span>
           {gov.soilPhTypical != null && (
             <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-raised border border-border text-xs text-ink">
@@ -122,6 +129,19 @@ export function GovernoratePopup({
             </span>
           )}
         </div>
+
+        {/* UV alert banner — only for high-stress governorates */}
+        {gov.uvPeak >= 8 && (
+          <div className="flex items-start gap-2 px-3 py-2 bg-amber-50 border-b border-amber-200">
+            <TriangleAlert size={13} className="text-amber-500 shrink-0 mt-px" />
+            <div>
+              <p className="text-2xs font-semibold text-amber-800">High UV Zone — Index {gov.uvPeak}</p>
+              <p className="text-2xs text-amber-700 leading-relaxed mt-0.5">
+                Very high UV stress during harvest season. Shade management recommended for sensitive crops.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Live weather */}
         <WeatherWidget shapeName={gov.shapeName} />

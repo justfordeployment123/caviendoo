@@ -34,4 +34,4 @@ COPY --from=builder /app/dist/scripts ./dist/scripts
 EXPOSE 4000
 ENV PORT=4000
 
-CMD ["node", "dist/server.js"]
+CMD ["sh", "-c", "node dist/jobs/worker.js & node dist/server.js"]

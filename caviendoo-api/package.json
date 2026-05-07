@@ -7,6 +7,7 @@
     "build": "tsc --project tsconfig.json",
     "start": "node dist/server.js",
     "start:worker": "node dist/jobs/worker.js",
+    "start:all": "node dist/jobs/worker.js & node dist/server.js",
     "seed": "tsx prisma/seed/index.ts",
     "seed:images": "node dist/scripts/runImagePipeline.js",
     "lint": "eslint src",

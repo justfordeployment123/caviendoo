@@ -1,7 +1,6 @@
 'use client';
 
 import { useRef, useEffect, useState, useMemo } from 'react';
-import { AlertBadge } from './AlertBadge';
 import { ComparableRegionsPanel } from './ComparableRegionsPanel';
 import * as d3 from 'd3';
 import { Plus, Minus, Locate } from 'lucide-react';
@@ -56,9 +55,7 @@ export function TunisiaMap() {
 
   const [governorates, setGovernorates] = useState<Governorate[]>([]);
   const [tooltipGov, setTooltipGov] = useState<Governorate | null>(null);
-  const [alertBadges, setAlertBadges] = useState<{ name: string; x: number; y: number; uvPeak: number }[]>([]);
   const [showComparablePanel, setShowComparablePanel] = useState(false);
-  const updateAlertsRef = useRef<() => void>(() => {});
 
   const overlayMode = useAtlasStore((s) => s.overlayMode);
   const selectedGovernorate = useAtlasStore((s) => s.selectedGovernorate);
@@ -80,29 +77,6 @@ export function TunisiaMap() {
   govByNameRef.current = govByName;
   const selectedRef = useRef(selectedGovernorate);
   selectedRef.current = selectedGovernorate;
-
-  // Keep updateAlertsRef current whenever govByName changes so the zoom
-  // handler always uses the latest data without stale-closure issues.
-  useEffect(() => {
-    updateAlertsRef.current = () => {
-      const projection = projectionRef.current;
-      if (!projection) return;
-      const t = savedTransformRef.current;
-      const pathGen = d3.geoPath().projection(projection);
-      const badges = features
-        .filter((f) => {
-          const gov = govByName.get(f.properties!.shapeName as string);
-          return gov && gov.uvPeak >= 8;
-        })
-        .map((f) => {
-          const gov = govByName.get(f.properties!.shapeName as string)!;
-          const c = pathGen.centroid(f as never);
-          const [sx, sy] = t.apply(c as [number, number]);
-          return { name: f.properties!.shapeName as string, x: sx, y: sy, uvPeak: gov.uvPeak };
-        });
-      setAlertBadges(badges);
-    };
-  }, [govByName]);
 
   // ── CORE D3 RENDERING ─────────────────────────────────────────────────
   useEffect(() => {
@@ -258,13 +232,11 @@ export function TunisiaMap() {
           g.selectAll('.gov-label')
             .attr('font-size', ls)
             .attr('stroke-width', sw);
-          updateAlertsRef.current();
         });
 
       zoomRef.current = zoom;
       svgSel.call(zoom);
       svgSel.call(zoom.transform, savedTransformRef.current);
-      updateAlertsRef.current();
 
       svgSel.on('click', () => {
         if (selectedRef.current) setSelectedGovernorate(null);
@@ -336,11 +308,6 @@ export function TunisiaMap() {
       })()}
 
       <MapLegend overlayMode={overlayMode} />
-
-      {/* UV alert indicators — subtle dots, click to reveal popup */}
-      {alertBadges.map((b) => (
-        <AlertBadge key={b.name} x={b.x} y={b.y} name={b.name} uvPeak={b.uvPeak} />
-      ))}
 
       {/* Comparable regions bottom panel */}
       {showComparablePanel && selectedFruitId && selectedGov?.id != null && (
