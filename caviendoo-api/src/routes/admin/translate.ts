@@ -6,7 +6,7 @@ import { validate } from '../../middleware/validate';
 import { env } from '../../config/env';
 
 const BodySchema = z.object({
-  texts: z.array(z.string()).min(1).max(20),
+  texts: z.array(z.string().nullable().optional().transform((v) => v ?? '')).min(1).max(20),
 });
 
 const router = Router();

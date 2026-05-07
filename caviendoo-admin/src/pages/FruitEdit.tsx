@@ -292,7 +292,7 @@ export default function FruitEdit() {
       culturalNotesEn: watch('culturalNotesEn'),
       zoneEn:          watch('zoneEn'),
     };
-    const texts = [watched.nameEn, watched.descriptionEn, watched.culturalNotesEn, watched.zoneEn];
+    const texts = [watched.nameEn, watched.descriptionEn, watched.culturalNotesEn, watched.zoneEn].map((t) => t ?? '');
     setTranslating(true);
     try {
       const { data } = await apiClient.post('/admin/translate', { texts });
