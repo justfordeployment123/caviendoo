@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState, useMemo } from 'react';
 import { ComparableRegionsPanel } from './ComparableRegionsPanel';
 import * as d3 from 'd3';
-import { Plus, Minus, Locate } from 'lucide-react';
+import { Plus, Minus, Locate, Globe } from 'lucide-react';
 import { useD3Map } from './useD3Map';
 import { MapTooltip } from './MapTooltip';
 import { GovernoratePopup } from './GovernoratePopup';
@@ -43,7 +43,12 @@ const PAD = 32; // px padding inside fitExtent
 const SEA_COLOR  = '#D4E8F0';
 const LAND_COLOR = '#E8EDE4'; // surrounding land (neighbours)
 
-export function TunisiaMap() {
+interface TunisiaMapProps {
+  /** Called when user clicks "Back to World Map" in the map controls */
+  onBack?: () => void;
+}
+
+export function TunisiaMap({ onBack }: TunisiaMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
@@ -319,8 +324,23 @@ export function TunisiaMap() {
         />
       )}
 
-      {/* Zoom controls */}
+      {/* Zoom controls + World Map button */}
       <div className="absolute top-4 start-4 z-10 flex flex-col gap-1">
+        {/* World Map — back button, above the divider */}
+        {onBack && (
+          <>
+            <button
+              onClick={onBack}
+              title="Back to World Map"
+              aria-label="Back to World Map"
+              className="w-8 h-8 flex items-center justify-center bg-surface border border-border rounded text-muted hover:text-gold hover:border-gold transition-colors shadow-sm"
+            >
+              <Globe size={14} />
+            </button>
+            {/* Separator */}
+            <div className="w-8 h-px bg-border/60 my-0.5" />
+          </>
+        )}
         <button onClick={zoomIn} className="w-8 h-8 flex items-center justify-center bg-surface border border-border rounded text-muted hover:text-ink hover:border-gold transition-colors shadow-sm" aria-label="Zoom in">
           <Plus size={14} />
         </button>

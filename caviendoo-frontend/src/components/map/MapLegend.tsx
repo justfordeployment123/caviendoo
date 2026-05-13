@@ -61,7 +61,7 @@ export function MapLegend({ overlayMode }: MapLegendProps) {
   const t = useTranslations('overlay');
 
   return (
-    <div className="absolute bottom-4 start-4 z-10 bg-surface/95 border border-border rounded-lg px-3 py-2.5 backdrop-blur-sm shadow-panel-dark">
+    <div className="absolute bottom-20 md:bottom-4 start-4 z-10 bg-surface/95 border border-border rounded-lg px-3 py-2.5 backdrop-blur-sm shadow-panel-dark">
       <p className="text-2xs text-muted uppercase tracking-widest mb-2 font-medium">
         {overlayMode === 'recoltes' && t('recoltes')}
         {overlayMode === 'stress-hydrique' && t('stressHydrique')}

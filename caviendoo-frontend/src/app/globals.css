@@ -206,3 +206,13 @@ main {
   from { transform: translateY(100%); opacity: 0; }
   to   { transform: translateY(0);    opacity: 1; }
 }
+
+/* ── Globe Rotation Animation ───────────────────────────────────────────── */
+@keyframes spin-globe {
+  from { transform: perspective(600px) rotateY(0deg); }
+  to   { transform: perspective(600px) rotateY(360deg); }
+}
+
+.animate-spin-globe {
+  animation: spin-globe 12s linear infinite;
+}

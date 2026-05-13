@@ -114,9 +114,11 @@ export function FruitDetailPanel() {
               <h2 className="font-serif text-lg leading-tight text-ink truncate">
                 {fruit.name[locale]}
               </h2>
-              <p className="font-arabic text-xs text-muted leading-tight truncate">
-                {fruit.localName}
-              </p>
+              {locale === 'ar' && (
+                <p className="font-arabic text-xs text-muted leading-tight truncate">
+                  {fruit.localName}
+                </p>
+              )}
             </>
           ) : (
             <div className="h-6 w-32 bg-ink/8 rounded animate-pulse" />

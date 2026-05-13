@@ -2,14 +2,30 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Search, Leaf, Info } from 'lucide-react';
+import { Search, Info, Globe, ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
 import { useAtlasStore } from '@/store';
 import { getMetrics } from '@/services/dataService';
 import { SearchDropdown } from './SearchDropdown';
+import { InfoTooltip } from './InfoTooltip';
 import type { SiteMetrics, OverlayMode, Locale } from '@/types';
 
-// ── Overlay mode segmented control ────────────────────────────────────────
+// ── Overlay mode data ──────────────────────────────────────────────────────
+
+const OVERLAY_INFO: Record<OverlayMode, { title: string; body: string }> = {
+  'recoltes': {
+    title: 'Harvest Density',
+    body:  'Colours each governorate by the number of distinct fruit varieties actively grown and harvested there. Darker green = more varieties cultivated in that region.',
+  },
+  'stress-hydrique': {
+    title: 'Water Stress (Aquifer)',
+    body:  'Shows the groundwater (aquifer) depletion pressure per region as a percentage. Red = critically over-extracted. High water stress means irrigation sustainability is at risk.',
+  },
+  'indice-uv': {
+    title: 'UV Index at Harvest',
+    body:  'Peak UV radiation index during the main harvest season (WHO scale 1–11+). High UV accelerates sugar development but can cause sunburn on thin-skinned fruit.',
+  },
+};
 
 const OVERLAY_MODES: { key: OverlayMode; labelKey: string }[] = [
   { key: 'recoltes',        labelKey: 'recoltes'       },
@@ -17,38 +33,48 @@ const OVERLAY_MODES: { key: OverlayMode; labelKey: string }[] = [
   { key: 'indice-uv',       labelKey: 'indiceUv'       },
 ];
 
+// ── Overlay toggle ─────────────────────────────────────────────────────────
+// ⓘ icons sit OUTSIDE each button to avoid nested-button HTML violations
+// and to not affect button width.
+
 function OverlayToggle({ className = '' }: { className?: string }) {
-  const t = useTranslations('overlay');
-  const overlayMode    = useAtlasStore((s) => s.overlayMode);
+  const t           = useTranslations('overlay');
+  const overlayMode = useAtlasStore((s) => s.overlayMode);
   const setOverlayMode = useAtlasStore((s) => s.setOverlayMode);
 
   return (
-    <div
-      className={[
-        'flex items-center rounded-md border border-border overflow-hidden',
-        className,
-      ].join(' ')}
-      role="group"
-      aria-label="Map overlay mode"
-    >
-      {OVERLAY_MODES.map(({ key, labelKey }) => {
-        const active = overlayMode === key;
-        return (
-          <button
-            key={key}
-            onClick={() => setOverlayMode(key)}
-            className={[
-              'flex-1 px-3 py-1.5 text-xs font-medium tracking-wide transition-colors',
-              'whitespace-nowrap focus-visible:outline-none',
-              active
-                ? 'bg-gold text-canvas font-semibold'
-                : 'bg-surface text-muted hover:text-ink hover:bg-surface-raised',
-            ].join(' ')}
-          >
-            {t(labelKey as 'recoltes' | 'stressHydrique' | 'indiceUv')}
-          </button>
-        );
-      })}
+    <div className={`flex items-center gap-1 ${className}`}>
+      <div
+        className="flex w-full items-stretch rounded-md border border-border overflow-hidden"
+        role="group"
+        aria-label="Map overlay mode"
+      >
+        {OVERLAY_MODES.map(({ key, labelKey }) => {
+          const active = overlayMode === key;
+          return (
+            <button
+              key={key}
+              onClick={() => setOverlayMode(key)}
+              className={[
+                'px-1 sm:px-3 py-1.5 text-[10px] sm:text-xs font-medium tracking-wide transition-colors',
+                'leading-tight flex items-center justify-center focus-visible:outline-none flex-1',
+                active
+                  ? 'bg-gold text-canvas font-semibold'
+                  : 'bg-surface text-muted hover:text-ink hover:bg-surface-raised',
+              ].join(' ')}
+            >
+              {t(labelKey as 'recoltes' | 'stressHydrique' | 'indiceUv')}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Single shared ⓘ — shows info about the currently active overlay */}
+      <InfoTooltip
+        title={OVERLAY_INFO[overlayMode].title}
+        body={OVERLAY_INFO[overlayMode].body}
+        iconSize={13}
+      />
     </div>
   );
 }
@@ -58,7 +84,7 @@ function OverlayToggle({ className = '' }: { className?: string }) {
 function MetricsBar({ metrics }: { metrics: SiteMetrics }) {
   const t = useTranslations('metrics');
   return (
-    <div className="hidden lg:flex items-center gap-3 text-xs font-mono text-muted">
+    <div className="hidden xl:flex items-center gap-3 text-xs font-mono text-muted">
       <span className="flex items-center gap-1">
         <span className="text-ink font-medium tabular-nums">{metrics.totalFruits}</span>
         <span>{t('fruits')}</span>
@@ -101,7 +127,7 @@ function SearchInput() {
         aria-haspopup="listbox"
         aria-autocomplete="list"
         className={[
-          'w-28 sm:w-36 lg:w-56 ps-7 pe-2 py-1.5',
+          'w-24 sm:w-28 lg:w-44 ps-7 pe-2 py-1.5',
           'bg-surface border border-border rounded-md',
           'text-xs text-ink placeholder:text-muted',
           'focus:outline-none focus:border-gold focus:bg-canvas',
@@ -132,7 +158,7 @@ function LanguageSwitcher() {
 
   return (
     <div
-      className="flex items-center rounded-md border border-border overflow-hidden"
+      className="flex items-center rounded-md border border-border overflow-hidden shrink-0"
       role="group"
       aria-label="Language"
     >
@@ -143,7 +169,7 @@ function LanguageSwitcher() {
             key={l}
             onClick={() => switchLocale(l)}
             className={[
-              'px-2 sm:px-2.5 py-1.5 text-xs font-medium uppercase tracking-wider transition-colors',
+              'px-1.5 sm:px-2 py-1.5 text-2xs sm:text-xs font-medium uppercase tracking-wider transition-colors',
               'focus-visible:outline-none',
               active
                 ? 'bg-gold text-canvas font-semibold'
@@ -172,51 +198,55 @@ export function TopBar({ onAbout }: TopBarProps) {
   });
 
   useEffect(() => {
-    getMetrics().then(setMetrics);
+    getMetrics().then(setMetrics).catch(() => {/* keep defaults */});
   }, []);
 
   return (
-    <header className="flex-none bg-surface border-b border-border z-20">
+    <header className="flex-none flex flex-col w-full bg-surface border-b border-border z-20 relative">
 
       {/* ── Row 1 ─────────────────────────────────────────────────────── */}
-      <div className="flex items-center px-3 sm:px-4 gap-2 sm:gap-3 h-14 sm:h-16">
+      <div className="flex items-center px-2 sm:px-4 gap-2 sm:gap-3 h-14 sm:h-16 min-w-0">
 
         {/* Logo */}
-        <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 min-w-0">
           <Image
             src="/caviendoo_logo.png"
             alt="Caviendoo Logo"
             width={60}
             height={60}
-            className="object-contain w-8 h-8 sm:w-12 sm:h-12"
+            className="object-contain w-8 h-8 sm:w-10 sm:h-10 shrink-0 animate-spin-globe"
             priority
           />
-          <span className="hidden sm:block font-serif text-base sm:text-xl font-semibold text-ink tracking-widest uppercase leading-none pb-0.5">
+          <span className="block font-serif text-sm sm:text-xl font-semibold text-ink tracking-widest uppercase leading-none pb-0.5 truncate">
             Caviendoo
           </span>
-          <span className="hidden xl:block text-2xs text-muted tracking-widest uppercase ps-2 border-s border-border">
+          <span className="hidden xl:block text-2xs text-muted tracking-widest uppercase ps-2 border-s border-border whitespace-nowrap">
             Agricultural Intelligence
           </span>
         </div>
 
-        {/* Overlay toggle — desktop/tablet */}
-        <div className="hidden md:flex flex-1 justify-center">
+        {/* Overlay toggle — desktop only (lg+), centred */}
+        <div className="hidden lg:flex flex-1 justify-center min-w-0">
           <OverlayToggle />
         </div>
 
-        {/* Right-side controls */}
-        <div className="flex items-center gap-1.5 sm:gap-2 ms-auto shrink-0">
+        {/* Right-side controls — shrink-0 to never overflow */}
+        <div className="flex items-center gap-1 sm:gap-1.5 ms-auto shrink-0">
+          {/* Metrics — only on xl+ to avoid overflow on smaller desktops */}
           <MetricsBar metrics={metrics} />
-          <div className="hidden lg:block w-px h-4 bg-border" />
-          <SearchInput />
-          <div className="w-px h-4 bg-border" />
+          <div className="hidden xl:block w-px h-4 bg-border" />
+          {/* Search — visible on all sizes now */}
+          <div className="block">
+            <SearchInput />
+          </div>
+          <div className="w-px h-4 bg-border shrink-0" />
           <LanguageSwitcher />
           {onAbout && (
             <>
-              <div className="w-px h-4 bg-border" />
+              <div className="w-px h-4 bg-border shrink-0" />
               <button
                 onClick={onAbout}
-                className="p-1.5 rounded text-muted hover:text-ink hover:bg-ink/5 transition-colors"
+                className="shrink-0 p-1.5 rounded text-muted hover:text-ink hover:bg-ink/5 transition-colors"
                 aria-label="About Caviendoo"
                 title="About Caviendoo"
               >
@@ -227,8 +257,8 @@ export function TopBar({ onAbout }: TopBarProps) {
         </div>
       </div>
 
-      {/* ── Row 2: Overlay toggle — mobile only ──────────────────────── */}
-      <div className="md:hidden border-t border-border/40 px-3 py-1.5">
+      {/* ── Row 2: Overlay toggle — below lg (mobile + tablet) ─────── */}
+      <div className="flex w-full lg:hidden border-t border-border/40 px-2 sm:px-3 py-1.5 bg-surface z-10">
         <OverlayToggle className="w-full" />
       </div>
 

@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useAtlasStore } from '@/store';
+import { InfoTooltip } from '@/components/InfoTooltip';
 import type { FruitEnvironmental } from '@/types';
 
 // ── Aquifer circular gauge ─────────────────────────────────────────────────
@@ -127,7 +128,13 @@ export function EnvironmentalPanel({ env }: { env: FruitEnvironmental }) {
       <div className="flex flex-col gap-4">
         {/* Water footprint */}
         <div>
-          <p className="text-xs text-ink/90 mb-1.5 font-medium">{t('waterFootprint')}</p>
+          <p className="text-xs text-ink/90 mb-1.5 font-medium flex items-center gap-1">
+            {t('waterFootprint')}
+            <InfoTooltip
+              title="Water Footprint"
+              body="Total freshwater consumed to produce 1 kg of this fruit. Blue water = irrigation from rivers/aquifers. Green water = natural rainfall absorbed by the crop. Lower totals indicate a more water-efficient fruit."
+            />
+          </p>
           <div className="flex flex-col gap-1 bg-surface-raised rounded-md px-3 py-2">
             <WaterRow label={t('blueWater')} value={env.blueWaterLkg} />
             <WaterRow label={t('greenWater')} value={env.greenWaterLkg} />
@@ -139,7 +146,13 @@ export function EnvironmentalPanel({ env }: { env: FruitEnvironmental }) {
 
         {/* Aquifer stress gauge */}
         <div>
-          <p className="text-xs text-ink/90 mb-1.5 font-medium">{t('aquiferStress')}</p>
+          <p className="text-xs text-ink/90 mb-1.5 font-medium flex items-center gap-1">
+            {t('aquiferStress')}
+            <InfoTooltip
+              title="Aquifer Stress"
+              body="Percentage of groundwater depletion pressure in this fruit's primary growing region. Above 70% means the aquifer is critically over-extracted — long-term irrigation is at risk."
+            />
+          </p>
           <div className="flex items-center gap-3">
             <AquiferGauge pct={env.aquiferStressPct} />
             <div className="flex flex-col gap-0.5">
@@ -148,11 +161,24 @@ export function EnvironmentalPanel({ env }: { env: FruitEnvironmental }) {
               </span>
               <span
                 className={[
-                  'badge border text-2xs',
+                  'badge border text-2xs flex items-center gap-1',
                   SUSTAINABILITY_STYLES[env.sustainabilityClass],
                 ].join(' ')}
               >
                 {t(`sustainability_${env.sustainabilityClass}`)}
+                <InfoTooltip
+                  title={{
+                    low:      'Low Water Impact',
+                    moderate: 'Moderate Water Impact',
+                    high:     'High Water Impact',
+                  }[env.sustainabilityClass]}
+                  body={{
+                    low:      'This fruit requires less than 500 L of water per kg of yield. It places minimal strain on local water resources and is considered environmentally sustainable.',
+                    moderate: 'This fruit requires 500–1500 L of water per kg of yield. Irrigation demand is notable but manageable with good water-management practices.',
+                    high:     'This fruit requires more than 1500 L of water per kg of yield. Production places heavy pressure on regional aquifers and should be managed carefully to avoid long-term depletion.',
+                  }[env.sustainabilityClass]}
+                  iconSize={10}
+                />
               </span>
             </div>
           </div>
@@ -161,7 +187,13 @@ export function EnvironmentalPanel({ env }: { env: FruitEnvironmental }) {
         {/* UV index */}
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <p className="text-xs text-ink/90 font-medium">{t('uvIndex')}</p>
+            <p className="text-xs text-ink/90 font-medium flex items-center gap-1">
+              {t('uvIndex')}
+              <InfoTooltip
+                title="UV Index During Harvest"
+                body="The World Health Organization scale: 1–2 Low, 3–5 Moderate, 6–7 High, 8–10 Very High, 11+ Extreme. High UV accelerates sugar development in fruit but can cause sunburn on thin-skinned varieties."
+              />
+            </p>
             <span className="font-mono text-xs text-ink-muted">
               {t('uvRange', { min: env.uvMin, max: env.uvMax })}
             </span>

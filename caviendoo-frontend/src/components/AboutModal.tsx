@@ -54,7 +54,7 @@ export function AboutModal({ open: controlledOpen, onClose }: AboutModalProps) {
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-border bg-surface">
           <div className="flex items-center gap-4">
-            <Image src="/caviendoo_logo_small.png" alt="Caviendoo" width={48} height={48} className="object-contain shrink-0" priority />
+            <Image src="/caviendoo_logo_small.png" alt="Caviendoo" width={48} height={48} className="object-contain shrink-0 animate-spin-globe" priority />
             <div>
               <h2 className="font-serif text-xl font-semibold text-ink leading-tight">
                 Caviendoo
