@@ -75,7 +75,30 @@ export default function ActivityLog() {
       ) : (
         <>
           <div className="bg-surface rounded-xl border border-border overflow-hidden">
-            <div className="overflow-x-auto">
+
+            {/* Mobile card list */}
+            <div className="sm:hidden divide-y divide-border">
+              {data?.data.length === 0 && (
+                <p className="px-4 py-8 text-center text-muted text-sm">No audit entries yet.</p>
+              )}
+              {data?.data.map((entry) => (
+                <div key={entry.id} className="px-4 py-3 space-y-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded font-mono ${ACTION_COLORS[entry.action] ?? 'text-muted'}`}>
+                      {entry.action}
+                    </span>
+                    <span className="text-muted text-xs font-mono whitespace-nowrap">
+                      {new Date(entry.createdAt).toLocaleString()}
+                    </span>
+                  </div>
+                  <p className="text-cream text-sm font-medium">{entry.entityName}</p>
+                  <p className="text-muted text-xs capitalize">{entry.entityType} · {entry.adminEmail}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop table */}
+            <div className="hidden sm:block overflow-x-auto">
               <table className="w-full text-sm min-w-[560px]">
                 <thead className="border-b border-border">
                   <tr className="text-muted text-xs uppercase tracking-wider">
@@ -112,6 +135,7 @@ export default function ActivityLog() {
                 </tbody>
               </table>
             </div>
+
           </div>
 
           {/* Pagination */}

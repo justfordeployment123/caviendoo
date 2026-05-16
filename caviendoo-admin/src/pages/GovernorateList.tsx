@@ -38,85 +38,100 @@ export default function GovernorateList() {
         <p className="text-muted">Loading…</p>
       ) : (
         <div className="bg-surface rounded-xl border border-border overflow-hidden">
-          <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[680px]">
-            <thead className="border-b border-border">
-              <tr className="text-muted text-xs uppercase tracking-wider">
-                <th className="px-4 py-3 text-left">Governorate</th>
-                <th className="px-4 py-3 text-left">Water Stress</th>
-                <th className="px-4 py-3 text-left">UV Peak</th>
-                <th className="px-4 py-3 text-left">Fruits</th>
-                <th className="px-4 py-3 text-left">Centroid</th>
-                <th className="px-4 py-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {data?.data.map((gov) => {
-                const sc = stressColor(gov.aquiferStressPct);
-                const uc = uvColor(gov.uvPeak);
-                return (
-                  <tr key={gov.id} className="hover:bg-ink/5 transition-colors">
-                    <td className="px-4 py-3">
+
+          {/* Mobile card list */}
+          <div className="sm:hidden divide-y divide-border">
+            {data?.data.map((gov) => {
+              const sc = stressColor(gov.aquiferStressPct);
+              const uc = uvColor(gov.uvPeak);
+              return (
+                <div key={gov.id} className="px-4 py-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <div>
                       <p className="text-cream font-medium">{gov.shapeName}</p>
                       <p className="text-muted text-xs font-mono">{gov.shapeISO}</p>
-                    </td>
-
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <div className="w-20 h-2 rounded-full bg-border overflow-hidden">
-                          <div
-                            className="h-full rounded-full transition-all"
-                            style={{ width: `${gov.aquiferStressPct}%`, backgroundColor: sc }}
-                          />
-                        </div>
-                        <div>
-                          <span className="text-xs font-mono font-medium" style={{ color: sc }}>
-                            {gov.aquiferStressPct}%
-                          </span>
-                          <p className="text-muted text-xs leading-none mt-0.5">
-                            {gov.waterLabel || stressLabel(gov.aquiferStressPct)}
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-1.5">
-                        <span
-                          className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                          style={{ backgroundColor: uc }}
-                        />
-                        <span className="font-mono font-medium text-cream">{gov.uvPeak}</span>
-                        <span className="text-muted text-xs">
-                          {gov.uvLabel || uvLabel(gov.uvPeak)}
-                        </span>
-                      </div>
-                    </td>
-
-                    <td className="px-4 py-3">
-                      <span className="text-cream font-mono">{gov.fruitCount ?? '—'}</span>
-                    </td>
-
-                    <td className="px-4 py-3 text-muted text-xs font-mono">
-                      {gov.centroidLat != null
-                        ? `${gov.centroidLat.toFixed(3)}, ${gov.centroidLng?.toFixed(3)}`
-                        : '—'}
-                    </td>
-
-                    <td className="px-4 py-3 text-right">
-                      <Link
-                        to={`/governorates/${gov.id}`}
-                        className="text-muted hover:text-cream text-xs transition-colors"
-                      >
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <span className="text-muted text-xs font-mono">{gov.fruitCount ?? 0} fruits</span>
+                      <Link to={`/governorates/${gov.id}`} className="text-muted hover:text-cream text-xs transition-colors">
                         Edit
                       </Link>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4 mt-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-16 h-1.5 rounded-full bg-border overflow-hidden">
+                        <div className="h-full rounded-full" style={{ width: `${gov.aquiferStressPct}%`, backgroundColor: sc }} />
+                      </div>
+                      <span className="text-xs font-mono" style={{ color: sc }}>{gov.aquiferStressPct}%</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: uc }} />
+                      <span className="text-xs font-mono text-cream">UV {gov.uvPeak}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
+
+          {/* Desktop table */}
+          <div className="hidden sm:block overflow-x-auto">
+            <table className="w-full text-sm min-w-[680px]">
+              <thead className="border-b border-border">
+                <tr className="text-muted text-xs uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left">Governorate</th>
+                  <th className="px-4 py-3 text-left">Water Stress</th>
+                  <th className="px-4 py-3 text-left">UV Peak</th>
+                  <th className="px-4 py-3 text-left">Fruits</th>
+                  <th className="px-4 py-3 text-left">Centroid</th>
+                  <th className="px-4 py-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {data?.data.map((gov) => {
+                  const sc = stressColor(gov.aquiferStressPct);
+                  const uc = uvColor(gov.uvPeak);
+                  return (
+                    <tr key={gov.id} className="hover:bg-ink/5 transition-colors">
+                      <td className="px-4 py-3">
+                        <p className="text-cream font-medium">{gov.shapeName}</p>
+                        <p className="text-muted text-xs font-mono">{gov.shapeISO}</p>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-20 h-2 rounded-full bg-border overflow-hidden">
+                            <div className="h-full rounded-full transition-all" style={{ width: `${gov.aquiferStressPct}%`, backgroundColor: sc }} />
+                          </div>
+                          <div>
+                            <span className="text-xs font-mono font-medium" style={{ color: sc }}>{gov.aquiferStressPct}%</span>
+                            <p className="text-muted text-xs leading-none mt-0.5">{gov.waterLabel || stressLabel(gov.aquiferStressPct)}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: uc }} />
+                          <span className="font-mono font-medium text-cream">{gov.uvPeak}</span>
+                          <span className="text-muted text-xs">{gov.uvLabel || uvLabel(gov.uvPeak)}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="text-cream font-mono">{gov.fruitCount ?? '—'}</span>
+                      </td>
+                      <td className="px-4 py-3 text-muted text-xs font-mono">
+                        {gov.centroidLat != null ? `${gov.centroidLat.toFixed(3)}, ${gov.centroidLng?.toFixed(3)}` : '—'}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <Link to={`/governorates/${gov.id}`} className="text-muted hover:text-cream text-xs transition-colors">Edit</Link>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
         </div>
       )}
     </div>

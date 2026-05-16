@@ -208,7 +208,7 @@ export function TopBar({ onAbout }: TopBarProps) {
       <div className="flex items-center px-2 sm:px-4 gap-2 sm:gap-3 h-14 sm:h-16 min-w-0">
 
         {/* Logo */}
-        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 min-w-0">
+        <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
           <Image
             src="/caviendoo_logo.png"
             alt="Caviendoo Logo"

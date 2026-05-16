@@ -373,7 +373,7 @@ export default function FruitEdit() {
           ) : (
             <Languages size={14} />
           )}
-          {translating ? 'Translating…' : 'Auto-translate from EN'}
+          <span className="hidden sm:inline">{translating ? 'Translating…' : 'Auto-translate from EN'}</span>
         </button>
       </div>
 
@@ -524,7 +524,7 @@ export default function FruitEdit() {
           <h2 className="text-muted text-xs uppercase tracking-wider font-medium mb-4">Season Calendar</h2>
           <div className="space-y-3">
             {(['Pre', 'Peak', 'Post'] as const).map((phase) => (
-              <div key={phase} className="flex items-center gap-4">
+              <div key={phase} className="flex items-start gap-4">
                 <span className="text-muted text-sm w-10">{phase}</span>
                 <Controller
                   name={`season${phase}` as 'seasonPre' | 'seasonPeak' | 'seasonPost'}
@@ -745,43 +745,59 @@ export default function FruitEdit() {
           {nutritionalFields.length === 0 ? (
             <p className="text-muted text-sm">No nutritional data. Click "+ Add Row" to add entries.</p>
           ) : (
-            <div className="overflow-x-auto">
-            <div className="space-y-2 min-w-[480px]">
-              <div className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] gap-2 mb-1">
-                {['Label EN', 'Label FR', 'Label AR', 'Value', ''].map((h, i) => (
-                  <span key={i} className="text-muted text-xs">{h}</span>
+            <>
+              {/* Mobile stacked layout */}
+              <div className="sm:hidden space-y-3">
+                {nutritionalFields.map((field, idx) => (
+                  <div key={field.id} className="border border-border rounded-lg p-3 space-y-2 bg-canvas/50">
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted text-xs font-medium">Row {idx + 1}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeNutritional(idx)}
+                        className="text-red-500/70 hover:text-red-600 text-sm px-1 transition-colors"
+                      >
+                        ×
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Field label="Label EN"><Input {...register(`nutritional.${idx}.labelEn`)} placeholder="Calories" /></Field>
+                      <Field label="Label FR"><Input {...register(`nutritional.${idx}.labelFr`)} placeholder="Calories" /></Field>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Field label="Label AR"><Input {...register(`nutritional.${idx}.labelAr`)} placeholder="سعرات" dir="rtl" /></Field>
+                      <Field label="Value"><Input {...register(`nutritional.${idx}.value`)} placeholder="72 kcal" /></Field>
+                    </div>
+                  </div>
                 ))}
               </div>
-              {nutritionalFields.map((field, idx) => (
-                <div key={field.id} className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] gap-2 items-start">
-                  <Input
-                    {...register(`nutritional.${idx}.labelEn`)}
-                    placeholder="Calories"
-                  />
-                  <Input
-                    {...register(`nutritional.${idx}.labelFr`)}
-                    placeholder="Calories"
-                  />
-                  <Input
-                    {...register(`nutritional.${idx}.labelAr`)}
-                    placeholder="سعرات"
-                    dir="rtl"
-                  />
-                  <Input
-                    {...register(`nutritional.${idx}.value`)}
-                    placeholder="72 kcal"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeNutritional(idx)}
-                    className="text-red-500/70 hover:text-red-600 text-sm px-2 py-1.5 transition-colors"
-                  >
-                    ×
-                  </button>
+
+              {/* Desktop 5-column grid */}
+              <div className="hidden sm:block overflow-x-auto">
+                <div className="space-y-2 min-w-[480px]">
+                  <div className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] gap-2 mb-1">
+                    {['Label EN', 'Label FR', 'Label AR', 'Value', ''].map((h, i) => (
+                      <span key={i} className="text-muted text-xs">{h}</span>
+                    ))}
+                  </div>
+                  {nutritionalFields.map((field, idx) => (
+                    <div key={field.id} className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] gap-2 items-start">
+                      <Input {...register(`nutritional.${idx}.labelEn`)} placeholder="Calories" />
+                      <Input {...register(`nutritional.${idx}.labelFr`)} placeholder="Calories" />
+                      <Input {...register(`nutritional.${idx}.labelAr`)} placeholder="سعرات" dir="rtl" />
+                      <Input {...register(`nutritional.${idx}.value`)} placeholder="72 kcal" />
+                      <button
+                        type="button"
+                        onClick={() => removeNutritional(idx)}
+                        className="text-red-500/70 hover:text-red-600 text-sm px-2 py-1.5 transition-colors"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-            </div>
+              </div>
+            </>
           )}
         </section>
 

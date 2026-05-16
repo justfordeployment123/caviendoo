@@ -114,7 +114,7 @@ export default function GovernorateEdit() {
   if (isLoading) return <div className="p-8 text-muted">Loading…</div>;
 
   return (
-    <div className="p-8 max-w-2xl">
+    <div className="p-4 sm:p-8 max-w-2xl">
       <h1 className="font-display text-cream text-2xl font-semibold mb-2">{gov?.shapeName}</h1>
       <p className="text-muted text-sm mb-6 font-mono">{gov?.shapeISO}</p>
 

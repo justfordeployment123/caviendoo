@@ -152,10 +152,10 @@ export function ComparisonPanel() {
 
       {/* ── Scrollable comparison table ──────────────────────────────── */}
       <div className="flex-1 overflow-auto scrollbar-dark">
-        <table className="w-full border-collapse" style={{ minWidth: count === 3 ? 640 : 480 }}>
+        <table className="w-full border-collapse" style={{ minWidth: count === 3 ? 520 : 360 }}>
           <thead>
             <tr className="sticky top-0 z-10 bg-surface border-b border-border">
-              <th className="w-[140px] min-w-[140px]" />
+              <th className="w-[100px] min-w-[100px] sm:w-[140px] sm:min-w-[140px]" />
               {fruits.map((fruit) => (
                 <ComparisonSlot
                   key={fruit.id}
