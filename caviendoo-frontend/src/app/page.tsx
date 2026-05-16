@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Globe, Leaf } from 'lucide-react';
+import { Globe } from 'lucide-react';
 import { TopBar } from '@/components/TopBar';
 import { TunisiaMap } from '@/components/map/TunisiaMap';
 import { WorldMap } from '@/components/map/WorldMap';
@@ -83,36 +83,18 @@ export default function Home() {
               Agricultural Intelligence
             </span>
           </div>
-          <div className="flex items-center gap-2">
-            <Globe size={14} className="text-gold" />
-            <span className="text-xs text-muted font-mono">Select a region to explore</span>
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <Globe size={14} className="text-gold shrink-0" />
+            <span className="text-2xs sm:text-xs text-muted font-mono">Select a region</span>
           </div>
         </header>
 
         {/* World map — takes all remaining height */}
         <main className="flex-1 min-h-0 relative">
-          <WorldMap onUnlockClick={enterAtlas} />
-
-          {/* Floating call-to-action card */}
-          <div className="absolute bottom-8 start-1/2 -translate-x-1/2 z-20 pointer-events-none">
-            <div className="bg-surface/85 backdrop-blur-md border border-gold/30 rounded-xl px-6 py-4 shadow-2xl text-center">
-              <p className="text-xs text-muted mb-1 tracking-wide uppercase">Available now</p>
-              <p className="font-serif text-lg text-gold font-semibold">Tunisia</p>
-              <p className="text-xs text-muted/70 mt-1">
-                {metrics.totalFruits} fruits · {metrics.totalGovernorates} governorates
-                {metrics.totalAOC > 0 && ` · ${metrics.totalAOC} AOC`}
-              </p>
-              <div className="flex items-center justify-center gap-1.5 mt-3 pointer-events-auto">
-                <button
-                  onClick={enterAtlas}
-                  className="flex items-center gap-2 bg-gold text-canvas font-semibold text-sm px-5 py-2 rounded-lg hover:bg-amber-400 transition-colors shadow-lg"
-                >
-                  <Leaf size={14} />
-                  Explore Tunisia Atlas
-                </button>
-              </div>
-            </div>
-          </div>
+          <WorldMap
+            onUnlockClick={enterAtlas}
+            metrics={{ totalFruits: metrics.totalFruits, totalGovernorates: metrics.totalGovernorates }}
+          />
         </main>
       </div>
     );
