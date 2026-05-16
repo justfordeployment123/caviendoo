@@ -50,10 +50,34 @@ const jetbrainsMono = JetBrains_Mono({
 
 // ── Metadata ──────────────────────────────────────────────────────────────
 
+const SITE_URL = 'https://caviendoo.com';
+
 export const metadata: Metadata = {
-  title: 'Caviendoo — Agricultural Intelligence Platform',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: 'Caviendoo — Agricultural Intelligence Platform',
+    template: '%s | Caviendoo',
+  },
   description:
-    'Geospatial fruit intelligence for Tunisia. Explore 73 crops across 24 regions with environmental and nutritional data.',
+    'Geospatial fruit intelligence for Tunisia. Explore 73 crops across 24 regions with water footprint, UV index, and nutritional data.',
+  keywords: ['Tunisia', 'agriculture', 'fruits', 'geospatial', 'food intelligence', 'crops', 'AOC'],
+  authors: [{ name: 'Caviendoo' }],
+  robots: { index: true, follow: true },
+  openGraph: {
+    type: 'website',
+    url: SITE_URL,
+    siteName: 'Caviendoo',
+    title: 'Caviendoo — Agricultural Intelligence Platform',
+    description:
+      'Explore 73 Tunisian crops mapped across 24 regions with water footprint, UV, and environmental data.',
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'Caviendoo Agricultural Intelligence' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Caviendoo — Agricultural Intelligence Platform',
+    description: 'Geospatial fruit intelligence for Tunisia.',
+    images: ['/og-image.png'],
+  },
 };
 
 // ── Root Layout ───────────────────────────────────────────────────────────

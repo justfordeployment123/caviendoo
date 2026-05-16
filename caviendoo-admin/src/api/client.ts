@@ -20,7 +20,9 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (err.response?.status === 401 && !err.config?.url?.endsWith('/login')) {
+    const url: string = err.config?.url ?? '';
+    const isAuthEndpoint = url.endsWith('/login') || url.includes('/settings');
+    if (err.response?.status === 401 && !isAuthEndpoint) {
       useAuthStore.getState().logout();
       window.location.href = '/login';
     }

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
+import { Download, Loader2 } from 'lucide-react';
 import { apiClient } from '../api/client';
 
 interface FruitSummary {
@@ -12,6 +13,7 @@ interface FruitSummary {
   isAOC:              boolean;
   isHeritage:         boolean;
   primaryGovernorate: string;
+  published:          boolean;
   images:             { cdnUrlThumb: string | null; isPrimary: boolean }[];
 }
 
@@ -22,13 +24,50 @@ interface FruitsResponse {
 
 const CATEGORIES = ['', 'citrus', 'stone', 'pomme', 'tropical', 'berry', 'dried', 'melon', 'other'];
 
+function buildAndDownloadCSV(fruits: FruitSummary[]) {
+  const headers = ['ID', 'Name (EN)', 'Name (FR)', 'Name (AR)', 'Category', 'Governorate', 'AOC', 'Heritage', 'Published'];
+  const rows = fruits.map((f) => [
+    f.id,
+    `"${f.nameEn.replace(/"/g, '""')}"`,
+    `"${f.nameFr.replace(/"/g, '""')}"`,
+    `"${f.nameAr.replace(/"/g, '""')}"`,
+    f.category,
+    f.primaryGovernorate,
+    f.isAOC ? 'Yes' : 'No',
+    f.isHeritage ? 'Yes' : 'No',
+    f.published ? 'Yes' : 'No',
+  ]);
+  // ﻿ BOM tells Excel this is UTF-8 so Arabic displays correctly
+  const csv = '﻿' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href  = url;
+  link.download = `caviendoo-fruits-${new Date().toISOString().slice(0, 10)}.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
 export default function FruitList() {
-  const [page,      setPage]      = useState(1);
-  const [search,    setSearch]    = useState('');
-  const [category,  setCategory]  = useState('');
-  const [isAOC,     setIsAOC]     = useState(false);
-  const [isHeritage, setIsHeritage] = useState(false);
+  const [page,        setPage]        = useState(1);
+  const [search,      setSearch]      = useState('');
+  const [category,    setCategory]    = useState('');
+  const [isAOC,       setIsAOC]       = useState(false);
+  const [isHeritage,  setIsHeritage]  = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const qc = useQueryClient();
+
+  const handleExportCSV = async () => {
+    setIsExporting(true);
+    try {
+      const { data: res } = await apiClient.get('/admin/fruits?limit=1000');
+      buildAndDownloadCSV(res.data ?? []);
+    } catch {
+      alert('Export failed — make sure the API is running.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   // Debounced search: only fire after user stops typing 300ms
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -63,6 +102,12 @@ export default function FruitList() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-fruits'] }),
   });
 
+  const publishMutation = useMutation({
+    mutationFn: ({ id, published }: { id: string; published: boolean }) =>
+      apiClient.patch(`/admin/fruits/${id}`, { published }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-fruits'] }),
+  });
+
   const refreshImageMutation = useMutation({
     mutationFn: (id: string) => apiClient.post(`/images/refresh/${id}`),
     onSuccess: (_data, id) => {
@@ -86,12 +131,23 @@ export default function FruitList() {
           <h1 className="font-display text-cream text-2xl font-semibold">Fruits</h1>
           <p className="text-muted text-sm mt-0.5">{data?.meta.total ?? 0} total</p>
         </div>
-        <Link
-          to="/fruits/new"
-          className="bg-gold hover:bg-gold/80 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
-        >
-          + Add Fruit
-        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleExportCSV}
+            disabled={isExporting}
+            className="flex items-center gap-1.5 text-muted hover:text-cream border border-border hover:border-gold/50 text-sm px-3 py-2 rounded-lg transition-colors disabled:opacity-40"
+            title="Export all fruits as CSV"
+          >
+            {isExporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+            <span className="hidden sm:inline">{isExporting ? 'Exporting…' : 'Export CSV'}</span>
+          </button>
+          <Link
+            to="/fruits/new"
+            className="bg-gold hover:bg-gold/80 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+          >
+            + Add Fruit
+          </Link>
+        </div>
       </div>
 
       {/* Filters */}
@@ -155,20 +211,21 @@ export default function FruitList() {
         <>
           <div className="bg-surface rounded-xl border border-border overflow-hidden">
             <div className="overflow-x-auto">
-            <table className="w-full text-sm min-w-[600px]">
+            <table className="w-full text-sm min-w-[640px]">
               <thead className="border-b border-border">
                 <tr className="text-muted text-xs uppercase tracking-wider">
                   <th className="px-4 py-3 text-left">Fruit</th>
                   <th className="px-4 py-3 text-left">Category</th>
                   <th className="px-4 py-3 text-left">Governorate</th>
                   <th className="px-4 py-3 text-left">Badges</th>
+                  <th className="px-4 py-3 text-center">Published</th>
                   <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {data?.data.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-muted text-sm">
+                    <td colSpan={6} className="px-4 py-8 text-center text-muted text-sm">
                       No fruits found{hasActiveFilters ? ' — try adjusting your filters' : ''}.
                     </td>
                   </tr>
@@ -176,7 +233,7 @@ export default function FruitList() {
                 {data?.data.map((fruit) => {
                   const thumb = fruit.images.find((i) => i.isPrimary)?.cdnUrlThumb ?? fruit.images[0]?.cdnUrlThumb;
                   return (
-                    <tr key={fruit.id} className="hover:bg-ink/5 transition-colors">
+                    <tr key={fruit.id} className={`hover:bg-ink/5 transition-colors ${!fruit.published ? 'opacity-50' : ''}`}>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           {thumb ? (
@@ -187,7 +244,6 @@ export default function FruitList() {
                           <div>
                             <p className="text-cream font-medium">{fruit.nameEn}</p>
                             <p className="text-muted text-xs">{fruit.nameFr}</p>
-                            <p className="text-muted text-xs" dir="rtl">{fruit.nameAr}</p>
                           </div>
                         </div>
                       </td>
@@ -198,6 +254,22 @@ export default function FruitList() {
                           {fruit.isAOC     && <span className="bg-gold/15 text-gold text-xs px-1.5 py-0.5 rounded font-medium">AOC</span>}
                           {fruit.isHeritage && <span className="bg-purple-100 text-purple-700 text-xs px-1.5 py-0.5 rounded font-medium">Heritage</span>}
                         </div>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <button
+                          onClick={() => publishMutation.mutate({ id: fruit.id, published: !fruit.published })}
+                          disabled={publishMutation.isPending}
+                          title={fruit.published ? 'Click to unpublish' : 'Click to publish'}
+                          className={`relative inline-flex items-center w-10 h-6 rounded-full transition-colors duration-200 focus:outline-none disabled:opacity-40 ${
+                            fruit.published ? 'bg-green-500' : 'bg-zinc-600'
+                          }`}
+                        >
+                          <span
+                            className={`inline-block w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 ${
+                              fruit.published ? 'translate-x-5' : 'translate-x-1'
+                            }`}
+                          />
+                        </button>
                       </td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex items-center justify-end gap-3">

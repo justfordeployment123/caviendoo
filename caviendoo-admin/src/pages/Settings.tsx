@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { Eye, EyeOff } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { apiClient } from '../api/client';
 import { useAuthStore } from '../store/auth';
 
@@ -37,14 +39,42 @@ function Field({ label, error, children }: { label: string; error?: string; chil
   );
 }
 
-function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
-  return (
+const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
+  (props, ref) => (
     <input
+      ref={ref}
       {...props}
       className="w-full bg-canvas border border-border rounded-lg px-3 py-1.5 text-cream text-sm focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/20"
     />
+  ),
+);
+
+const PasswordInput = React.forwardRef<
+  HTMLInputElement,
+  { label: string; error?: string } & React.InputHTMLAttributes<HTMLInputElement>
+>(({ label, error, ...props }, ref) => {
+  const [show, setShow] = useState(false);
+  return (
+    <Field label={label} error={error}>
+      <div className="relative">
+        <input
+          ref={ref}
+          {...props}
+          type={show ? 'text' : 'password'}
+          className="w-full bg-canvas border border-border rounded-lg px-3 py-1.5 pr-9 text-cream text-sm focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/20"
+        />
+        <button
+          type="button"
+          onClick={() => setShow((s) => !s)}
+          className="absolute inset-y-0 right-2.5 flex items-center text-muted hover:text-cream transition-colors"
+          tabIndex={-1}
+        >
+          {show ? <EyeOff size={14} /> : <Eye size={14} />}
+        </button>
+      </div>
+    </Field>
   );
-}
+});
 
 function StatusMsg({ ok, msg }: { ok: boolean; msg: string }) {
   return (
@@ -55,7 +85,8 @@ function StatusMsg({ ok, msg }: { ok: boolean; msg: string }) {
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function Settings() {
-  const { admin, setAuth, token, expiresAt } = useAuthStore();
+  const { admin, setAuth, token, expiresAt, logout } = useAuthStore();
+  const navigate = useNavigate();
 
   const [profileStatus, setProfileStatus] = useState<{ ok: boolean; msg: string } | null>(null);
   const [passwordStatus, setPasswordStatus] = useState<{ ok: boolean; msg: string } | null>(null);
@@ -74,7 +105,6 @@ export default function Settings() {
     setProfileStatus(null);
     try {
       const { data } = await apiClient.patch('/admin/settings/profile', values);
-      // Update the auth store so the sidebar email refreshes
       if (token && expiresAt) {
         setAuth(token, expiresAt, data.admin);
       }
@@ -88,7 +118,6 @@ export default function Settings() {
   const {
     register: regW,
     handleSubmit: handleW,
-    reset: resetW,
     formState: { errors: errW, isSubmitting: submittingW },
   } = useForm<PasswordForm>({ resolver: zodResolver(passwordSchema) });
 
@@ -99,8 +128,11 @@ export default function Settings() {
         currentPassword: values.currentPassword,
         newPassword:     values.newPassword,
       });
-      setPasswordStatus({ ok: true, msg: 'Password changed.' });
-      resetW();
+      setPasswordStatus({ ok: true, msg: 'Password changed. Signing you out…' });
+      setTimeout(() => {
+        logout();
+        navigate('/login');
+      }, 1500);
     } catch (err: any) {
       setPasswordStatus({ ok: false, msg: err?.response?.data?.error ?? 'Update failed.' });
     }
@@ -121,9 +153,12 @@ export default function Settings() {
           <Field label="Email" error={errP.email?.message}>
             <Input {...regP('email')} type="email" />
           </Field>
-          <Field label="Current password (required to save)" error={errP.currentPassword?.message}>
-            <Input {...regP('currentPassword')} type="password" autoComplete="current-password" />
-          </Field>
+          <PasswordInput
+            label="Current password (required to save)"
+            error={errP.currentPassword?.message}
+            {...regP('currentPassword')}
+            autoComplete="current-password"
+          />
 
           {profileStatus && <StatusMsg {...profileStatus} />}
 
@@ -142,15 +177,24 @@ export default function Settings() {
         <h2 className="text-muted text-xs uppercase tracking-wider font-medium">Change password</h2>
 
         <form onSubmit={handleW(submitPassword)} className="space-y-4">
-          <Field label="Current password" error={errW.currentPassword?.message}>
-            <Input {...regW('currentPassword')} type="password" autoComplete="current-password" />
-          </Field>
-          <Field label="New password (min. 10 characters)" error={errW.newPassword?.message}>
-            <Input {...regW('newPassword')} type="password" autoComplete="new-password" />
-          </Field>
-          <Field label="Confirm new password" error={errW.confirmPassword?.message}>
-            <Input {...regW('confirmPassword')} type="password" autoComplete="new-password" />
-          </Field>
+          <PasswordInput
+            label="Current password"
+            error={errW.currentPassword?.message}
+            {...regW('currentPassword')}
+            autoComplete="current-password"
+          />
+          <PasswordInput
+            label="New password (min. 10 characters)"
+            error={errW.newPassword?.message}
+            {...regW('newPassword')}
+            autoComplete="new-password"
+          />
+          <PasswordInput
+            label="Confirm new password"
+            error={errW.confirmPassword?.message}
+            {...regW('confirmPassword')}
+            autoComplete="new-password"
+          />
 
           {passwordStatus && <StatusMsg {...passwordStatus} />}
 

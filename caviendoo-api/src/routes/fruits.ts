@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { prisma } from '../config/db';
 import { validate } from '../middleware/validate';
+import { cache } from '../middleware/cache';
 import { FruitQuerySchema, FruitParamSchema } from '../schemas/fruitSchemas';
 import { mapFruitToResponse } from '../utils/fruitMapper';
 import { buildMeta, buildSkip } from '../utils/paginate';
@@ -9,11 +10,12 @@ import { HttpError } from '../utils/httpError';
 const router = Router();
 
 // GET /api/v1/fruits
-router.get('/', validate({ query: FruitQuerySchema }), async (req, res, next) => {
+router.get('/', cache(300), validate({ query: FruitQuerySchema }), async (req, res, next) => {
   try {
     const { category, aocOnly, heritageOnly, governorate, page, limit } = req.query as any;
 
     const where = {
+      published: true,
       ...(category     && { category }),
       ...(aocOnly      && { isAOC: true }),
       ...(heritageOnly && { isHeritage: true }),
@@ -55,10 +57,10 @@ router.get('/', validate({ query: FruitQuerySchema }), async (req, res, next) =>
 });
 
 // GET /api/v1/fruits/:id
-router.get('/:id', validate({ params: FruitParamSchema }), async (req, res, next) => {
+router.get('/:id', cache(600), validate({ params: FruitParamSchema }), async (req, res, next) => {
   try {
     const fruit = await prisma.fruit.findUnique({
-      where: { id: req.params['id'] },
+      where: { id: req.params['id'], published: true },
       include: {
         environmental: { include: { region: { select: { shapeName: true } } } },
         nutritional:   { orderBy: { sortOrder: 'asc' } },

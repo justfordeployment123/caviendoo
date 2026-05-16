@@ -13,6 +13,7 @@ export const FruitCreateSchema = FruitCoreSchema.extend({
 });
 
 export const FruitUpdateSchema = FruitCoreSchema.partial().omit({ id: true }).extend({
+  published:        z.boolean().optional(),
   environmental:   EnvironmentalSchema.partial().optional(),
   nutritional:     z.array(NutritionalFieldSchema).optional(),
   governorateNames: z.array(z.string()).optional(),

@@ -22,6 +22,8 @@ import adminFruitsRouter         from './routes/admin/fruits';
 import adminGovsRouter           from './routes/admin/governorates';
 import adminTranslateRouter      from './routes/admin/translate';
 import adminSettingsRouter       from './routes/admin/settings';
+import adminHealthRouter         from './routes/admin/health';
+import adminAuditLogsRouter      from './routes/admin/auditLogs';
 import comparableRegionsRouter   from './routes/comparableRegions';
 
 const app = express();
@@ -82,7 +84,9 @@ app.use('/api/v1/admin',              adminAuthRouter);
 app.use('/api/v1/admin/fruits',       adminFruitsRouter);
 app.use('/api/v1/admin/governorates', adminGovsRouter);
 app.use('/api/v1/admin/translate',    adminTranslateRouter);
-app.use('/api/v1/admin/settings',    adminSettingsRouter);
+app.use('/api/v1/admin/settings',     adminSettingsRouter);
+app.use('/api/v1/admin/health',       adminHealthRouter);
+app.use('/api/v1/admin/audit-logs',   adminAuditLogsRouter);
 
 // ── 404 handler ───────────────────────────────────────────────────────────────
 app.use((_req, res) => {

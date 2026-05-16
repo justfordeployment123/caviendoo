@@ -9,6 +9,24 @@ import { getFruits, getMetrics } from '@/services/dataService';
 import { useAtlasStore } from '@/store';
 import type { Fruit, SiteMetrics } from '@/types';
 
+// ── Loading skeleton ────────────────────────────────────────────────────────
+
+function FruitListSkeleton() {
+  return (
+    <div className="flex-1 overflow-hidden" aria-hidden>
+      {Array.from({ length: 12 }).map((_, i) => (
+        <div key={i} className="flex items-center gap-3 px-3 py-2.5 border-b border-border-parchment/50">
+          <div className="w-8 h-8 rounded-md bg-ink/8 animate-pulse shrink-0" />
+          <div className="flex-1 space-y-1.5">
+            <div className="h-3 rounded bg-ink/8 animate-pulse w-3/4" />
+            <div className="h-2.5 rounded bg-ink/8 animate-pulse w-1/2" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ── Metrics header ─────────────────────────────────────────────────────────
 
 function MetricsHeader({ metrics }: { metrics: SiteMetrics }) {
@@ -93,6 +111,7 @@ function EmptyState() {
 export function Sidebar() {
   const t = useTranslations('sidebar');
   const [allFruits, setAllFruits] = useState<Fruit[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [metrics, setMetrics] = useState<SiteMetrics>({
     totalFruits: 73,
     totalGovernorates: 24,
@@ -135,11 +154,9 @@ export function Sidebar() {
   // Load all fruits + metrics once
   useEffect(() => {
     getFruits()
-      .then(setAllFruits)
-      .catch(() => {
-        // Silently fail — empty list shown, no crash
-        setAllFruits([]);
-      });
+      .then((fruits) => setAllFruits(Array.isArray(fruits) ? fruits : []))
+      .catch(() => { setAllFruits([]); })
+      .finally(() => setIsLoading(false));
     getMetrics()
       .then(setMetrics)
       .catch(() => {/* Keep default metrics */});
@@ -152,7 +169,7 @@ export function Sidebar() {
 
   // Client-side filtering + sorting (instant, no async)
   const filteredFruits = useMemo(() => {
-    let result = allFruits;
+    let result: Fruit[] = Array.isArray(allFruits) ? allFruits : [];
 
     if (activeCategory) {
       result = result.filter((f) => f.category === activeCategory);
@@ -207,27 +224,31 @@ export function Sidebar() {
       )}
 
       {/* Fruit list */}
-      <div
-        ref={listRef}
-        className="flex-1 overflow-y-auto scrollbar-parchment"
-      >
-        {filteredFruits.length === 0 ? (
-          <EmptyState />
-        ) : (
-          filteredFruits.map((fruit) => (
-            <FruitListItem
-              key={fruit.id}
-              fruit={fruit}
-              locale={locale}
-              isSelected={selectedFruitId === fruit.id}
-              onSelect={handleSelectFruit}
-              isInComparison={comparedFruitIds.includes(fruit.id)}
-              comparisonFull={comparedFruitIds.length >= 3}
-              onToggleCompare={handleToggleCompare}
-            />
-          ))
-        )}
-      </div>
+      {isLoading ? (
+        <FruitListSkeleton />
+      ) : (
+        <div
+          ref={listRef}
+          className="flex-1 overflow-y-auto scrollbar-parchment"
+        >
+          {filteredFruits.length === 0 ? (
+            <EmptyState />
+          ) : (
+            filteredFruits.map((fruit) => (
+              <FruitListItem
+                key={fruit.id}
+                fruit={fruit}
+                locale={locale}
+                isSelected={selectedFruitId === fruit.id}
+                onSelect={handleSelectFruit}
+                isInComparison={comparedFruitIds.includes(fruit.id)}
+                comparisonFull={comparedFruitIds.length >= 3}
+                onToggleCompare={handleToggleCompare}
+              />
+            ))
+          )}
+        </div>
+      )}
 
       {/* Filtered count footer */}
       {filteredFruits.length > 0 && (

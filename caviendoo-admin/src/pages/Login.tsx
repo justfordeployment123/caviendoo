@@ -28,10 +28,8 @@ export default function Login() {
       setAuth(data.token, data.expiresAt, data.admin);
       navigate('/dashboard');
     } catch (err: unknown) {
-      const msg =
-        err instanceof Error
-          ? err.message
-          : (err as { response?: { data?: { error?: string } } }).response?.data?.error ?? 'Login failed';
+      const axiosErr = err as { response?: { data?: { error?: string } }; message?: string };
+      const msg = axiosErr?.response?.data?.error ?? axiosErr?.message ?? 'Login failed';
       setServerError(typeof msg === 'string' ? msg : 'Login failed');
     }
   }

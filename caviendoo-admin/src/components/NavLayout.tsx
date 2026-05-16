@@ -93,10 +93,10 @@ export default function NavLayout({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <div className="min-h-screen flex bg-canvas">
+    <div className="h-screen flex bg-canvas overflow-hidden">
 
       {/* ── Desktop sidebar ────────────────────────────────────────────── */}
-      <aside className="hidden md:flex w-56 bg-surface border-r border-border flex-col shrink-0">
+      <aside className="hidden md:flex w-56 bg-surface border-r border-border flex-col shrink-0 h-full">
         {sidebarContent}
       </aside>
 
@@ -119,7 +119,7 @@ export default function NavLayout({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* ── Main content column ─────────────────────────────────────────── */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
 
         {/* Mobile top bar */}
         <header className="md:hidden flex items-center gap-3 px-4 h-14 border-b border-border bg-surface shrink-0">

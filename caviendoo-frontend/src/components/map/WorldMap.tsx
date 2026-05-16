@@ -392,9 +392,9 @@ export function WorldMap({ onUnlockClick, metrics }: WorldMapProps) {
         className={[
           'absolute z-30 shadow-2xl',
           'transition-transform duration-300 ease-out',
-          // Desktop
-          'sm:top-0 sm:end-0 sm:h-full sm:w-72 sm:rounded-none',
-          // Mobile
+          // Desktop: wider panel
+          'sm:top-0 sm:end-0 sm:h-full sm:w-96 sm:rounded-none',
+          // Mobile: full width, taller sheet
           'max-sm:bottom-0 max-sm:inset-x-0 max-sm:rounded-t-2xl',
           // Visibility
           panelOpen
@@ -412,7 +412,7 @@ export function WorldMap({ onUnlockClick, metrics }: WorldMapProps) {
           <div className="w-8 h-1 rounded-full" style={{ background: '#C8E08A' }} />
         </div>
 
-        <div className="flex flex-col h-full max-sm:max-h-[65vh]">
+        <div className="flex flex-col h-full max-sm:max-h-[80vh]">
 
           {/* Header */}
           <div

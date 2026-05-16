@@ -142,6 +142,9 @@ model Fruit {
   carbonFootprintKgCo2 Float?  // kg CO₂e per kg of fruit
   postHarvestLossPct   Float?  // % of harvest lost pre-sale
 
+  // ── Visibility ────────────────────────────────────────────────────────────
+  published Boolean @default(true)
+
   environmental FruitEnvironmental[]
   nutritional   NutritionalField[]
   images        FruitImage[]
@@ -154,6 +157,7 @@ model Fruit {
   @@index([isAOC])
   @@index([isHeritage])
   @@index([primaryGovernorate])
+  @@index([published])
   @@map("fruits")
 }
 
@@ -291,4 +295,23 @@ model AdminUser {
   updatedAt    DateTime  @updatedAt
 
   @@map("admin_users")
+}
+
+// ─── Audit log ────────────────────────────────────────────────────────────────
+// Written on every admin CREATE / UPDATE / DELETE so changes are traceable.
+
+model AuditLog {
+  id          Int      @id @default(autoincrement())
+  action      String   // CREATE | UPDATE | DELETE
+  entityType  String   // fruit | governorate
+  entityId    String
+  entityName  String
+  adminEmail  String
+  changes     Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([createdAt(sort: Desc)])
+  @@map("audit_logs")
 }
