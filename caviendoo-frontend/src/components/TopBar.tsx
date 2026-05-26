@@ -214,7 +214,7 @@ export function TopBar({ onAbout }: TopBarProps) {
             alt="Caviendoo Logo"
             width={60}
             height={60}
-            className="object-contain w-8 h-8 sm:w-10 sm:h-10 shrink-0 animate-spin-globe"
+            className="object-contain w-8 h-8 sm:w-10 sm:h-10 shrink-0"
             priority
           />
           <span className="block font-serif text-sm sm:text-xl font-semibold text-ink tracking-widest uppercase leading-none pb-0.5 truncate">

@@ -12,6 +12,7 @@ import { ComparisonPanel } from '@/components/comparison/ComparisonPanel';
 import { MobileBottomBar } from '@/components/MobileBottomBar';
 import { MobileSidebarDrawer } from '@/components/MobileSidebarDrawer';
 import { AboutModal } from '@/components/AboutModal';
+import { WelcomeModal } from '@/components/WelcomeModal';
 import { getMetrics } from '@/services/dataService';
 import type { SiteMetrics } from '@/types';
 
@@ -21,6 +22,7 @@ export default function Home() {
   const [viewMode, setViewMode]               = useState<ViewMode>('world');
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [aboutOpen, setAboutOpen]             = useState(false);
+  const [welcomeOpen, setWelcomeOpen]         = useState(false);
   const [transitioning, setTransitioning]     = useState(false);
   const [mounted, setMounted]                 = useState(false);
   const [metrics, setMetrics] = useState<SiteMetrics>({
@@ -44,6 +46,9 @@ export default function Home() {
       setViewMode('atlas');
       localStorage.setItem('caviendoo_view_mode', 'atlas');
       setTransitioning(false);
+      if (!localStorage.getItem('caviendoo_welcomed')) {
+        setWelcomeOpen(true);
+      }
     }, 350);
   };
 
@@ -153,6 +158,16 @@ export default function Home() {
         open={aboutOpen || undefined}
         onClose={() => setAboutOpen(false)}
       />
+
+      {/* ── Welcome modal (first atlas visit only) ────────────────────── */}
+      {welcomeOpen && (
+        <WelcomeModal
+          onClose={() => {
+            setWelcomeOpen(false);
+            localStorage.setItem('caviendoo_welcomed', '1');
+          }}
+        />
+      )}
     </div>
   );
 }

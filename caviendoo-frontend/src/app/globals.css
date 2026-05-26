@@ -216,3 +216,7 @@ main {
 .animate-spin-globe {
   animation: spin-globe 12s linear infinite;
 }
+
+.animate-spin-once {
+  animation: spin-globe 2.2s cubic-bezier(0.4, 0, 0.2, 1) 1 forwards;
+}
